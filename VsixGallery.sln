@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30125.33
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VsixGallery", "VsixGallery\VsixGallery.csproj", "{5D4F210C-AF28-4B75-89FB-24E1126C9A88}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VsixGallery", "src\VsixGallery.csproj", "{5D4F210C-AF28-4B75-89FB-24E1126C9A88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
