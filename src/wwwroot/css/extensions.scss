@@ -3,6 +3,14 @@ article {
     .icon {
         float: left;
     }
+    
+    #download{
+        border-radius: 5px;
+        background: dodgerblue;
+        color: white;
+        padding: 5px 8px;
+        text-decoration: none;
+    }
 }
 
 #details {
@@ -27,7 +35,7 @@ article {
         grid-column-start: 2;
 
         &:first-letter{
-            text-transform: capitalize;
+            text-transform: capitalize
         }
     }
 }

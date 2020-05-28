@@ -6,10 +6,11 @@
 
 <article>
     <h1>@Model.Package.Name</h1>
-
     <img class="icon" src="~/extensions/@Model.Package.ID/@Model.Package.Icon" alt="@Model.Package.Name" />
+
     <div id="details">
         <p>@Model.Package.Description</p>
+        <a id="download" href="~/extensions/@Model.Package.ID/@("v" + Model.Package.Version).vsix">🡇 Download</a>
 
         <dl>
             <dt>Author</dt>
