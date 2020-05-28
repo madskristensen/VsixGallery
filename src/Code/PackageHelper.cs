@@ -51,11 +51,29 @@ namespace VsixGallery
 				{
 					string content = File.ReadAllText(json);
 					Package package = JsonConvert.DeserializeObject(content, typeof(Package)) as Package;
+					Sanitize(package);
 					packages.Add(package);
 				}
 			}
 
 			return packages.OrderByDescending(p => p.DatePublished).ToList();
+		}
+
+		private void Sanitize(Package package)
+		{
+			if (string.IsNullOrWhiteSpace(package.Icon))
+			{
+				package.Icon = "~/img/defaulticon.svg";
+			}
+			else
+			{
+				package.Icon = $"~/extensions/{package.ID}/{package.Icon}";
+			}
+
+			if (!string.IsNullOrWhiteSpace(package.Repo) && !package.Repo.Contains("://"))
+			{
+				package.Repo = "https://" + package.Repo;
+			}
 		}
 
 		public Package GetPackage(string id)

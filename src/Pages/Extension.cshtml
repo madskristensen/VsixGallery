@@ -5,39 +5,42 @@
 <link href="~/css/extensions.scss" inline />
 
 <article>
-    <h1>@Model.Package.Name</h1>
-    <img class="icon" src="~/extensions/@Model.Package.ID/@Model.Package.Icon" alt="@Model.Package.Name" />
+    <h1>
+        @Model.Package.Name
+        <a href="~/feed/" class="feed shadow" title="ATOM feed for this extension only">Gallery feed (extension)</a>
+    </h1>
+    <img class="icon" src="@Model.Package.Icon" asp-append-version="true" alt="@Model.Package.Name" />
 
-    <div id="details">
-        <p>@Model.Package.Description</p>
-        <a id="download" href="~/extensions/@Model.Package.ID/@("v" + Model.Package.Version).vsix">🡇 Download</a>
+<div id="details">
+    <p>@Model.Package.Description</p>
+    <a class="download shadow" href="~/extensions/@Model.Package.ID/@("v" + Model.Package.Version).vsix">🡇 Download</a>
 
-        <dl>
-            <dt>Author</dt>
-            <dd><a href="~/author/@Model.Package.Author">@Model.Package.Author</a></dd>
+    <dl>
+        <dt>Author</dt>
+        <dd><a href="~/author/@Model.Package.Author">@Model.Package.Author</a></dd>
 
-            <dt>Version</dt>
-            <dd>@Model.Package.Version</dd>
+        <dt>Version</dt>
+        <dd>@Model.Package.Version</dd>
 
-            <dt>Updated</dt>
-            <dd title="@Model.Package.DatePublished.ToUniversalTime()">@Model.Package.DatePublished.FromNow()</dd>
-        </dl>
+        <dt>Updated</dt>
+        <dd title="@Model.Package.DatePublished.ToUniversalTime()">@Model.Package.DatePublished.FromNow()</dd>
+    </dl>
 
-        <ul>
-            <li><a href="@Model.Package.MoreInfoUrl">⌂ Website</a></li>
+    <ul>
+        <li><a href="@Model.Package.MoreInfoUrl">⌂ Website</a></li>
 
-            @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
-            {
-                <li><a href="@Model.Package.Repo">🖉 Source code</a></li>
-                <li><a href="@((Model.Package.Repo + "/issues/").Replace("//", "/"))">✓ Issue tracker</a></li>
-            }
-        </ul>
-    </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
+        {
+            <li><a href="@Model.Package.Repo">🖉 Source code</a></li>
+            <li><a href="@((Model.Package.Repo + "/issues/").Replace("//", "/"))">✓ Issue tracker</a></li>
+        }
+    </ul>
+</div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
-    {
-        <p id="readme">Loading...</p>
-    }
+@if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
+{
+    <p id="readme">Loading...</p>
+}
 </article>
 
 @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))

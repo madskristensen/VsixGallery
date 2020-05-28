@@ -27,7 +27,7 @@ namespace VsixGallery
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddRazorPages();
-			services.AddMvc();
+			services.AddMvc(options => options.EnableEndpointRouting = false);
 
 			services.AddWebOptimizer(pipeline =>
 				pipeline.CompileScssFiles()
@@ -63,6 +63,7 @@ namespace VsixGallery
 			});
 
 			app.UseRouting();
+			app.UseMvcWithDefaultRoute();
 
 			app.UseAuthorization();
 

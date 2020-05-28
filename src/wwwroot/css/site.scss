@@ -24,6 +24,11 @@ header {
         float: right;
         margin-top: 2px;
 
+        label {
+            position: absolute;
+            left: -200px;
+        }
+
         input[type=search] {
             padding: 7px 12px;
             border: none;
@@ -96,11 +101,25 @@ main {
 
 a {
     text-decoration: none;
-    color: rgb(0, 120, 215);
+    color: #1e6ab4;
 
     &:hover {
         text-decoration: underline;
     }
+}
+
+.feed {
+    float: right;
+    padding: 4px 5px 4px 30px;
+    background: url("/img/vs.svg") lighten($light-backdrop, 12%) no-repeat 8px 9px;
+    font-size: initial;
+    font-weight: normal;
+    border-radius: 5px;
+    border: 1px solid silver;
+}
+
+.shadow {
+    box-shadow: 6px 8px 6px -6px $light-backdrop;
 }
 
 #paging {

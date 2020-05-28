@@ -1,7 +1,10 @@
 ﻿@page
 @model IndexModel
 
-<h1>All extensions</h1>
+<h1>
+    All extensions 
+    <a href="~/feed/" class="feed shadow" title="ATOM feed for all extensions">Gallery feed</a>
+</h1>
 
 @await Html.PartialAsync("_ExtensionList", Model.Packages)
 

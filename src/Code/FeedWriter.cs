@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -84,6 +85,16 @@ namespace VsixGallery
 
 			writer.WriteStartElement("References");
 			writer.WriteEndElement();
+
+			writer.WriteRaw("\r\n<Rating xsi:nil=\"true\" />");
+			writer.WriteRaw("\r\n<RatingCount xsi:nil=\"true\" />");
+			writer.WriteRaw("\r\n<DownloadCount xsi:nil=\"true\" />\r\n");
+
+			if (package.ExtensionList?.Extensions != null)
+			{
+				string ids = string.Join(";", package.ExtensionList.Extensions.Select(e => e.VsixId));
+				writer.WriteElementString("PackedExtensionIDs", ids);
+			}
 
 			writer.WriteRaw("</Vsix>");// Vsix
 			writer.WriteEndElement(); // entry

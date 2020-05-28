@@ -4,9 +4,9 @@
 <div class="extgrid">
     @foreach (var package in Model)
     {
-        <figure>
+        <figure class="shadow">
             <a href="~/extension/@package.ID" title="@package.Description">
-                <img class="icon" src="~/extensions/@package.ID/@package.Icon" alt="@package.Name" />
+                <img class="icon" src="@package.Icon" asp-append-version="true" alt="@package.Name" />
                 <figcaption>@package.Name</figcaption>
             </a>
             <p class="version">

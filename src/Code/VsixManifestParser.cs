@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -16,15 +19,19 @@ namespace VsixGallery
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml(xml);
 
-			Package package = new Package();
+			Package package = new Package
+			{
+				Repo = repo,
+				IssueTracker = issuetracker
+			};
 
 			if (doc.GetElementsByTagName("DisplayName").Count > 0)
 			{
-				Vs2012Format(repo, issuetracker, doc, package);
+				Vs2012Format(doc, package);
 			}
 			else
 			{
-				Vs2010Format(repo, issuetracker, doc, package);
+				Vs2010Format(doc, package);
 			}
 
 			string license = ParseNode(doc, "License", false);
@@ -37,10 +44,29 @@ namespace VsixGallery
 				}
 			}
 
+			AddExtensionList(package, tempFolder);
+
 			return package;
 		}
 
-		private void Vs2012Format(string repo, string issuetracker, XmlDocument doc, Package package)
+		private void AddExtensionList(Package package, string tempFolder)
+		{
+			string vsext = Directory.EnumerateFiles(tempFolder, "*.vsext", SearchOption.AllDirectories).FirstOrDefault();
+
+			if (!string.IsNullOrEmpty(vsext))
+			{
+				string json = File.ReadAllText(vsext);
+
+				using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+				{
+					DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ExtensionList));
+					ExtensionList list = (ExtensionList)serializer.ReadObject(ms);
+					package.ExtensionList = list;
+				}
+			}
+		}
+
+		private void Vs2012Format(XmlDocument doc, Package package)
 		{
 			package.ID = ParseNode(doc, "Identity", true, "Id");
 			package.Name = ParseNode(doc, "DisplayName", true);
@@ -54,11 +80,9 @@ namespace VsixGallery
 			package.ReleaseNotesUrl = ParseNode(doc, "ReleaseNotes", false);
 			package.GettingStartedUrl = ParseNode(doc, "GettingStartedGuide", false);
 			package.MoreInfoUrl = ParseNode(doc, "MoreInfo", false);
-			package.Repo = repo;
-			package.IssueTracker = issuetracker;
 		}
 
-		private void Vs2010Format(string repo, string issuetracker, XmlDocument doc, Package package)
+		private void Vs2010Format(XmlDocument doc, Package package)
 		{
 			package.ID = ParseNode(doc, "Identifier", true, "Id");
 			package.Name = ParseNode(doc, "Name", true);
@@ -71,8 +95,6 @@ namespace VsixGallery
 			package.ReleaseNotesUrl = ParseNode(doc, "ReleaseNotes", false);
 			package.GettingStartedUrl = ParseNode(doc, "GettingStartedGuide", false);
 			package.MoreInfoUrl = ParseNode(doc, "MoreInfo", false);
-			package.Repo = repo;
-			package.IssueTracker = issuetracker;
 		}
 
 		private static IEnumerable<string> GetSupportedVersions(XmlDocument doc)
@@ -80,7 +102,9 @@ namespace VsixGallery
 			XmlNodeList list = doc.GetElementsByTagName("InstallationTarget");
 
 			if (list.Count == 0)
-				list = doc.GetElementsByTagName("<VisualStudio");
+			{
+				list = doc.GetElementsByTagName("VisualStudio");
+			}
 
 			List<string> versions = new List<string>();
 
@@ -110,12 +134,16 @@ namespace VsixGallery
 				XmlNode node = list[0];
 
 				if (string.IsNullOrEmpty(attribute))
+				{
 					return node.InnerText;
+				}
 
 				XmlAttribute attr = node.Attributes[attribute];
 
 				if (attr != null)
+				{
 					return attr.Value;
+				}
 			}
 
 			if (required)

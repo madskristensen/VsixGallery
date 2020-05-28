@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Open VSIX Gallery</title>
+    <meta name="description" content="An alternative Visual Studio extension gallery for nightly builds." />
     <link rel="stylesheet" href="~/css/site.scss" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="~/img/icon-180x180.png">
@@ -16,7 +17,8 @@
         <div class="container">
             <a href="/">Open VSIX Gallery</a>
             <form action="~/search/" method="get">
-                <input type="search" name="q" placeholder="Search..." required />
+                <label for="search">Search</label>
+                <input type="search" id="search" name="q" placeholder="Search..." required />
                 <button type="submit">Search</button>
             </form>
         </div>
