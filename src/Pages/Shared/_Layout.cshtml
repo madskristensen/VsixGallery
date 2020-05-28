@@ -3,48 +3,35 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - VsixGallery</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <title>Open VSIX Gallery</title>
+    <link rel="stylesheet" href="~/css/site.scss" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="~/img/icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/img/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/img/icon-16x16.png">
+    <link rel="manifest" href="~/site.webmanifest">
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">VsixGallery</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2020 - VsixGallery - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            <a href="/">Open VSIX Gallery</a>
+            <form action="~/search/" method="get">
+                <input type="search" name="q" placeholder="Search..." required />
+                <button type="submit">Search</button>
+            </form>
+        </div>
+    </header>
+
+    <main role="main">
+        <div class="container">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            &copy; Mads Kristensen - <a href="https://github.com/madskristensen/VsixGallery/">GitHub</a>
         </div>
     </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    @RenderSection("Scripts", required: false)
 </body>
 </html>

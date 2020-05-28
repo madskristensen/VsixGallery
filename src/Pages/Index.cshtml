@@ -1,10 +1,31 @@
 ﻿@page
 @model IndexModel
-@{
-    ViewData["Title"] = "Home page";
-}
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="extgrid">
+    @foreach (var package in Model.Packages)
+    {
+        <a href="~/extension/@package.ID">
+            <figure title="@package.Name">
+                <img class="icon" src="~/extensions/@package.ID/@package.Icon" alt="@package.Name" />
+                <figcaption>@package.Name</figcaption>
+                <span class="author">@package.Author</span>
+            </figure>
+        </a>
+    }
+</div>
+
+<div id="paging">
+    @if (Model.CurrentPage > 2)
+    {
+        <a rel="prev" href="~/?page=@(Model.CurrentPage - 1 )">🠜 Previous</a>
+    }
+    else if (Model.CurrentPage > 1)
+    {
+        <a rel="prev" href="~/">🠜 Previous</a>
+    }
+
+    @if (Model.CurrentPage < Model.Pages)
+    {
+        <a rel="next" href="?page=@(Model.CurrentPage + 1)">Next 🠞</a>
+    }
 </div>

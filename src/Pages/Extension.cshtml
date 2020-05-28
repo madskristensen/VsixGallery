@@ -1,0 +1,39 @@
+﻿@page "{id?}"
+@model ExtensionModel
+
+<link href="~/css/extensions.scss" inline />
+
+<article>
+    <h1>@Model.Package.Name</h1>
+
+    <img class="icon" src="~/extensions/@Model.Package.ID/@Model.Package.Icon" alt="@Model.Package.Name" />
+    <div id="details">
+        <p>@Model.Package.Description</p>
+
+        <dl>
+            <dt>Author</dt>
+            <dd>@Model.Package.Author</dd>
+
+            <dt>Version</dt>
+            <dd>@Model.Package.Version</dd>
+
+            <dt>Updated</dt>
+            <dd>@Model.Package.DatePublished.ToString("MMMM d @ HH:mm")</dd>
+        </dl>
+    </div>
+
+    <p id="readme">Loading...</p>
+
+</article>
+
+@if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
+{
+    <script>
+        var readme = document.getElementById('readme');
+        var url = '@Model.Package.Repo.Replace("https://github.com", "https://raw.githubusercontent.com")' + 'master/README.md';
+
+        fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + url)
+            .then(response => response.text())
+            .then(text => readme.innerHTML = text);
+    </script>
+}

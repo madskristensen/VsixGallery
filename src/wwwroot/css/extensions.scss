@@ -1,0 +1,41 @@
+article {
+    
+    .icon {
+        float: left;
+    }
+}
+
+#details {
+    margin-left: 150px;
+
+    p {
+        white-space: pre-wrap;
+    }
+
+    dl {
+        display: grid;
+        grid-template-columns: max-content auto;
+    }
+
+    dt {
+        grid-column-start: 1;
+        font-weight: bold;
+    }
+
+    dd {
+        grid-column-start: 2;
+    }
+}
+
+#readme {
+    margin-top: 2em;
+    clear: both;
+    background: #eaeaea;
+    border-radius: 5px;
+    padding: 0 .5em .1em .5em;
+    min-height: 500px;
+    
+    img{
+        max-width: 100%;
+    }
+}

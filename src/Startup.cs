@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Security;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,8 +27,13 @@ namespace VsixGallery
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddRazorPages();
-		}
+			services.AddMvc();
 
+			services.AddWebOptimizer(pipeline =>
+				pipeline.CompileScssFiles()
+			);
+		}
+		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
@@ -42,7 +49,17 @@ namespace VsixGallery
 			}
 
 			app.UseHttpsRedirection();
-			app.UseStaticFiles();
+			app.UseWebOptimizer();
+
+			// PR with fix for .webmanifest was merged Mar 3, 2020. https://github.com/dotnet/aspnetcore/pull/19661
+			// Remove the custom FileExtensionContentTypeProvider after upgrading to newer .NET version
+			var provider = new FileExtensionContentTypeProvider();
+			provider.Mappings[".webmanifest"] = "application/manifest+json";
+
+			app.UseStaticFiles(new StaticFileOptions()
+			{
+				ContentTypeProvider = provider
+			});
 
 			app.UseRouting();
 
