@@ -59,17 +59,17 @@ main {
     flex-wrap: wrap;
     margin: 1em 0;
 
-    a {
-        text-decoration: none;
-        color: inherit;
-    }
-
     figure {
         width: 160px;
         margin: 5px;
         padding: 10px;
         border: 1px solid $light-backdrop;
         text-align: center;
+
+        > a {
+            text-decoration: none;
+            color: inherit;
+        }
     }
 
     figcaption {
@@ -79,16 +79,28 @@ main {
         text-overflow: ellipsis;
     }
 
-    .author {
+    p, span {
         color: $dark-backdrop;
         font-size: .8em;
-        text-align: left;
+    }
+
+    .version {
+        margin: 0;
     }
 }
 
 .icon {
     width: 128px;
     height: 128px;
+}
+
+a {
+    text-decoration: none;
+    color: rgb(0, 120, 215);
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 #paging {

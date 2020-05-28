@@ -1,18 +1,9 @@
 ﻿@page
 @model IndexModel
 
-<div class="extgrid">
-    @foreach (var package in Model.Packages)
-    {
-        <a href="~/extension/@package.ID">
-            <figure title="@package.Name">
-                <img class="icon" src="~/extensions/@package.ID/@package.Icon" alt="@package.Name" />
-                <figcaption>@package.Name</figcaption>
-                <span class="author">@package.Author</span>
-            </figure>
-        </a>
-    }
-</div>
+<h1>All extensions</h1>
+
+@await Html.PartialAsync("_ExtensionList", Model.Packages)
 
 <div id="paging">
     @if (Model.CurrentPage > 2)

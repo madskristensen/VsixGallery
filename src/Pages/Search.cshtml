@@ -1,0 +1,6 @@
+﻿@page
+@model SearchModel
+
+<h1>Extensions by @Model.Term</h1>
+
+@await Html.PartialAsync("_ExtensionList", Model.Packages)

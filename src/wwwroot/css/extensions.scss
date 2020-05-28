@@ -1,5 +1,5 @@
 article {
-    
+
     .icon {
         float: left;
     }
@@ -13,6 +13,7 @@ article {
     }
 
     dl {
+        line-height: 2em;
         display: grid;
         grid-template-columns: max-content auto;
     }
@@ -24,6 +25,21 @@ article {
 
     dd {
         grid-column-start: 2;
+
+        &:first-letter{
+            text-transform: capitalize;
+        }
+    }
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+        display: inline-block;
+        margin-right: 1.5em;
     }
 }
 
@@ -34,8 +50,8 @@ article {
     border-radius: 5px;
     padding: 0 .5em .1em .5em;
     min-height: 500px;
-    
-    img{
+
+    img {
         max-width: 100%;
     }
 }

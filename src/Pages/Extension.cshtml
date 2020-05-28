@@ -1,5 +1,6 @@
 ﻿@page "{id?}"
 @model ExtensionModel
+@using moment.net;
 
 <link href="~/css/extensions.scss" inline />
 
@@ -12,18 +13,30 @@
 
         <dl>
             <dt>Author</dt>
-            <dd>@Model.Package.Author</dd>
+            <dd><a href="~/author/@Model.Package.Author">@Model.Package.Author</a></dd>
 
             <dt>Version</dt>
             <dd>@Model.Package.Version</dd>
 
             <dt>Updated</dt>
-            <dd>@Model.Package.DatePublished.ToString("MMMM d @ HH:mm")</dd>
+            <dd title="@Model.Package.DatePublished.ToUniversalTime()">@Model.Package.DatePublished.FromNow()</dd>
         </dl>
+
+        <ul>
+            <li><a href="@Model.Package.MoreInfoUrl">⌂ Website</a></li>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
+            {
+                <li><a href="@Model.Package.Repo">🖉 Source code</a></li>
+                <li><a href="@((Model.Package.Repo + "/issues/").Replace("//", "/"))">✓ Issue tracker</a></li>
+            }
+        </ul>
     </div>
 
-    <p id="readme">Loading...</p>
-
+    @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
+    {
+        <p id="readme">Loading...</p>
+    }
 </article>
 
 @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))

@@ -55,6 +55,7 @@ namespace VsixGallery
 			// Remove the custom FileExtensionContentTypeProvider after upgrading to newer .NET version
 			var provider = new FileExtensionContentTypeProvider();
 			provider.Mappings[".webmanifest"] = "application/manifest+json";
+			provider.Mappings[".vsix"] = "application/octed-stream";
 
 			app.UseStaticFiles(new StaticFileOptions()
 			{

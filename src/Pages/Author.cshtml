@@ -1,0 +1,6 @@
+﻿@page "{author?}"
+@model AuthorModel
+
+<h1>Extensions by @Model.Author</h1>
+
+@await Html.PartialAsync("_ExtensionList", Model.Packages)
