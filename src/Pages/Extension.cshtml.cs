@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+
+using System;
+
+using WebEssentials.AspNetCore.OutputCaching;
 
 namespace VsixGallery.Pages
 {
@@ -23,6 +22,9 @@ namespace VsixGallery.Pages
 		public void OnGet([FromRoute] string id)
 		{
 			Package = _helper.GetPackage(id);
+
+			string folder = $"wwwroot/extensions/{Package.ID}";
+			HttpContext.EnableOutputCaching(TimeSpan.FromDays(30), fileDependencies: folder);
 		}
 	}
 }

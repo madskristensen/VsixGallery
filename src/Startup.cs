@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Security;
-using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +23,7 @@ namespace VsixGallery
 			services.AddRazorPages();
 			services.AddMvc(options => options.EnableEndpointRouting = false);
 
+			services.AddOutputCaching();
 			services.AddWebOptimizer(pipeline =>
 				pipeline.CompileScssFiles()
 			);
@@ -50,18 +45,21 @@ namespace VsixGallery
 			}
 
 			app.UseHttpsRedirection();
+
 			app.UseWebOptimizer();
+			app.UseStaticFilesWithCache();
 
 			// PR with fix for .webmanifest was merged Mar 3, 2020. https://github.com/dotnet/aspnetcore/pull/19661
 			// Remove the custom FileExtensionContentTypeProvider after upgrading to newer .NET version
-			var provider = new FileExtensionContentTypeProvider();
+			FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider();
 			provider.Mappings[".webmanifest"] = "application/manifest+json";
 			provider.Mappings[".vsix"] = "application/octed-stream";
-
 			app.UseStaticFiles(new StaticFileOptions()
 			{
 				ContentTypeProvider = provider
 			});
+
+			app.UseOutputCaching();
 
 			app.UseRouting();
 			app.UseMvcWithDefaultRoute();
