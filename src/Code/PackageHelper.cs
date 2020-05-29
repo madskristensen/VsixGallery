@@ -66,11 +66,11 @@ namespace VsixGallery
 		{
 			if (string.IsNullOrWhiteSpace(package.Icon))
 			{
-				package.Icon = "~/img/defaulticon.svg";
+				package.Icon = "/img/defaulticon.svg";
 			}
 			else
 			{
-				package.Icon = $"~/extensions/{package.ID}/{package.Icon}";
+				package.Icon = $"/extensions/{package.ID}/{package.Icon}";
 			}
 
 			if (!string.IsNullOrWhiteSpace(package.Repo) && !package.Repo.Contains("://"))
