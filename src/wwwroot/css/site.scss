@@ -145,8 +145,8 @@ dt {
 
 @import "footer";
 
-@media screen and (max-width: 800px) {
-    body, html {
+@media screen and (max-width: 1024px) {
+    html {
         width: 600px !important;
     }
 }
