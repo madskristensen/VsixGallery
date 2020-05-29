@@ -123,17 +123,12 @@ namespace VsixGallery
 
 				string vsixFolder = Path.Combine(_extensionRoot, package.ID);
 
-				Sanitize(package);
 				SavePackage(tempFolder, package, vsixFolder);
+				Sanitize(package);
 
 				File.Copy(tempVsix, Path.Combine(vsixFolder, "extension.vsix"), true);
 
 				return package;
-			}
-			catch (Exception ex)
-			{
-				Debug.Write(ex);
-				return null;
 			}
 			finally
 			{

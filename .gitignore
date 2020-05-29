@@ -10,6 +10,7 @@
 *.userosscache
 *.sln.docstates
 src/wwwroot/extensions
+src/wwwroot/temp
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
