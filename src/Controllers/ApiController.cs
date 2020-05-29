@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,12 +12,10 @@ namespace VsixGallery.Controllers
 {
 	public class ApiController : Controller
 	{
-		private readonly IWebHostEnvironment _env;
 		private readonly PackageHelper _helper;
 
 		public ApiController(IWebHostEnvironment env)
 		{
-			_env = env;
 			_helper = new PackageHelper(env.WebRootPath);
 		}
 
@@ -45,13 +45,14 @@ namespace VsixGallery.Controllers
 			return package;
 		}
 
-		[HttpPost]
+		[HttpPost, DisableRequestSizeLimit]
 		public async Task<IActionResult> Upload([FromQuery] string repo, string issuetracker)
 		{
 			try
 			{
-				Stream bodyStream = Request.Body;
-				Package package = await _helper.ProcessVsix(bodyStream, repo, issuetracker);
+				HttpContext.Request.EnableBuffering();
+
+				Package package = await _helper.ProcessVsix(Request.Form.Files[0], repo, issuetracker);
 
 				return Json(package);
 			}

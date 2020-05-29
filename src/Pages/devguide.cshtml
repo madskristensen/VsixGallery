@@ -1,0 +1,80 @@
+﻿@page
+    <h1>Add your extension</h1>
+
+    <p>
+        You can add your extension to this gallery in 2 different ways as part of your build automation.
+    </p>
+
+    <ol>
+        <li>Use PowerShell</li>
+        <li>Use <a href="http://appveyor.com">AppVeyor</a></li>
+    </ol>
+
+    <p>
+        Both PowerShell and AppVeyor uses a
+        <a href="https://github.com/madskristensen/ExtensionScripts/blob/master/AppVeyor/vsix.ps1">custom script</a>
+        that makes it easy to publish the extension to this gallery. It contains other functions that are useful for
+        incrementing the VSIX version and other handy things.
+    </p>
+
+    <section>
+        <h2>Use PowerShell</h2>
+
+        <p>First you must execute the VSIX script</p>
+
+        <pre>(new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex</pre>
+
+        <p>That allows you to call methods upload the .vsix extension file to the gallery.</p>
+
+        <pre>Vsix-PublishToGallery</pre>
+
+        <p>
+            That will find all .vsix files in the working directory recursively and upload them.
+            To specify the path, simply pass it in as the first parameter:
+        </p>
+
+        <pre>Vsix-PublishToGallery .\src\WebCompilerVsix\**\*.vsix</pre>
+    </section>
+
+    <section>
+        <h2>Use AppVeyor</h2>
+
+        <p>AppVeyor is a build server hosted in the cloud and it's free.</p>
+
+        <p>
+            After you've created an account, you can start doing automated builds. A really nice thing
+            is that AppVeyor can automatically kick off a new build when you commit code to either
+            GitHub, VSO or other code repositories.
+        </p>
+
+        <p>
+            To automatically upload your extension to vsixgallery.com when the build has succeeded,
+            all you have to do is to add an <strong>appveyor.yml</strong> file to the root of
+            your repository. The content of the file should look like this:
+        </p>
+
+<pre>version: 1.0.{build}
+
+install:
+  - ps: (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
+
+before_build:
+  - ps: Vsix-IncrementVsixVersion | Vsix-UpdateBuildVersion
+
+build_script:
+  - msbuild /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m
+
+after_test:
+  - ps: Vsix-PushArtifacts | Vsix-PublishToGallery
+</pre>
+
+        <p>You might want to check out these real-world uses:</p>
+
+        <ul>
+            <li><a href="https://github.com/madskristensen/WebEssentials2019/blob/master/appveyor.yml">Web Essentials 2019</a></li>
+            <li><a href="https://github.com/jaredpar/VsVim/blob/master/appveyor.yml">VsVim</a></li>
+            <li><a href="https://github.com/madskristensen/WebCompiler/blob/master/appveyor.yml">Web Compiler</a></li>
+            <li><a href="https://github.com/madskristensen/AddAnyFile/blob/master/appveyor.yml">Add New File</a></li>
+        </ul>
+
+    </section>

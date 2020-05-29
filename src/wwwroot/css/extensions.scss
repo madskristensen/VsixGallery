@@ -1,3 +1,5 @@
+@import "variables";
+
 article {
 
     .icon {
@@ -6,7 +8,7 @@ article {
     
     .download{
         border-radius: 5px;
-        background: #1c78d1;
+        background: $link-color;
         color: white;
         padding: 5px 8px;
         text-decoration: none;
@@ -28,7 +30,6 @@ article {
 
     dt {
         grid-column-start: 1;
-        font-weight: bold;
     }
 
     dd {

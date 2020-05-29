@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+
+using Newtonsoft.Json;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -59,7 +62,7 @@ namespace VsixGallery
 			return packages.OrderByDescending(p => p.DatePublished).ToList();
 		}
 
-		private void Sanitize(Package package)
+		private static void Sanitize(Package package)
 		{
 			if (string.IsNullOrWhiteSpace(package.Icon))
 			{
@@ -95,7 +98,7 @@ namespace VsixGallery
 			return JsonConvert.DeserializeObject(content, typeof(Package)) as Package;
 		}
 
-		public async Task<Package> ProcessVsix(Stream vsixStream, string repo, string issuetracker)
+		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker)
 		{
 			string tempFolder = Path.Combine(_webroot, "temp", Guid.NewGuid().ToString());
 
@@ -108,9 +111,9 @@ namespace VsixGallery
 					Directory.CreateDirectory(tempFolder);
 				}
 
-				using (FileStream fileStream = File.Create(tempVsix))
+				using (FileStream fileStream = new FileStream(tempVsix, FileMode.CreateNew))
 				{
-					await vsixStream.CopyToAsync(fileStream);
+					await file.CopyToAsync(fileStream);
 				}
 
 				ZipFile.ExtractToDirectory(tempVsix, tempFolder);
@@ -118,16 +121,19 @@ namespace VsixGallery
 				VsixManifestParser parser = new VsixManifestParser();
 				Package package = parser.CreateFromManifest(tempFolder, repo, issuetracker);
 
-				//if (PackageCache.Any(p => p.ID == package.ID && new Version(p.Version) > new Version(package.Version)))
-				//	throw new ArgumentException("The VSIX version (" + package.Version + ") must be equal or higher than the existing VSIX");
-
 				string vsixFolder = Path.Combine(_extensionRoot, package.ID);
 
+				Sanitize(package);
 				SavePackage(tempFolder, package, vsixFolder);
 
 				File.Copy(tempVsix, Path.Combine(vsixFolder, "extension.vsix"), true);
 
 				return package;
+			}
+			catch (Exception ex)
+			{
+				Debug.Write(ex);
+				return null;
 			}
 			finally
 			{

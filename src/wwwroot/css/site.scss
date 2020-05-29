@@ -1,9 +1,10 @@
-﻿$light-backdrop: #d8d8d8;
-$dark-backdrop: #585858;
+﻿@import "variables";
 
 html {
     position: relative;
     min-height: 100%;
+    background: white;
+    color: black;
 }
 
 header {
@@ -15,7 +16,7 @@ header {
 
     a {
         text-decoration: none;
-        color: black;
+        color: inherit;
         font-size: 35px;
         font-weight: lighter;
     }
@@ -44,12 +45,12 @@ header {
 
 body {
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
-    margin: 0 0 60px 0;
+    margin: 0 0 $footer-height 0;
     line-height: 1.5;
 }
 
 main {
-    margin: 30px 0 80px 0;
+    margin: 30px 0 ($footer-height + 25) 0;
 }
 
 .container {
@@ -100,11 +101,10 @@ main {
 }
 
 a {
-    text-decoration: none;
-    color: #1e6ab4;
+    color: $link-color;
 
     &:hover {
-        text-decoration: underline;
+        color: inherit;
     }
 }
 
@@ -122,12 +122,16 @@ a {
     box-shadow: 6px 8px 6px -6px $light-backdrop;
 }
 
+dt {
+    font-weight: bold;
+}
+
 #paging {
     text-align: center;
     margin-bottom: 2em;
 
     a {
-        color: black;
+        color: inherit;
         text-decoration: none;
         font-weight: bold;
         display: inline-block;
@@ -135,17 +139,4 @@ a {
     }
 }
 
-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    white-space: nowrap;
-    line-height: 60px; /* Vertically center the text there */
-    background: $dark-backdrop;
-    color: white;
-    text-align: center;
-
-    a {
-        color: white;
-    }
-}
+@import "footer";
