@@ -1,8 +1,12 @@
 ﻿@page "{author?}"
 @model AuthorModel
 
+@{
+    ViewData["Title"] = Model.Author;
+}
+
 <h1>
-    Extensions by @Model.Author 
+    Extensions by @Model.Author
     <a href="~/feed/" class="feed shadow" title="ATOM feed for extensions by @Model.Author">Gallery feed (author)</a>
 </h1>
 

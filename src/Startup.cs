@@ -46,6 +46,12 @@ namespace VsixGallery
 
 			app.UseHttpsRedirection();
 
+			app.Use((context, next) =>
+				{
+					context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+					return next();
+				});
+
 			app.UseWebOptimizer();
 			app.UseStaticFilesWithCache();
 

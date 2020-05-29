@@ -1,16 +1,21 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<head>
+<head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Open VSIX Gallery</title>
+    <title>@ViewData["Title"]</title>
     <meta name="description" content="An alternative Visual Studio extension gallery for nightly builds." />
     <link rel="stylesheet" href="~/css/site.scss" />
-
+    
     <link rel="apple-touch-icon" sizes="180x180" href="~/img/icon-180x180.png">
     <link rel="icon" type="image/png" sizes="32x32" href="~/img/icon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="~/img/icon-16x16.png">
     <link rel="manifest" href="~/site.webmanifest">
+
+    <meta property="og:title" content="@ViewData["Title"]" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
+    <meta property="og:image" content="@(ViewData["Image"] ?? "/img/icon-180x180.png")" />
 </head>
 <body>
     <header>
