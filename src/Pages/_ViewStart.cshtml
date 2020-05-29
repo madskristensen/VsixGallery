@@ -1,8 +1,11 @@
 ﻿@{
     Layout = "_Layout";
 
-    Context.Response.Headers["Content-Security-Policy"] = $"form-action 'self'; script-src 'unsafe-inline'; frame-ancestors 'none'";
-    Context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
-    Context.Response.Headers["Referrer-Policy"] = "no-referrer-when-downgrade";
-    Context.Response.Headers["X-Frame-Options"] = "DENY";
+    if (!Context.Request.Host.Value.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
+    {
+        Context.Response.Headers["Content-Security-Policy"] = $"base-uri 'self'; form-action 'self'; script-src 'unsafe-inline'; frame-ancestors 'none'";
+        Context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+        Context.Response.Headers["Referrer-Policy"] = "no-referrer-when-downgrade";
+        Context.Response.Headers["X-Frame-Options"] = "DENY";
+    }
 }
