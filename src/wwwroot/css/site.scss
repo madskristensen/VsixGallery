@@ -108,6 +108,10 @@ a {
     }
 }
 
+img {
+    max-width: 100%;
+}
+
 .feed {
     float: right;
     padding: 4px 5px 4px 30px;
@@ -141,8 +145,8 @@ dt {
 
 @import "footer";
 
-@media all and (max-width: 1024px) {
-    body {
-        max-width: 600px !important;
+@media screen and (max-width: 800px) {
+    body, html {
+        width: 600px !important;
     }
 }
