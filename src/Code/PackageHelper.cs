@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -132,6 +133,26 @@ namespace VsixGallery
 			finally
 			{
 				Directory.Delete(tempFolder, true);
+				RemoveOldExtensions();
+			}
+		}
+
+		private void RemoveOldExtensions()
+		{
+			Package[] oldPackages = PackageCache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18)).ToArray();
+
+			foreach (Package package in oldPackages)
+			{
+				try
+				{
+					string vsixFolder = Path.Combine(_extensionRoot, package.ID);
+					Directory.Delete(vsixFolder, true);
+					PackageCache.Remove(package);
+				}
+				catch (Exception ex)
+				{
+					Debug.Write(ex);
+				}
 			}
 		}
 

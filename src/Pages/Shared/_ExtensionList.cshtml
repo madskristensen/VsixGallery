@@ -11,7 +11,7 @@
             </a>
             <p class="version">
                 @("v")@package.Version
-                <a href="~/extensions/@package.ID/@("v" + package.Version).vsix" title="Download @("v" +package.Version)">🡇</a>
+                <a href="~/extensions/@package.ID/@(package.Name + "v" + package.Version).vsix" title="Download @("v" +package.Version)">🡇</a>
             </p>
 
             <span class="author">by <a href="~/author/@package.Author">@package.Author</a></span>
