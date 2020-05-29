@@ -1,6 +1,6 @@
 ﻿@page
 @model SearchModel
 
-<h1>Extensions by @Model.Term</h1>
+<h1>@Model.Packages.Count() resuls for <em>@Model.Term</em></h1>
 
 @await Html.PartialAsync("_ExtensionList", Model.Packages)
