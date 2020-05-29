@@ -5,7 +5,6 @@ html {
     min-height: 100%;
     background: white;
     color: black;
-    min-width: 600px;
 }
 
 header {
@@ -141,3 +140,9 @@ dt {
 }
 
 @import "footer";
+
+@media all and (max-width: 1024px) {
+    body {
+        max-width: 600px !important;
+    }
+}
