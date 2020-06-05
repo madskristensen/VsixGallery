@@ -32,12 +32,12 @@
         </dl>
 
         <ul id="links">
-            <li><a href="@Model.Package.MoreInfoUrl">⌂ Website</a></li>
+            <li><a href="@Model.Package.MoreInfoUrl" rel="noopener noreferrer">⌂ Website</a></li>
 
             @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
             {
-                <li><a href="@Model.Package.Repo">🖉 Source code</a></li>
-                <li><a href="@Model.Package.IssueTracker">✓ Issue tracker</a></li>
+                <li><a href="@Model.Package.Repo" rel="noopener noreferrer">🖉 Source code</a></li>
+                <li><a href="@Model.Package.IssueTracker" rel="noopener noreferrer">✓ Issue tracker</a></li>
             }
         </ul>
     </div>
