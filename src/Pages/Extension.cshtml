@@ -37,7 +37,7 @@
             @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
             {
                 <li><a href="@Model.Package.Repo">🖉 Source code</a></li>
-                <li><a href="@((Model.Package.Repo + "/issues/").Replace("//", "/"))">✓ Issue tracker</a></li>
+                <li><a href="@Model.Package.IssueTracker">✓ Issue tracker</a></li>
             }
         </ul>
     </div>
