@@ -18,11 +18,11 @@
 
     <div id="details">
         <p>@Model.Package.Description</p>
-        <a class="download shadow" href="~/extensions/@Model.Package.ID/@("v" + Model.Package.Version).vsix">🡇 Download</a>
+        <a class="download shadow" href="~/extensions/@Model.Package.ID/@Html.UrlEncoder.Encode(Model.Package.Name + " v" + Model.Package.Version + ".vsix")">🡇 Download</a>
 
         <dl>
             <dt>Author</dt>
-            <dd><a href="~/author/@Html.Encode(Model.Package.Author)">@Model.Package.Author</a></dd>
+            <dd><a href="~/author/@Html.UrlEncoder.Encode(Model.Package.Author)">@Model.Package.Author</a></dd>
             
             <dt>Version</dt>
             <dd>@Model.Package.Version</dd>
