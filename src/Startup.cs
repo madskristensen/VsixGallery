@@ -6,6 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using WebMarkupMin.AspNetCore2;
+using WebMarkupMin.Core;
+
 namespace VsixGallery
 {
 	public class Startup
@@ -27,6 +30,21 @@ namespace VsixGallery
 			services.AddWebOptimizer(pipeline =>
 				pipeline.CompileScssFiles()
 			);
+
+			// HTML minification (https://github.com/Taritsyn/WebMarkupMin)
+			services
+				.AddWebMarkupMin(
+					options =>
+					{
+						options.AllowMinificationInDevelopmentEnvironment = true;
+						options.DisablePoweredByHttpHeaders = true;
+					})
+				.AddHtmlMinification(
+					options =>
+					{
+						options.MinificationSettings.RemoveOptionalEndTags = false;
+						options.MinificationSettings.WhitespaceMinificationMode = WhitespaceMinificationMode.Aggressive;
+					});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,8 +83,12 @@ namespace VsixGallery
 				ContentTypeProvider = provider
 			});
 
-			app.UseOutputCaching();
+			if (!env.IsDevelopment())
+			{
+				app.UseOutputCaching();
+			}
 
+			app.UseWebMarkupMin();
 			app.UseRouting();
 			app.UseMvcWithDefaultRoute();
 
