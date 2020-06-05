@@ -43,7 +43,7 @@ namespace VsixGallery
 					options =>
 					{
 						options.MinificationSettings.RemoveOptionalEndTags = false;
-						options.MinificationSettings.WhitespaceMinificationMode = WhitespaceMinificationMode.Safe;
+						options.MinificationSettings.WhitespaceMinificationMode = WhitespaceMinificationMode.Aggressive;
 					});
 		}
 

@@ -22,6 +22,15 @@ namespace VsixGallery
 		public string IssueTracker { get; set; }
 		public ExtensionList ExtensionList { get; set; }
 
+		public string AuthorLink =>
+			$"/author/{Uri.EscapeUriString(Author)}";
+
+		public string DownloadLink =>
+			$"/extensions/{ID}/{Uri.EscapeUriString(Name + " ")}v{Version}.vsix";
+
+		public string DetailsLink =>
+			$"/extension/{ID}";
+
 		public override string ToString()
 		{
 			return Name;

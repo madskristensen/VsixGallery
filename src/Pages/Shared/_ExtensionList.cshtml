@@ -1,20 +1,22 @@
 ﻿@model IEnumerable<Package>
-@using moment.net;
 
 <div class="extgrid">
     @foreach (var package in Model)
     {
         <figure class="shadow">
-            <a href="~/extension/@package.ID" title="@package.Description">
+            <a href="@package.DetailsLink" title="@package.Description">
                 <img class="icon" src="@package.Icon" asp-append-version="true" loading="lazy" alt="@package.Name" />
+            </a>
+
+            <a href="@package.DetailsLink">
                 <figcaption>@package.Name</figcaption>
             </a>
             <p class="version">
                 @("v")@package.Version
-                <a href="~/extensions/@package.ID/@Html.UrlEncoder.Encode(package.Name + " v" + package.Version + ".vsix")" title="Download @("v" +package.Version)">🡇</a>
+                <a href="@package.DownloadLink" title="Download @("v" +package.Version)">🡇</a>
             </p>
 
-            <span class="author">by <a href="~/author/@Html.UrlEncoder.Encode(package.Author)">@package.Author</a></span>
+            <span class="author">by <a href="@package.AuthorLink">@package.Author</a></span>
         </figure>
     }
 </div>
