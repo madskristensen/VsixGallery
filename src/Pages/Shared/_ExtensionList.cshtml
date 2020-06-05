@@ -14,7 +14,7 @@
                 <a href="~/extensions/@package.ID/@(package.Name + " v" + package.Version).vsix" title="Download @("v" +package.Version)">🡇</a>
             </p>
 
-            <span class="author">by <a href="~/author/@package.Author">@package.Author</a></span>
+            <span class="author">by <a href="~/author/@Html.Encode(package.Author)">@package.Author</a></span>
         </figure>
     }
 </div>

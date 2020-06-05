@@ -22,8 +22,8 @@
 
         <dl>
             <dt>Author</dt>
-            <dd><a href="~/author/@Model.Package.Author">@Model.Package.Author</a></dd>
-
+            <dd><a href="~/author/@Html.Encode(Model.Package.Author)">@Model.Package.Author</a></dd>
+            
             <dt>Version</dt>
             <dd>@Model.Package.Version</dd>
 
