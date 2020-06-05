@@ -31,7 +31,7 @@
             <dd title="@Model.Package.DatePublished.ToUniversalTime()">@Model.Package.DatePublished.FromNow()</dd>
         </dl>
 
-        <ul>
+        <ul id="links">
             <li><a href="@Model.Package.MoreInfoUrl">⌂ Website</a></li>
 
             @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
