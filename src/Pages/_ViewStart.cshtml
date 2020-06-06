@@ -1,6 +1,8 @@
 ﻿@{
     Layout = "_Layout";
 
+    Context.Response.Headers["Cache-Control"] = "max-age=180"; // 3 minutes
+
     if (!Context.Request.Host.Value.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
     {
         Context.Response.Headers["Content-Security-Policy"] = $"base-uri 'self'; form-action 'self'; script-src 'unsafe-inline'; frame-ancestors 'none'";

@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using System;
+
 using WebMarkupMin.AspNetCore2;
 using WebMarkupMin.Core;
 
@@ -25,6 +27,10 @@ namespace VsixGallery
 		{
 			services.AddRazorPages();
 			services.AddMvc(options => options.EnableEndpointRouting = false);
+			services.AddHsts(options =>
+			{
+				options.MaxAge = TimeSpan.FromDays(126);
+			});
 
 			services.AddOutputCaching();
 			services.AddWebOptimizer(pipeline =>
@@ -76,8 +82,9 @@ namespace VsixGallery
 			// PR with fix for .webmanifest was merged Mar 3, 2020. https://github.com/dotnet/aspnetcore/pull/19661
 			// Remove the custom FileExtensionContentTypeProvider after upgrading to newer .NET version
 			FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider();
-			provider.Mappings[".webmanifest"] = "application/manifest+json";
+			provider.Mappings[".svg"] = "image/svg+xml; charset=utf-8";
 			provider.Mappings[".vsix"] = "application/octed-stream";
+			provider.Mappings[".webmanifest"] = "application/manifest+json; charset=utf-8";
 			app.UseStaticFiles(new StaticFileOptions()
 			{
 				ContentTypeProvider = provider
