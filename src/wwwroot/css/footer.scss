@@ -21,6 +21,7 @@ footer {
     }
 
     .container {
+        display: -ms-grid;
         display: grid;
         grid-template-columns: max-content auto;
         grid-column-gap: 3em;
