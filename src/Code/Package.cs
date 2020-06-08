@@ -31,6 +31,9 @@ namespace VsixGallery
 		public string DetailsLink =>
 			$"/extension/{ID}";
 
+		public string FeedLink =>
+			$"/feed/extension/{ID}";
+
 		public override string ToString()
 		{
 			return Name;

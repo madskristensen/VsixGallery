@@ -12,7 +12,7 @@
 <article>
     <h1>
         @Model.Package.Name
-        <a href="~/feed/" class="feed shadow" title="ATOM feed for this extension only">Gallery feed (extension)</a>
+        <a href="@Model.Package.FeedLink" class="feed shadow" title="ATOM feed for this extension only">Gallery feed (extension)</a>
     </h1>
     <img class="icon" src="@Model.Package.Icon" asp-append-version="true" alt="@Model.Package.Name" />
 
