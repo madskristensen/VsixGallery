@@ -55,7 +55,6 @@ main {
 
 .container {
     max-width: 960px;
-    min-width: 580px;
     margin: 0 auto;
     padding: 0 .5em;
 }
@@ -147,7 +146,8 @@ dt {
 @import "footer";
 
 @media screen and (max-width: 1024px) {
-    html, body, .container {
-        max-width: 100%;
+    body {
+        width: 100%;
+        min-width: 580px;
     }
 }
