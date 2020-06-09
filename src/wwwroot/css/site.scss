@@ -214,11 +214,12 @@ footer {
         width: 100%;
         min-width: 610px;
     }
+}
 
-    @supports(padding:unquote('max(0px)')) {
-        .container {
-            padding-left: unquote('max(.5em, env(safe-area-inset-left))');
-            padding-right: unquote('max(.5em, env(safe-area-inset-right))');
-        }
+@supports(top:constant(safe-area-inset-left)) {
+    .container {
+        background: blue !important;
+        padding-left: constant(safe-area-inset-left);
+        padding-right: constant(safe-area-inset-right);
     }
 }
