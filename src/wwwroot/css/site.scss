@@ -217,6 +217,7 @@ footer {
 }
 
 @supports (padding: env(safe-area-inset-left)) {
+    // Fixes it iPhone notch issue
     .container {
         padding-left: unquote('max(.5em, env(safe-area-inset-left))');
         padding-right: unquote('max(.5em, env(safe-area-inset-right))');
