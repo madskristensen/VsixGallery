@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Package>
+@model IEnumerable<Package>
 
 <div class="extgrid">
     @foreach (var package in Model)
@@ -13,7 +13,7 @@
             </a>
             <p class="version">
                 @("v")@package.Version
-                <a href="@package.DownloadLink" title="Download @("v" +package.Version)">🡇</a>
+                <a href="@package.DownloadLink" title="Download @("v" +package.Version)">▼</a>
             </p>
 
             <span class="author">by <a href="@package.AuthorLink">@package.Author</a></span>

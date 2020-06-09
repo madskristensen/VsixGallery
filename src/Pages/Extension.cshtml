@@ -18,7 +18,7 @@
 
     <div id="details">
         <p>@Model.Package.Description</p>
-        <a class="download shadow" href="@Model.Package.DownloadLink">🡇 Download</a>
+        <a class="download shadow" href="@Model.Package.DownloadLink">▼ Download</a>
 
         <dl>
             <dt>Author</dt>
@@ -32,11 +32,11 @@
         </dl>
 
         <ul id="links">
-            <li><a href="@Model.Package.MoreInfoUrl" rel="noopener noreferrer">⌂ Website</a></li>
+            <li><a href="@Model.Package.MoreInfoUrl" rel="noopener noreferrer">✪ Website</a></li>
 
             @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
             {
-                <li><a href="@Model.Package.Repo" rel="noopener noreferrer">🖉 Source code</a></li>
+                <li><a href="@Model.Package.Repo" rel="noopener noreferrer">✎ Source code</a></li>
                 <li><a href="@Model.Package.IssueTracker" rel="noopener noreferrer">✓ Issue tracker</a></li>
             }
         </ul>
