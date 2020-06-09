@@ -110,7 +110,7 @@ namespace VsixGallery
 
 							if (width < 90 || height < 90 || width > 128 || height > 128)
 							{
-								errors.Add($"The icon is {width}x{height}px. It must be 90x90pixels for best rendering on Marketplace and in Visual Studio");
+								errors.Add($"The icon is {width}x{height}px. It must be 90x90px for best rendering on Marketplace and in Visual Studio");
 							}
 						}
 					}
@@ -120,6 +120,11 @@ namespace VsixGallery
 			if (package.Description?.Length < 40)
 			{
 				errors.Add("Provide a clear description. Make sure to cover why it is great and what it does");
+			}
+
+			if (string.IsNullOrEmpty(package.License))
+			{
+				errors.Add("No license is specified in the .vsixmanifest");
 			}
 
 			package.Errors = errors;

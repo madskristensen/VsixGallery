@@ -52,6 +52,8 @@
                     <li>@error</li>
                 }
             </ul>
+
+            <a href="https://gist.github.com/madskristensen/7310c0d61694e323f4deeb5a70f35fec">See guidelines</a>
         </div>
     }
 
@@ -65,7 +67,7 @@
 {
     <script>
         var readme = document.getElementById('readme');
-        var url = '@Model.Package.Repo.Replace("https://github.com", "https://raw.githubusercontent.com")' + 'master/README.md';
+        var url = '@Model.Package.Repo.Replace("https://github.com", "https://raw.githubusercontent.com")' + 'main/README.md';
 
         fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + url)
             .then(response => response.text())
