@@ -87,13 +87,13 @@ namespace VsixGallery
 
 			if (string.IsNullOrWhiteSpace(package.Icon))
 			{
-				errors.Add("Icon is missing. Must be 128x128 pixel PNG, GIF, or JPEG");
+				errors.Add("Icon is missing. Must be 90x90 pixel PNG, GIF, or JPEG");
 			}
 			else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
 					 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
 					 !package.Icon.ToLowerInvariant().EndsWith(".gif"))
 			{
-				errors.Add("The icon must be 128x128 pixel PNG, GIF, or JPEG");
+				errors.Add("The icon must be 90x90 pixel PNG, GIF, or JPEG");
 			}
 			else
 			{
@@ -108,9 +108,9 @@ namespace VsixGallery
 							float width = img.PhysicalDimension.Width;
 							float height = img.PhysicalDimension.Height;
 
-							if (width < 90 || height < 90 || width > 148 || height > 148)
+							if (width < 90 || height < 90 || width > 128 || height > 128)
 							{
-								errors.Add($"The icon is {width}x{height}px. It must be 128x128 pixels for best rendering on Marketplace and in Visual Studio");
+								errors.Add($"The icon is {width}x{height}px. It must be 90x90pixels for best rendering on Marketplace and in Visual Studio");
 							}
 						}
 					}

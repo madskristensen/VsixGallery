@@ -54,7 +54,7 @@ main {
 }
 
 .container {
-    max-width: 960px;
+    max-width: 1152px;
     margin: 0 auto;
     padding: 0 .5em;
 }
@@ -94,6 +94,7 @@ main {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        margin-top: .5em;
     }
 
     p, span {
@@ -102,13 +103,25 @@ main {
     }
 
     .version {
-        margin: 0;
+        margin: 0 0 .5em 0;
+    }
+
+    .description {
+        text-align: left;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: 50px;
+        font-size: .7em;
+        margin: .3em 0;
     }
 }
 
 .icon {
-    width: 128px;
-    height: 128px;
+    width: 90px;
+    height: 90px;
 }
 
 a {
@@ -135,6 +148,10 @@ img {
 
 .shadow {
     box-shadow: 6px 8px 6px -6px $light-backdrop;
+
+    &:hover {
+        box-shadow: 6px 8px 6px -6px $dark-backdrop;
+    }
 }
 
 dt {

@@ -4,7 +4,7 @@
     @foreach (var package in Model)
     {
         <figure class="shadow @(package.HasValidatorErrors ? "invalid" : null)">
-            <a href="@package.DetailsLink" title="@package.Description">
+            <a href="@package.DetailsLink">
                 <img class="icon" src="@package.Icon" asp-append-version="true" loading="lazy" alt="@package.Name" />
             </a>
 
@@ -16,7 +16,9 @@
                 <a href="@package.DownloadLink" title="Download @("v" +package.Version)">▼</a>
             </p>
 
-            <span class="author">by <a href="@package.AuthorLink">@package.Author</a></span>
+            <p class="description">@package.Description?.Substring(0, Math.Min(package.Description.Length, 120))</p>
+
+            <span>by <a href="@package.AuthorLink">@package.Author</a></span>
         </figure>
     }
 </div>
