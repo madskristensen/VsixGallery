@@ -57,6 +57,8 @@ main {
     max-width: 960px;
     margin: 0 auto;
     padding: 0 .5em;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 .extgrid {
