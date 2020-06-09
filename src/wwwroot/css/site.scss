@@ -116,7 +116,7 @@ img {
     float: right;
     padding: 4px 5px 4px 30px;
     background: url("/img/vs.svg") lighten($light-backdrop, 12%) no-repeat 8px 9px;
-    font-size: initial;
+    font-size: 1rem;
     font-weight: normal;
     border-radius: 5px;
     border: 1px solid silver;
@@ -148,5 +148,6 @@ dt {
 @media screen and (max-width: 1024px) {
     .container {
         max-width: 100%;
+        min-width: 580px;
     }
 }
