@@ -57,11 +57,6 @@ main {
     max-width: 1152px;
     margin: 0 auto;
     padding: 0 .5em;
-
-    @supports(padding:unquote('max(0px)')) {
-        padding-left: unquote('max(.5em, env(safe-area-inset-left))');
-        padding-right: unquote('max(.5em, env(safe-area-inset-right))');
-    }
 }
 
 .extgrid {
@@ -218,5 +213,12 @@ footer {
     body {
         width: 100%;
         min-width: 610px;
+    }
+
+    @supports(padding:unquote('max(0px)')) {
+        .container {
+            padding-left: unquote('max(.5em, env(safe-area-inset-left))');
+            padding-right: unquote('max(.5em, env(safe-area-inset-right))');
+        }
     }
 }
