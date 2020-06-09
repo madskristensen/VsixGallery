@@ -14,15 +14,15 @@
 <div id="paging">
     @if (Model.CurrentPage > 2)
     {
-        <a rel="prev" href="~/?page=@(Model.CurrentPage - 1 )">⮜ Previous</a>
+        <a rel="prev" href="~/?page=@(Model.CurrentPage - 1 )">⯇ Previous</a>
     }
     else if (Model.CurrentPage > 1)
     {
-        <a rel="prev" href="~/">⮜ Previous</a>
+        <a rel="prev" href="~/">⯇ Previous</a>
     }
 
     @if (Model.CurrentPage < Model.Pages)
     {
-        <a rel="next" href="?page=@(Model.CurrentPage + 1)">Next ⮞</a>
+        <a rel="next" href="?page=@(Model.CurrentPage + 1)">Next ⯈</a>
     }
 </div>

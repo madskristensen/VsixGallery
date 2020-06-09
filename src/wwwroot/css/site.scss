@@ -172,7 +172,43 @@ dt {
     }
 }
 
-@import "footer";
+footer {
+    position: absolute;
+    bottom: 0;
+    min-width: 100%;
+    white-space: nowrap;
+    height: $footer-height;
+    background: $dark-backdrop;
+    color: white;
+
+    a {
+        color: white;
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        display: flex;
+        margin-bottom: 2em;
+
+        > div:not(:first-child) {
+            margin-left: 2em;
+        }
+    }
+
+    h3 {
+        margin: 5px 0;
+    }
+
+    #copyright {
+        text-align: center;
+        font-size: .9em;
+    }
+}
 
 @media screen and (max-width: 1024px) {
     body {
