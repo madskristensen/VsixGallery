@@ -212,14 +212,13 @@ footer {
 @media screen and (max-width: 1024px) {
     body {
         width: 100%;
-        min-width: 610px;
+        min-width: 593px;
     }
 }
 
-@supports(top:constant(safe-area-inset-left)) {
+@supports (padding: env(safe-area-inset-left)) {
     .container {
-        background: blue !important;
-        padding-left: constant(safe-area-inset-left);
-        padding-right: constant(safe-area-inset-right);
+        padding-left: unquote('max(.5em, env(safe-area-inset-left))');
+        padding-right: unquote('max(.5em, env(safe-area-inset-right))');
     }
 }
