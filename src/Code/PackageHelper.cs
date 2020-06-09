@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -54,6 +55,7 @@ namespace VsixGallery
 				{
 					string content = File.ReadAllText(json);
 					Package package = JsonConvert.DeserializeObject(content, typeof(Package)) as Package;
+					Validate(package);
 					Sanitize(package);
 					packages.Add(package);
 				}
@@ -77,6 +79,50 @@ namespace VsixGallery
 			{
 				package.Repo = "https://" + package.Repo;
 			}
+		}
+
+		public void Validate(Package package)
+		{
+			List<string> errors = new List<string>();
+
+			if (string.IsNullOrWhiteSpace(package.Icon))
+			{
+				errors.Add("Icon is missing. Must be 128x128 pixel PNG, GIF, or JPEG");
+			}
+			else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
+					 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
+					 !package.Icon.ToLowerInvariant().EndsWith(".gif"))
+			{
+				errors.Add("The icon must be 128x128 pixel PNG, GIF, or JPEG");
+			}
+			else
+			{
+				string iconFile = Path.Combine(_extensionRoot, package.ID, package.Icon);
+
+				if (File.Exists(iconFile))
+				{
+					using (FileStream file = new FileStream(iconFile, FileMode.Open, FileAccess.Read))
+					{
+						using (Image img = Image.FromStream(stream: file, useEmbeddedColorManagement: false, validateImageData: false))
+						{
+							float width = img.PhysicalDimension.Width;
+							float height = img.PhysicalDimension.Height;
+
+							if (width < 90 || height < 90 || width > 148 || height > 148)
+							{
+								errors.Add($"The icon is {width}x{height}px. It must be 128x128 pixels for best rendering on Marketplace and in Visual Studio");
+							}
+						}
+					}
+				}
+			}
+
+			if (package.Description?.Length < 40)
+			{
+				errors.Add("Provide a clear description. Make sure to cover why it is great and what it does");
+			}
+
+			package.Errors = errors;
 		}
 
 		public Package GetPackage(string id)
@@ -124,6 +170,7 @@ namespace VsixGallery
 				string vsixFolder = Path.Combine(_extensionRoot, package.ID);
 
 				SavePackage(tempFolder, package, vsixFolder);
+				Validate(package);
 				Sanitize(package);
 
 				File.Copy(tempVsix, Path.Combine(vsixFolder, "extension.vsix"), true);

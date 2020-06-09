@@ -23,7 +23,7 @@
         <dl>
             <dt>Author</dt>
             <dd><a href="@Model.Package.AuthorLink">@Model.Package.Author</a></dd>
-            
+
             <dt>Version</dt>
             <dd>@Model.Package.Version</dd>
 
@@ -41,6 +41,19 @@
             }
         </ul>
     </div>
+
+    @if (Model.Package.HasValidatorErrors)
+    {
+        <div id="validation">
+            <h2>⚠ Validation</h2>
+            <ul>
+                @foreach (var error in Model.Package.Errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
 
     @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
     {

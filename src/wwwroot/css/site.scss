@@ -71,10 +71,21 @@ main {
         padding: 10px;
         border: 1px solid $light-backdrop;
         text-align: center;
+        position: relative;
 
         > a {
             text-decoration: none;
             color: inherit;
+        }
+
+
+        &.invalid:before {
+            content: "⚠";
+            color: orange;
+            font-weight: bold;
+            position: absolute;
+            right: .4em;
+            top: 0;
         }
     }
 
@@ -148,6 +159,6 @@ dt {
 @media screen and (max-width: 1024px) {
     body {
         width: 100%;
-        min-width: 590px;
+        min-width: 600px;
     }
 }

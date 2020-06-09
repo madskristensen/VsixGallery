@@ -5,8 +5,8 @@ article {
     .icon {
         float: left;
     }
-    
-    .download{
+
+    .download {
         border-radius: 5px;
         background: $link-color;
         color: white;
@@ -35,7 +35,7 @@ article {
     dd {
         grid-column-start: 2;
 
-        &:first-letter{
+        &:first-letter {
             text-transform: capitalize
         }
     }
@@ -50,6 +50,12 @@ article {
         display: inline-block;
         margin-right: 1.5em;
     }
+}
+
+#validation {
+    background: rgb(255, 216, 0);
+    border-radius: 5px;
+    padding: 0 1em .01em 1em;
 }
 
 #readme {

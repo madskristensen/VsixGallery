@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace VsixGallery
 {
@@ -22,6 +25,9 @@ namespace VsixGallery
 		public string IssueTracker { get; set; }
 		public ExtensionList ExtensionList { get; set; }
 
+		[JsonIgnore]
+		public IEnumerable<string> Errors { get; set; }
+
 		public string AuthorLink =>
 			$"/author/{Uri.EscapeUriString(Author)}";
 
@@ -33,6 +39,9 @@ namespace VsixGallery
 
 		public string FeedLink =>
 			$"/feed/extension/{ID}";
+
+		public bool HasValidatorErrors =>
+			Errors != null && Errors.Any();
 
 		public override string ToString()
 		{

@@ -3,7 +3,7 @@
 <div class="extgrid">
     @foreach (var package in Model)
     {
-        <figure class="shadow">
+        <figure class="shadow @(package.HasValidatorErrors ? "invalid" : null)">
             <a href="@package.DetailsLink" title="@package.Description">
                 <img class="icon" src="@package.Icon" asp-append-version="true" loading="lazy" alt="@package.Name" />
             </a>
