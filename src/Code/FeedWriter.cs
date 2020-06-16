@@ -75,7 +75,7 @@ namespace VsixGallery
 
             writer.WriteStartElement("link");
             writer.WriteAttributeString("rel", "icon");
-            writer.WriteAttributeString("href", baseUrl + "/extensions/" + package.ID + "/" + package.Icon);
+            writer.WriteAttributeString("href", baseUrl + package.Icon);
             writer.WriteEndElement(); // icon
 
             writer.WriteRaw("\r\n<Vsix xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://schemas.microsoft.com/developer/vsx-syndication-schema/2010\">\r\n");
