@@ -1,5 +1,10 @@
 ﻿@import "variables";
 
+*, *::before {
+    box-sizing: border-box;
+    margin-top: 0;
+}
+
 html {
     position: relative;
     min-height: 100%;
@@ -13,7 +18,7 @@ header {
     box-shadow: 0 8px 6px -6px $light-backdrop;
     line-height: 55px;
     padding: 0;
-    padding: 0;
+    width: 100%;
 
     a {
         text-decoration: none;
@@ -28,7 +33,7 @@ header {
 
         label {
             position: absolute;
-            left: -200px;
+            left: -4000px;
         }
 
         input[type=search] {
@@ -57,16 +62,18 @@ main {
     max-width: 1152px;
     margin: 0 auto;
     padding: 0 .5em;
+    position: relative;
 }
 
 .extgrid {
     display: flex;
-    flex-direction: row;
+    /*flex-direction: row;*/
     flex-wrap: wrap;
     margin: 1em 0;
 
     figure {
-        width: 160px;
+        flex-grow: 1;
+        width: 177px;
         margin: 5px;
         padding: 10px;
         border: 1px solid $light-backdrop;
@@ -79,7 +86,7 @@ main {
         }
 
 
-        &.invalid:before {
+        &.invalid::before {
             content: "⚠";
             color: orange;
             font-weight: bold;
@@ -103,7 +110,7 @@ main {
     }
 
     .version {
-        margin: 0 0 .5em 0;
+        margin-bottom: .5em;
     }
 
     .description {
@@ -127,7 +134,8 @@ main {
 a {
     color: $link-color;
 
-    &:hover {
+    &:hover,
+    &:focus {
         color: inherit;
     }
 }
@@ -137,7 +145,8 @@ img {
 }
 
 .feed {
-    float: right;
+    position: absolute;
+    right: .7em;
     padding: 4px 5px 4px 30px;
     background: url("/img/vs.svg") lighten($light-backdrop, 12%) no-repeat 8px 9px;
     font-size: 1rem;
@@ -148,8 +157,10 @@ img {
 
 .shadow {
     box-shadow: 6px 8px 6px -6px $light-backdrop;
+    transition: box-shadow background .4s;
 
-    &:hover {
+    &:hover,
+    &:focus-within {
         box-shadow: 6px 8px 6px -6px $dark-backdrop;
     }
 }
@@ -174,7 +185,7 @@ dt {
 footer {
     position: absolute;
     bottom: 0;
-    left:0;
+    left: 0;
     right: 0;
     display: block;
     width: 100%;
@@ -188,7 +199,6 @@ footer {
 
     ul {
         list-style: none;
-        margin: 0;
         padding: 0;
     }
 
@@ -211,11 +221,6 @@ footer {
     }
 }
 
-@media screen and (max-width: 1024px) {
-    html {
-        min-width: 593px;
-    }
-}
 
 @supports (padding: env(safe-area-inset-left)) {
     // Fixes it iPhone notch issue
