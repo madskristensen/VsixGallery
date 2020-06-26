@@ -73,6 +73,7 @@ main {
     figure {
         flex-grow: 1;
         width: 177px;
+        max-width: 250px;
         margin: 5px;
         padding: 10px;
         border: 1px solid $light-backdrop;
