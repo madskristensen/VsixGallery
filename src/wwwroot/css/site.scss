@@ -67,7 +67,6 @@ main {
 
 .extgrid {
     display: flex;
-    /*flex-direction: row;*/
     flex-wrap: wrap;
     margin: 1em 0;
 
@@ -221,6 +220,11 @@ footer {
     }
 }
 
+@media screen and (max-width: 1024px) {
+    html {
+        min-width: 550px;
+    }
+}
 
 @supports (padding: env(safe-area-inset-left)) {
     // Fixes it iPhone notch issue
