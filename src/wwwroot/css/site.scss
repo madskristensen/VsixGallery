@@ -220,9 +220,10 @@ footer {
     }
 }
 
-@media screen and (max-width: 1024px) {
-    html {
-        min-width: 550px;
+@media screen and (max-width: 600px) {
+    .feed,
+    form {
+        display: none;
     }
 }
 
@@ -231,5 +232,9 @@ footer {
     .container {
         padding-left: unquote('max(.5em, env(safe-area-inset-left))');
         padding-right: unquote('max(.5em, env(safe-area-inset-right))');
+    }
+
+    .extgrid figure {
+        display: inline;
     }
 }
