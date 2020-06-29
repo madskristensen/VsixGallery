@@ -67,7 +67,7 @@
 {
     <script>
         var readme = document.getElementById('readme');
-        var url = '@Model.Package.Repo.Replace("https://github.com", "https://raw.githubusercontent.com")' + 'master/README.md';
+        var url = '@Model.Package.Repo.Replace("https://github.com", "https://raw.githubusercontent.com").TrimEnd('/')' + '/master/README.md';
 
         fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + url)
             .then(response => response.text())
