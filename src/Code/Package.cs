@@ -24,7 +24,6 @@ namespace VsixGallery
 		public string Repo { get; set; }
 		public string IssueTracker { get; set; }
 		public ExtensionList ExtensionList { get; set; }
-		public bool Unlisted { get; set; }
 
 		[JsonIgnore]
 		public IEnumerable<string> Errors { get; set; }
@@ -43,6 +42,9 @@ namespace VsixGallery
 
 		public bool HasValidatorErrors =>
 			Errors != null && Errors.Any();
+
+		public bool Unlisted =>
+			!string.IsNullOrEmpty(Tags) && Tags.Contains("unlisted", StringComparison.OrdinalIgnoreCase);
 
 		public override string ToString()
 		{

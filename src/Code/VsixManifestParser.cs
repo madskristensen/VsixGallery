@@ -80,7 +80,6 @@ namespace VsixGallery
 			package.ReleaseNotesUrl = ParseNode(doc, "ReleaseNotes", false);
 			package.GettingStartedUrl = ParseNode(doc, "GettingStartedGuide", false);
 			package.MoreInfoUrl = ParseNode(doc, "MoreInfo", false);
-			package.Unlisted = ParseNode(doc, "Visibility", false)?.Trim().ToLowerInvariant() == "unlisted";
 		}
 
 		private void Vs2010Format(XmlDocument doc, Package package)
@@ -96,7 +95,6 @@ namespace VsixGallery
 			package.ReleaseNotesUrl = ParseNode(doc, "ReleaseNotes", false);
 			package.GettingStartedUrl = ParseNode(doc, "GettingStartedGuide", false);
 			package.MoreInfoUrl = ParseNode(doc, "MoreInfo", false);
-			package.Unlisted = ParseNode(doc, "Visibility", false)?.Trim().ToLowerInvariant() == "unlisted";
 		}
 
 		private static IEnumerable<string> GetSupportedVersions(XmlDocument doc)
