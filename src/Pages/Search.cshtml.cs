@@ -1,8 +1,8 @@
-using Markdig.Helpers;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +23,9 @@ namespace VsixGallery.Pages
 
 		public void OnGet([FromQuery] string q)
 		{
-			var packages = _helper.PackageCache.OrderByDescending(p => p.DatePublished);
-
-
+			IOrderedEnumerable<Package> packages = _helper.PackageCache
+								  .Where(p => p.Unlisted = false)
+								  .OrderByDescending(p => p.DatePublished);
 
 			Packages = Lookup(q, packages);
 			Term = q;
@@ -33,8 +33,8 @@ namespace VsixGallery.Pages
 
 		private IEnumerable<Package> Lookup(string q, IEnumerable<Package> packages)
 		{
-			var list = new Dictionary<Package, int>();
-			foreach (var package in packages)
+			Dictionary<Package, int> list = new Dictionary<Package, int>();
+			foreach (Package package in packages)
 			{
 				int points = 0;
 
@@ -54,8 +54,8 @@ namespace VsixGallery.Pages
 				list.Add(package, points);
 			}
 
-			var sorted = list.Where(e => e.Value > 0)
-				             .OrderByDescending(e => e.Value);
+			IOrderedEnumerable<KeyValuePair<Package, int>> sorted = list.Where(e => e.Value > 0)
+							 .OrderByDescending(e => e.Value);
 
 			return sorted.Select(e => e.Key);
 		}

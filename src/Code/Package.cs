@@ -24,6 +24,7 @@ namespace VsixGallery
 		public string Repo { get; set; }
 		public string IssueTracker { get; set; }
 		public ExtensionList ExtensionList { get; set; }
+		public bool Unlisted { get; set; }
 
 		[JsonIgnore]
 		public IEnumerable<string> Errors { get; set; }
