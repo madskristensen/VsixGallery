@@ -24,7 +24,7 @@ namespace VsixGallery.Pages
 		public void OnGet([FromQuery] string q)
 		{
 			IOrderedEnumerable<Package> packages = _helper.PackageCache
-								  .Where(p => p.Unlisted = false)
+								  .Where(p => p.Unlisted == false)
 								  .OrderByDescending(p => p.DatePublished);
 
 			Packages = Lookup(q, packages);
