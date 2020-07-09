@@ -19,7 +19,9 @@ namespace VsixGallery.Controllers
 		public IActionResult Index()
 		{
 			Response.ContentType = "text/xml";
-			Package[] packages = _helper.PackageCache.OrderByDescending(p => p.DatePublished).ToArray();
+			Package[] packages = _helper.PackageCache
+				.Where(p => !p.Unlisted)
+				.OrderByDescending(p => p.DatePublished).ToArray();
 
 			if (this.IsConditionalGet(packages))
 			{

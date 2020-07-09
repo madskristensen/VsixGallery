@@ -82,3 +82,39 @@ after_test:
     </ul>
 
 </section>
+
+<section>
+    <h2>Unlisted extensions</h2>
+
+    <p>
+        An unlisted extension is one that you need to know the direct link to, otherwise it won't show up anywhere.
+        The only places it will show up are:
+    </p>
+
+    <ul>
+        <li>Direct link (example: vsixgallery.com/extension/[ID])</li>
+        <li>Author page</li>
+        <li>Author gallery feed</li>
+        <li>Extension gallery feed</li>
+    </ul>
+
+    <p>
+        That means it won't show up in the usual places on this website such as:
+    </p>
+
+    <ul>
+        <li>Front page</li>
+        <li>Search results</li>
+        <li>Main gallery feed</li>
+    </ul>
+
+    <p>
+        To unlist an extension, simply add the tag "unlisted" in the .vsixmanifest file. 
+        The tags specified in the .vsixmanifest are not shown on either the Marketplace nor inside Visual Studio,
+        so it won't be visible to anyone. 
+    </p>
+
+    <p>Here's what it could look like:</p>
+
+    <pre>&lt;Tags&gt;foo, bar, unlisted&lt;/Tags&gt;</pre>
+</section>
