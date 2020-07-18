@@ -4,6 +4,7 @@
 
 @{
     ViewData["Title"] = Model.Package.Name;
+    ViewData["Description"] = Model.Package.Description.Substring(0, Math.Min(Model.Package.Description.Length, 200));
     ViewData["Image"] = Model.Package.Icon;
 }
 

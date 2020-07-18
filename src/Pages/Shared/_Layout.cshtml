@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>@ViewData["Title"]</title>
-    <meta name="description" content="An alternative Visual Studio extension gallery for nightly builds." />
+    <meta name="description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
     <link rel="stylesheet" href="~/css/site.scss" inline />
     
     <link rel="apple-touch-icon" href="~/img/icon-180x180.png?v=1" />
@@ -17,6 +17,7 @@
     <meta name="twitter:creator" content="@@mkristensen" />
 
     <meta property="og:title" content="@ViewData["Title"]" />
+    <meta property="og:description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
     <meta property="og:image" content="@($"{Context.Request.Scheme}://{Context.Request.Host}" + (ViewData["Image"] ?? "/img/icon-180x180.png"))" />
