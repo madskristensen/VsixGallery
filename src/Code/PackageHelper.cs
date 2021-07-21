@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 
 using Newtonsoft.Json;
 
@@ -18,26 +19,16 @@ namespace VsixGallery
 	{
 		private readonly string _webroot;
 		private readonly string _extensionRoot;
-		public static List<Package> _cache;
+		private readonly List<Package> _cache;
 
-		public PackageHelper(string webroot)
+		public PackageHelper(IWebHostEnvironment env)
 		{
-			_webroot = webroot;
-			_extensionRoot = Path.Combine(webroot, "extensions");
+			_webroot = env.WebRootPath;
+			_extensionRoot = Path.Combine(_webroot, "extensions");
+			_cache = GetAllPackages();
 		}
 
-		public List<Package> PackageCache
-		{
-			get
-			{
-				if (_cache == null)
-				{
-					_cache = GetAllPackages();
-				}
-
-				return _cache;
-			}
-		}
+		public IReadOnlyList<Package> PackageCache => _cache;
 
 		private List<Package> GetAllPackages()
 		{
@@ -132,9 +123,9 @@ namespace VsixGallery
 
 		public Package GetPackage(string id)
 		{
-			if (PackageCache.Any(p => p.ID == id))
+			if (_cache.Any(p => p.ID == id))
 			{
-				return PackageCache.SingleOrDefault(p => p.ID == id);
+				return _cache.SingleOrDefault(p => p.ID == id);
 			}
 
 			string folder = Path.Combine(_extensionRoot, id);
@@ -191,7 +182,7 @@ namespace VsixGallery
 
 		private void RemoveOldExtensions()
 		{
-			Package[] oldPackages = PackageCache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18)).ToArray();
+			Package[] oldPackages = _cache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18)).ToArray();
 
 			foreach (Package package in oldPackages)
 			{
@@ -199,7 +190,7 @@ namespace VsixGallery
 				{
 					string vsixFolder = Path.Combine(_extensionRoot, package.ID);
 					Directory.Delete(vsixFolder, true);
-					PackageCache.Remove(package);
+					_cache.Remove(package);
 				}
 				catch (Exception ex)
 				{
@@ -228,14 +219,14 @@ namespace VsixGallery
 
 			File.WriteAllText(Path.Combine(vsixFolder, "extension.json"), json, Encoding.UTF8);
 
-			Package existing = PackageCache.FirstOrDefault(p => p.ID == package.ID);
+			Package existing = _cache.FirstOrDefault(p => p.ID == package.ID);
 
-			if (PackageCache.Contains(existing))
+			if (_cache.Contains(existing))
 			{
-				PackageCache.Remove(existing);
+				_cache.Remove(existing);
 			}
 
-			PackageCache.Add(package);
+			_cache.Add(package);
 		}
 	}
 }

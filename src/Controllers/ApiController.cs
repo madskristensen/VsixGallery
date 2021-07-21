@@ -14,9 +14,9 @@ namespace VsixGallery.Controllers
 	{
 		private readonly PackageHelper _helper;
 
-		public ApiController(IWebHostEnvironment env)
+		public ApiController(PackageHelper helper)
 		{
-			_helper = new PackageHelper(env.WebRootPath);
+			_helper = helper;
 		}
 
 		public object Get(string id)

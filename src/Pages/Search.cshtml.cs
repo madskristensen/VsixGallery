@@ -15,9 +15,9 @@ namespace VsixGallery.Pages
 		public IEnumerable<Package> Packages { get; private set; }
 		public string Term { get; set; }
 
-		public SearchModel(IWebHostEnvironment env)
+		public SearchModel(PackageHelper helper)
 		{
-			_helper = new PackageHelper(env.WebRootPath);
+			_helper = helper;
 		}
 
 
