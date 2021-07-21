@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 using System;
@@ -17,14 +17,19 @@ namespace VsixGallery
 {
 	public class PackageHelper
 	{
-		private readonly string _webroot;
 		private readonly string _extensionRoot;
 		private readonly List<Package> _cache;
 
-		public PackageHelper(IWebHostEnvironment env)
+		public PackageHelper(IWebHostEnvironment env, IOptions<ExtensionsOptions> options)
 		{
-			_webroot = env.WebRootPath;
-			_extensionRoot = Path.Combine(_webroot, "extensions");
+			_extensionRoot = options.Value.Directory;
+
+			// Default to an "extensions" directory under the web root
+			// path when a directory is not specified in the options.
+			if (string.IsNullOrEmpty(_extensionRoot))
+			{
+				_extensionRoot = Path.Combine(env.WebRootPath, "extensions");
+			}
 			_cache = GetAllPackages();
 		}
 
@@ -142,7 +147,7 @@ namespace VsixGallery
 
 		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker)
 		{
-			string tempFolder = Path.Combine(_webroot, "temp", Guid.NewGuid().ToString());
+			string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
 			try
 			{
