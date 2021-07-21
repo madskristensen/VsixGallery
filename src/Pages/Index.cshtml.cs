@@ -20,9 +20,9 @@ namespace VsixGallery.Pages
 		public int Pages { get; private set; }
 		public int CurrentPage { get; private set; }
 
-		public IndexModel(IWebHostEnvironment env)
+		public IndexModel(PackageHelper helper)
 		{
-			_helper = new PackageHelper(env.WebRootPath);
+			_helper = helper;
 		}
 
 		public void OnGet([FromQuery] int page = 1)

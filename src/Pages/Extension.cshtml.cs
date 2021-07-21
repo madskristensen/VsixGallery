@@ -10,9 +10,9 @@ namespace VsixGallery.Pages
 
 		public Package Package { get; private set; }
 
-		public ExtensionModel(IWebHostEnvironment env)
+		public ExtensionModel(PackageHelper helper)
 		{
-			_helper = new PackageHelper(env.WebRootPath);
+			_helper = helper;
 		}
 
 		public void OnGet([FromRoute] string id)

@@ -36,6 +36,11 @@ namespace VsixGallery
 				pipeline.CompileScssFiles()
 			);
 
+			// PackgeHelper caches packages, so we need to register it as a singleton.
+			services.AddSingleton<PackageHelper>();
+
+			services.Configure<ExtensionsOptions>(Configuration.GetSection("Extensions"));
+
 			// HTML minification (https://github.com/Taritsyn/WebMarkupMin)
 			services
 				.AddWebMarkupMin(
