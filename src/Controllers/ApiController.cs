@@ -46,13 +46,13 @@ namespace VsixGallery.Controllers
 		}
 
 		[HttpPost, DisableRequestSizeLimit]
-		public async Task<IActionResult> Upload([FromQuery] string repo, string issuetracker)
+		public async Task<IActionResult> Upload([FromQuery] string repo, string issuetracker, string readmeUrl)
 		{
 			try
 			{
 				HttpContext.Request.EnableBuffering();
 
-				Package package = await _helper.ProcessVsix(Request.Form.Files[0], repo, issuetracker);
+				Package package = await _helper.ProcessVsix(Request.Form.Files[0], repo, issuetracker, readmeUrl);
 
 				return Json(package);
 			}
