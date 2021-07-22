@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 using System;
 
@@ -60,6 +62,18 @@ namespace VsixGallery
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			ExtensionsOptions extensionsOptions = app.ApplicationServices.GetRequiredService<IOptions<ExtensionsOptions>>().Value;
+
+			// If extensions are being stored in a custom path, then we need to create a file provider
+			// that will act as though that custom path is under the "wwwroot/extensions" directory.
+			if (PackageHelper.IsCustomExtensionPath(extensionsOptions))
+			{
+				env.WebRootFileProvider = new CompositeFileProvider(
+					new ExtensionsFileProvider(extensionsOptions.Directory),
+					env.WebRootFileProvider
+				);
+			}
+
 			if (env.IsDevelopment())
 			{
 				app.UseBrowserLink();
