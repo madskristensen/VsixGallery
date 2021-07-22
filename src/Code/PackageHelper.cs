@@ -19,9 +19,11 @@ namespace VsixGallery
 	{
 		private readonly string _extensionRoot;
 		private readonly List<Package> _cache;
+		private readonly bool _canRemoveOldExtensions;
 
 		public PackageHelper(IWebHostEnvironment env, IOptions<ExtensionsOptions> options)
 		{
+			_canRemoveOldExtensions = options.Value.RemoveOldExtensions;
 			_extensionRoot = options.Value.Directory;
 
 			// Default to an "extensions" directory under the web root
@@ -187,6 +189,11 @@ namespace VsixGallery
 
 		private void RemoveOldExtensions()
 		{
+			if (!_canRemoveOldExtensions)
+			{
+				return;
+			}
+
 			Package[] oldPackages = _cache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18)).ToArray();
 
 			foreach (Package package in oldPackages)
