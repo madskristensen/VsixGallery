@@ -17,6 +17,8 @@ namespace VsixGallery
 {
 	public class PackageHelper
 	{
+		internal const string DefaultExtensionsPath = "extensions";
+
 		private readonly string _extensionRoot;
 		private readonly List<Package> _cache;
 
@@ -28,9 +30,14 @@ namespace VsixGallery
 			// path when a directory is not specified in the options.
 			if (string.IsNullOrEmpty(_extensionRoot))
 			{
-				_extensionRoot = Path.Combine(env.WebRootPath, "extensions");
+				_extensionRoot = Path.Combine(env.WebRootPath, DefaultExtensionsPath);
 			}
 			_cache = GetAllPackages();
+		}
+
+		internal static bool IsCustomExtensionPath(ExtensionsOptions options)
+		{
+			return !string.IsNullOrEmpty(options. Directory);
 		}
 
 		public IReadOnlyList<Package> PackageCache => _cache;
