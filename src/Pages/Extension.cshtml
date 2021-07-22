@@ -58,20 +58,16 @@
         </div>
     }
 
-    @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
+    @if (!string.IsNullOrWhiteSpace(Model.Package.ReadmeUrl))
     {
         <p id="readme">Loading...</p>
+        <script>
+            var readme = document.getElementById('readme');
+            var url = '@Model.Package.ReadmeUrl';
+
+            fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + url)
+                .then(response => response.text())
+                .then(text => readme.innerHTML = text);
+        </script>
     }
 </article>
-
-@if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
-{
-    <script>
-        var readme = document.getElementById('readme');
-        var url = '@Model.Package.Repo.Replace("https://github.com", "https://raw.githubusercontent.com").TrimEnd('/')' + '/master/README.md';
-
-        fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + url)
-            .then(response => response.text())
-            .then(text => readme.innerHTML = text);
-    </script>
-}

@@ -145,7 +145,7 @@ namespace VsixGallery
 			return JsonConvert.DeserializeObject(content, typeof(Package)) as Package;
 		}
 
-		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker)
+		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker, string readmeUrl)
 		{
 			string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
@@ -166,7 +166,7 @@ namespace VsixGallery
 				ZipFile.ExtractToDirectory(tempVsix, tempFolder);
 
 				VsixManifestParser parser = new VsixManifestParser();
-				Package package = parser.CreateFromManifest(tempFolder, repo, issuetracker);
+				Package package = parser.CreateFromManifest(tempFolder, repo, issuetracker, readmeUrl);
 
 				string vsixFolder = Path.Combine(_extensionRoot, package.ID);
 

@@ -23,6 +23,7 @@ namespace VsixGallery
 		public string MoreInfoUrl { get; set; }
 		public string Repo { get; set; }
 		public string IssueTracker { get; set; }
+		public string ReadmeUrl { get; set; }
 		public ExtensionList ExtensionList { get; set; }
 
 		[JsonIgnore]
