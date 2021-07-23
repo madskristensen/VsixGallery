@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Microsoft.Extensions.DependencyInjection;
+@using Microsoft.Extensions.Options;
+@{
     Layout = "_Layout";
 
     Context.Response.Headers["Cache-Control"] = "max-age=180"; // 3 minutes
@@ -10,4 +12,10 @@
         Context.Response.Headers["Referrer-Policy"] = "no-referrer-when-downgrade";
         Context.Response.Headers["X-Frame-Options"] = "DENY";
     }
+
+    DisplayOptions options = Context.RequestServices.GetRequiredService<IOptions<DisplayOptions>>().Value;
+    ViewData["HideSetupLink"] = options.HideSetupLink;
+    ViewData["HideUploadGuideLink"] = options.HideUploadGuideLink;
+    ViewData["HideCreateExtensionLink"] = options.HideCreateExtensionLink;
+    ViewData["HideContributeLink"] = options.HideContributeLink;
 }

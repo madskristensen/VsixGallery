@@ -47,6 +47,7 @@ namespace VsixGallery
 			services.AddSingleton<PackageHelper>();
 
 			services.Configure<ExtensionsOptions>(Configuration.GetSection("Extensions"));
+			services.Configure<DisplayOptions>(Configuration.GetSection("Display"));
 
 			// HTML minification (https://github.com/Taritsyn/WebMarkupMin)
 			services

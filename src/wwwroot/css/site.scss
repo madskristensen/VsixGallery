@@ -189,32 +189,40 @@ dt {
 footer {
     background: $dark-backdrop;
     color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
     a {
         color: inherit;
     }
 
     ul {
+        margin: 1em 0 0 0;
         list-style: none;
         padding: 0;
-    }
 
-    .container {
-        display: flex;
-        margin-bottom: 2em;
+        li {
+            display: inline-block;
 
-        > div:not(:first-child) {
-            margin-left: 2em;
+            &:not(:last-child) {
+                &::after {
+                    padding: 0 0.75em;
+                    content: '\00b7'; // &middot;
+                }
+            }
+        }
+
+        &:empty {
+            // Hide the element if none of the links inside it are displayed.
+            display: none;
         }
     }
 
-    h3 {
-        margin: 5px 0;
-    }
-
     #copyright {
-        text-align: center;
         font-size: .9em;
+        padding: 1em;
+        margin: 0;
     }
 }
 
