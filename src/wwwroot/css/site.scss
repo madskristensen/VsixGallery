@@ -7,7 +7,7 @@
 
 html {
     position: relative;
-    min-height: 100%;
+    height: 100%;
     background: white;
     color: black;
 }
@@ -51,11 +51,15 @@ header {
 
 body {
     font: 16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
-    margin: 0 0 $footer-height 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 main {
-    margin: 30px 0 ($footer-height + 25) 0;
+    margin: 30px 0 0 0;
+    flex: 1;
 }
 
 .container {
@@ -183,41 +187,42 @@ dt {
 }
 
 footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: block;
-    width: 100%;
-    height: $footer-height;
     background: $dark-backdrop;
     color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
     a {
         color: inherit;
     }
 
     ul {
+        margin: 1em 0 0 0;
         list-style: none;
         padding: 0;
-    }
 
-    .container {
-        display: flex;
-        margin-bottom: 2em;
+        li {
+            display: inline-block;
 
-        > div:not(:first-child) {
-            margin-left: 2em;
+            &:not(:last-child) {
+                &::after {
+                    padding: 0 0.75em;
+                    content: '\00b7'; // &middot;
+                }
+            }
+        }
+
+        &:empty {
+            // Hide the element if none of the links inside it are displayed.
+            display: none;
         }
     }
 
-    h3 {
-        margin: 5px 0;
-    }
-
     #copyright {
-        text-align: center;
         font-size: .9em;
+        padding: 1em;
+        margin: 0;
     }
 }
 

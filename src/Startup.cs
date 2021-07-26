@@ -26,7 +26,12 @@ namespace VsixGallery
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddRazorPages();
+			IMvcBuilder mvcBuilder = services.AddRazorPages();
+#if DEBUG
+			// The runtime compilation package is only installed for the Debug configuration.
+			mvcBuilder.AddRazorRuntimeCompilation();
+#endif
+
 			services.AddMvc(options => options.EnableEndpointRouting = false);
 			services.AddHsts(options =>
 			{
@@ -42,6 +47,7 @@ namespace VsixGallery
 			services.AddSingleton<PackageHelper>();
 
 			services.Configure<ExtensionsOptions>(Configuration.GetSection("Extensions"));
+			services.Configure<DisplayOptions>(Configuration.GetSection("Display"));
 
 			// HTML minification (https://github.com/Taritsyn/WebMarkupMin)
 			services

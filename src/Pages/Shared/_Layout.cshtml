@@ -41,22 +41,20 @@
     </main>
 
     <footer>
-        <div class="container">
-            <div>
-                <h3>How to</h3>
-                <ul>
-                    <li><a href="~/feedguide">Set up gallery feed</a></li>
-                    <li><a href="~/devguide">Add your extension</a></li>
-                    <li><a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Write your first extension</a></li>
-                </ul>
-            </div>
-            <div>
-                <h3>Contribute</h3>
-                <ul>
-                    <li><a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">Source code on GitHub</a></li>
-                </ul>
-            </div>
-        </div>
+        <ul>
+            @if (!(bool)ViewData["HideSetupLink"]) {
+                <li><a href="~/feedguide">Set up gallery feed</a></li>
+            }
+            @if (!(bool)ViewData["HideUploadGuideLink"]) {
+                <li><a href="~/devguide">Add your extension</a></li>
+            }
+            @if (!(bool)ViewData["HideCreateExtensionLink"]) {
+                <li><a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Write your first extension</a></li>
+            }
+            @if (!(bool)ViewData["HideContributeLink"]) {
+                <li><a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">Contribute on GitHub</a></li>
+            }
+        </ul>
 
         <p id="copyright">
             Copyright &copy; 2020 <a href="https://www.madskristensen.net" rel="noopener noreferrer">Mads Kristensen</a>
