@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,11 +10,15 @@ namespace VsixGallery.Controllers
 {
 	public class ApiController : Controller
 	{
-		private readonly PackageHelper _helper;
+		private const string AuthorizationPrefix = "Bearer ";
 
-		public ApiController(PackageHelper helper)
+		private readonly PackageHelper _helper;
+		private readonly string _secretKey;
+
+		public ApiController(PackageHelper helper, IOptions<UploadOptions> uploadOptions)
 		{
 			_helper = helper;
+			_secretKey = uploadOptions.Value.SecretKey;
 		}
 
 		public object Get(string id)
@@ -48,6 +50,11 @@ namespace VsixGallery.Controllers
 		[HttpPost, DisableRequestSizeLimit]
 		public async Task<IActionResult> Upload([FromQuery] string repo, string issuetracker, string readmeUrl)
 		{
+			if (!IsAuthorized())
+			{
+				return Unauthorized();
+			}
+
 			try
 			{
 				HttpContext.Request.EnableBuffering();
@@ -62,6 +69,29 @@ namespace VsixGallery.Controllers
 				Response.Headers["x-error"] = ex.Message;
 				return Content(ex.Message);
 			}
+		}
+
+		private bool IsAuthorized()
+		{
+			if (string.IsNullOrEmpty(_secretKey))
+			{
+				// No secret key means anyone can upload.
+				return true;
+			}
+
+			if (Request.Headers.TryGetValue("Authorization", out StringValues values))
+			{
+				if (values.Count == 1)
+				{
+					string authorization = values[0];
+					if (authorization.StartsWith(AuthorizationPrefix, StringComparison.OrdinalIgnoreCase))
+					{
+						return string.Equals(_secretKey, authorization.Substring(AuthorizationPrefix.Length).Trim());
+					}
+				}
+			}
+
+			return false;
 		}
 	}
 }
