@@ -64,10 +64,13 @@ namespace VsixGallery
 			{
 				return readmeUrl;
 			}
-			else
+
+			if (string.IsNullOrEmpty(repo))
 			{
-				return repo.Replace("https://github.com", "https://raw.githubusercontent.com").TrimEnd('/') + "/" + readmeUrl.TrimStart('/');
+				return "";
 			}
+
+			return repo.Replace("https://github.com", "https://raw.githubusercontent.com").TrimEnd('/') + "/" + readmeUrl.TrimStart('/');
 		}
 
 		private void AddExtensionList(Package package, string tempFolder)
