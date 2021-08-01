@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 using System;
-
+using System.IO;
 using WebMarkupMin.AspNetCore2;
 using WebMarkupMin.Core;
 
@@ -100,6 +101,16 @@ namespace VsixGallery
 					context.Response.Headers["X-Content-Type-Options"] = "nosniff";
 					return next();
 				});
+
+			// When running outside of IIS, we need to manually apply the rewrite
+			// rules that convert the extension file names to "extension.vsix".
+			if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APP_POOL_ID")))
+			{
+				using (StreamReader webConfig = File.OpenText("web.config"))
+				{
+					app.UseRewriter(new RewriteOptions().AddIISUrlRewrite(webConfig));
+				}
+			}
 
 			app.UseWebOptimizer();
 			app.UseStaticFilesWithCache();
