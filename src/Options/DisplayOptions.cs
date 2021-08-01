@@ -2,6 +2,8 @@
 {
 	public class DisplayOptions
 	{
+		public string SiteName { get; set; }
+
 		public bool HideSetupLink { get; set; }
 
 		public bool HideUploadGuideLink { get; set; }
