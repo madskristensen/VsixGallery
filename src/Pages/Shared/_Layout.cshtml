@@ -25,7 +25,7 @@
 <body>
     <header>
         <div class="container">
-            <a href="/">Open VSIX Gallery</a>
+            <a href="/">@ViewData["SiteName"]</a>
             <form action="~/search/" method="get">
                 <label for="search">Search</label>
                 <input type="search" id="search" value="@Context.Request.Query["q"]" name="q" placeholder="Search..." required />
