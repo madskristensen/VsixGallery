@@ -22,10 +22,12 @@ namespace VsixGallery
 		private readonly string _extensionRoot;
 		private readonly List<Package> _cache;
 		private readonly bool _canRemoveOldExtensions;
+		private readonly bool _canValidateLicenses;
 
 		public PackageHelper(IWebHostEnvironment env, IOptions<ExtensionsOptions> options)
 		{
 			_canRemoveOldExtensions = options.Value.RemoveOldExtensions;
+			_canValidateLicenses = options.Value.ValidateLicenses;
 			_extensionRoot = options.Value.Directory;
 
 			// Default to an "extensions" directory under the web root
@@ -127,7 +129,7 @@ namespace VsixGallery
 				errors.Add("Provide a clear description. Make sure to cover why it is great and what it does");
 			}
 
-			if (string.IsNullOrEmpty(package.License))
+			if (_canValidateLicenses && string.IsNullOrEmpty(package.License))
 			{
 				errors.Add("No license is specified in the .vsixmanifest");
 			}
