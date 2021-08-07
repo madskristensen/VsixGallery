@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -34,13 +35,18 @@ namespace VsixGallery
 			{
 				_extensionRoot = Path.Combine(env.WebRootPath, DefaultExtensionsPath);
 			}
+			else
+			{
+				IsCustomExtensionPath = true;
+			}
+
+			FileProvider = new PhysicalFileProvider(_extensionRoot);
 			_cache = GetAllPackages();
 		}
 
-		internal static bool IsCustomExtensionPath(ExtensionsOptions options)
-		{
-			return !string.IsNullOrEmpty(options. Directory);
-		}
+		public bool IsCustomExtensionPath { get; }
+
+		public IFileProvider FileProvider { get; }
 
 		public IReadOnlyList<Package> PackageCache => _cache;
 

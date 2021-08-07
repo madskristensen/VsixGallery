@@ -70,14 +70,14 @@ namespace VsixGallery
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			ExtensionsOptions extensionsOptions = app.ApplicationServices.GetRequiredService<IOptions<ExtensionsOptions>>().Value;
+			PackageHelper packageHelper = app.ApplicationServices.GetRequiredService<PackageHelper>();
 
 			// If extensions are being stored in a custom path, then we need to create a file provider
 			// that will act as though that custom path is under the "wwwroot/extensions" directory.
-			if (PackageHelper.IsCustomExtensionPath(extensionsOptions))
+			if (packageHelper.IsCustomExtensionPath)
 			{
 				env.WebRootFileProvider = new CompositeFileProvider(
-					new ExtensionsFileProvider(extensionsOptions.Directory),
+					new ExtensionsFileProvider(packageHelper.FileProvider),
 					env.WebRootFileProvider
 				);
 			}

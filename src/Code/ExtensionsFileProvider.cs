@@ -11,9 +11,9 @@ namespace VsixGallery
 
 		private readonly IFileProvider _underlyingFileProvider;
 
-		public ExtensionsFileProvider(string extensionsDirectory)
+		public ExtensionsFileProvider(IFileProvider underlyingFileProvider)
 		{
-			_underlyingFileProvider = new PhysicalFileProvider(extensionsDirectory);
+			_underlyingFileProvider = underlyingFileProvider;
 		}
 
 		public IDirectoryContents GetDirectoryContents(string subpath)
