@@ -18,8 +18,6 @@ namespace VsixGallery.Pages
 		public void OnGet([FromRoute] string id)
 		{
 			Package = _helper.GetPackage(id);
-
-			string folder = $"wwwroot/extensions/{Package.ID}";
 		}
 	}
 }
