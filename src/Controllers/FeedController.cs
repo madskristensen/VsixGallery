@@ -10,9 +10,9 @@ namespace VsixGallery.Controllers
 		private readonly PackageHelper _helper;
 		private readonly FeedWriter _feed;
 
-		public FeedController(IWebHostEnvironment env)
+		public FeedController(PackageHelper helper)
 		{
-			_helper = new PackageHelper(env.WebRootPath);
+			_helper = helper;
 			_feed = new FeedWriter();
 		}
 

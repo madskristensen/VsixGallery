@@ -11,7 +11,7 @@ namespace VsixGallery
 {
 	public class VsixManifestParser
 	{
-		public Package CreateFromManifest(string tempFolder, string repo, string issuetracker)
+		public Package CreateFromManifest(string tempFolder, string repo, string issuetracker, string readmeUrl)
 		{
 			string xml = File.ReadAllText(Path.Combine(tempFolder, "extension.vsixmanifest"));
 			xml = Regex.Replace(xml, "( xmlns(:\\w+)?)=\"([^\"]+)\"", string.Empty);
@@ -22,7 +22,8 @@ namespace VsixGallery
 			Package package = new Package
 			{
 				Repo = repo,
-				IssueTracker = issuetracker
+				IssueTracker = issuetracker,
+				ReadmeUrl = BuildReadmeUrl(repo, readmeUrl)
 			};
 
 			if (doc.GetElementsByTagName("DisplayName").Count > 0)
@@ -47,6 +48,29 @@ namespace VsixGallery
 			AddExtensionList(package, tempFolder);
 
 			return package;
+		}
+
+		private string BuildReadmeUrl(string repo, string readmeUrl)
+		{
+			// Default to `master/README.md` if a URL was not specified.
+			if (string.IsNullOrWhiteSpace(readmeUrl))
+			{
+				readmeUrl = "master/README.md";
+			}
+
+			// If the provided URL is absolute, then use it
+			// as is; otherwise, assume it's a GitHub URL.
+			if (Regex.IsMatch(readmeUrl, "^https?://"))
+			{
+				return readmeUrl;
+			}
+
+			if (string.IsNullOrEmpty(repo))
+			{
+				return "";
+			}
+
+			return repo.Replace("https://github.com", "https://raw.githubusercontent.com").TrimEnd('/') + "/" + readmeUrl.TrimStart('/');
 		}
 
 		private void AddExtensionList(Package package, string tempFolder)

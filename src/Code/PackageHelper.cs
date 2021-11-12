@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 using System;
@@ -16,28 +18,39 @@ namespace VsixGallery
 {
 	public class PackageHelper
 	{
-		private readonly string _webroot;
+		internal const string DefaultExtensionsPath = "extensions";
+
 		private readonly string _extensionRoot;
-		public static List<Package> _cache;
+		private readonly List<Package> _cache;
+		private readonly bool _canRemoveOldExtensions;
+		private readonly bool _canValidateLicenses;
 
-		public PackageHelper(string webroot)
+		public PackageHelper(IWebHostEnvironment env, IOptions<ExtensionsOptions> options)
 		{
-			_webroot = webroot;
-			_extensionRoot = Path.Combine(webroot, "extensions");
-		}
+			_canRemoveOldExtensions = options.Value.RemoveOldExtensions;
+			_canValidateLicenses = options.Value.ValidateLicenses;
+			_extensionRoot = options.Value.Directory;
 
-		public List<Package> PackageCache
-		{
-			get
+			// Default to an "extensions" directory under the web root
+			// path when a directory is not specified in the options.
+			if (string.IsNullOrEmpty(_extensionRoot))
 			{
-				if (_cache == null)
-				{
-					_cache = GetAllPackages();
-				}
-
-				return _cache;
+				_extensionRoot = Path.Combine(env.WebRootPath, DefaultExtensionsPath);
 			}
+			else
+			{
+				IsCustomExtensionPath = true;
+			}
+
+			FileProvider = new PhysicalFileProvider(_extensionRoot);
+			_cache = GetAllPackages();
 		}
+
+		public bool IsCustomExtensionPath { get; }
+
+		public IFileProvider FileProvider { get; }
+
+		public IReadOnlyList<Package> PackageCache => _cache;
 
 		private List<Package> GetAllPackages()
 		{
@@ -122,7 +135,7 @@ namespace VsixGallery
 				errors.Add("Provide a clear description. Make sure to cover why it is great and what it does");
 			}
 
-			if (string.IsNullOrEmpty(package.License))
+			if (_canValidateLicenses && string.IsNullOrEmpty(package.License))
 			{
 				errors.Add("No license is specified in the .vsixmanifest");
 			}
@@ -132,9 +145,9 @@ namespace VsixGallery
 
 		public Package GetPackage(string id)
 		{
-			if (PackageCache.Any(p => p.ID == id))
+			if (_cache.Any(p => p.ID == id))
 			{
-				return PackageCache.SingleOrDefault(p => p.ID == id);
+				return _cache.SingleOrDefault(p => p.ID == id);
 			}
 
 			string folder = Path.Combine(_extensionRoot, id);
@@ -149,9 +162,9 @@ namespace VsixGallery
 			return JsonConvert.DeserializeObject(content, typeof(Package)) as Package;
 		}
 
-		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker)
+		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker, string readmeUrl)
 		{
-			string tempFolder = Path.Combine(_webroot, "temp", Guid.NewGuid().ToString());
+			string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
 			try
 			{
@@ -170,7 +183,7 @@ namespace VsixGallery
 				ZipFile.ExtractToDirectory(tempVsix, tempFolder);
 
 				VsixManifestParser parser = new VsixManifestParser();
-				Package package = parser.CreateFromManifest(tempFolder, repo, issuetracker);
+				Package package = parser.CreateFromManifest(tempFolder, repo, issuetracker, readmeUrl);
 
 				string vsixFolder = Path.Combine(_extensionRoot, package.ID);
 
@@ -191,7 +204,12 @@ namespace VsixGallery
 
 		private void RemoveOldExtensions()
 		{
-			Package[] oldPackages = PackageCache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18)).ToArray();
+			if (!_canRemoveOldExtensions)
+			{
+				return;
+			}
+
+			Package[] oldPackages = _cache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18)).ToArray();
 
 			foreach (Package package in oldPackages)
 			{
@@ -199,7 +217,7 @@ namespace VsixGallery
 				{
 					string vsixFolder = Path.Combine(_extensionRoot, package.ID);
 					Directory.Delete(vsixFolder, true);
-					PackageCache.Remove(package);
+					_cache.Remove(package);
 				}
 				catch (Exception ex)
 				{
@@ -228,14 +246,14 @@ namespace VsixGallery
 
 			File.WriteAllText(Path.Combine(vsixFolder, "extension.json"), json, Encoding.UTF8);
 
-			Package existing = PackageCache.FirstOrDefault(p => p.ID == package.ID);
+			Package existing = _cache.FirstOrDefault(p => p.ID == package.ID);
 
-			if (PackageCache.Contains(existing))
+			if (_cache.Contains(existing))
 			{
-				PackageCache.Remove(existing);
+				_cache.Remove(existing);
 			}
 
-			PackageCache.Add(package);
+			_cache.Add(package);
 		}
 	}
 }

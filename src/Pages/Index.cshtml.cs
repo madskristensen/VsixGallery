@@ -20,14 +20,14 @@ namespace VsixGallery.Pages
 		public int Pages { get; private set; }
 		public int CurrentPage { get; private set; }
 
-		public IndexModel(IWebHostEnvironment env)
+		public IndexModel(PackageHelper helper)
 		{
-			_helper = new PackageHelper(env.WebRootPath);
+			_helper = helper;
 		}
 
 		public void OnGet([FromQuery] int page = 1)
 		{
-			HttpContext.EnableOutputCaching(TimeSpan.FromDays(7), fileDependencies: "wwwroot/extensions", varyByParam: "page");
+			HttpContext.EnableOutputCaching(TimeSpan.FromDays(7), fileProvider: _helper.FileProvider, fileDependencies: "*", varyByParam: "page");
 			IEnumerable<Package> packages = _helper.PackageCache.Where(p => !p.Unlisted);
 
 			int skip = (page - 1) * _pageSize;

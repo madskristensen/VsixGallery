@@ -13,9 +13,9 @@ namespace VsixGallery.Pages
 		public IEnumerable<Package> Packages { get; private set; }
 		public string Author { get; set; }
 
-		public AuthorModel(IWebHostEnvironment env)
+		public AuthorModel(PackageHelper helper)
 		{
-			_helper = new PackageHelper(env.WebRootPath);
+			_helper = helper;
 		}
 
 
