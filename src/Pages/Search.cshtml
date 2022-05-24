@@ -2,7 +2,7 @@
 @model SearchModel
 
 @{
-    ViewData["Title"] = "Search results for '@Model.Term'";
+    ViewData["Title"] = $"Search results for '{Model.Term}'";
 }
 
 <h1>@Model.Packages.Count() results for <em>@Model.Term</em></h1>
