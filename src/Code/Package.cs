@@ -30,10 +30,10 @@ namespace VsixGallery
 		public IEnumerable<string> Errors { get; set; }
 
 		public string AuthorLink =>
-			$"/author/{Uri.EscapeUriString(Author)}";
+			$"/author/{Uri.EscapeDataString(Author)}";
 
 		public string DownloadLink =>
-			$"/extensions/{ID}/{Uri.EscapeUriString(Name + " ")}v{Version}.vsix";
+			$"/extensions/{ID}/{Uri.EscapeDataString(Name + " ")}v{Version}.vsix";
 
 		public string DetailsLink =>
 			$"/extension/{ID}";
