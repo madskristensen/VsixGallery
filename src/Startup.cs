@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 using System;
 using System.IO;
-using WebMarkupMin.AspNetCore8;
+using WebMarkupMin.AspNetCoreLatest;
 using WebMarkupMin.Core;
 
 namespace VsixGallery
