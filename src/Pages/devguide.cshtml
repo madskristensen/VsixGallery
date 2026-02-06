@@ -1,4 +1,4 @@
-﻿@page
+@page
 @{
     ViewData["Title"] = "Add your extension";
 }
@@ -6,22 +6,126 @@
 <h1>Add your extension</h1>
 
 <p>
-    You can add your extension to this gallery in 2 different ways as part of your build automation.
+    You can add your extension to this gallery as part of your build automation using one of these methods:
 </p>
 
 <ol>
-    <li>Use PowerShell</li>
-    <li>Use <a href="http://appveyor.com">AppVeyor</a></li>
+    <li><a href="#github-actions">GitHub Actions</a> (recommended)</li>
+    <li><a href="#powershell">PowerShell</a></li>
+    <li><a href="#appveyor">AppVeyor</a></li>
 </ol>
 
-<p>
-    Both PowerShell and AppVeyor uses a
-    <a href="https://github.com/madskristensen/ExtensionScripts/blob/master/AppVeyor/vsix.ps1">custom script</a>
-    that makes it easy to publish the extension to this gallery. It contains other functions that are useful for
-    incrementing the VSIX version and other handy things.
-</p>
+<section id="github-actions">
+    <h2>Use GitHub Actions</h2>
 
-<section>
+    <p>
+        GitHub Actions is the recommended way to build and publish your Visual Studio 2026 extension.
+        It provides free CI/CD directly in your GitHub repository.
+    </p>
+
+    <p>
+        Create a file at <code>.github/workflows/build.yaml</code> in your repository with the following content:
+    </p>
+
+<pre># yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: "Build"
+
+permissions:
+  actions: write
+  contents: write
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    outputs:
+      version: ${{ steps.vsix_version.outputs.version-number }}
+    name: Build
+    runs-on: windows-latest
+    env:
+      Configuration: Release
+      DeployExtension: False
+      VsixManifestPath: src\source.extension.vsixmanifest
+      VsixManifestSourcePath: src\source.extension.cs
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Setup .NET build dependencies
+      uses: timheuer/bootstrap-dotnet@v1
+      with:
+        nuget: 'false'
+        sdk: 'false'
+        msbuild: 'true'
+
+    - name: Increment VSIX version
+      id: vsix_version
+      uses: timheuer/vsix-version-stamp@v2
+      with:
+        manifest-file: ${{ env.VsixManifestPath }}
+        vsix-token-source-file: ${{ env.VsixManifestSourcePath }}
+
+    - name: Build
+      run: msbuild /v:m -restore /m /p:OutDir=\_built
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ github.event.repository.name }}.vsix
+        path: /_built/**/*.vsix
+
+  publish:
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    needs: build
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download Package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ github.event.repository.name }}.vsix
+
+    - name: Upload to Open VSIX
+      uses: timheuer/openvsixpublish@v1
+      with:
+        vsix-file: ${{ github.event.repository.name }}.vsix
+
+    - name: Publish extension to Marketplace
+      if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[release]') }}
+      uses: cezarypiatek/VsixPublisherAction@1.0
+      with:
+        extension-file: '${{ github.event.repository.name }}.vsix'
+        publish-manifest-file: 'vs-publish.json'
+        personal-access-code: ${{ secrets.VS_PUBLISHER_ACCESS_TOKEN }}
+</pre>
+
+    <h3>Key GitHub Actions</h3>
+    <ul>
+        <li><a href="https://github.com/timheuer/bootstrap-dotnet">timheuer/bootstrap-dotnet</a> - Sets up MSBuild and .NET dependencies</li>
+        <li><a href="https://github.com/timheuer/vsix-version-stamp">timheuer/vsix-version-stamp</a> - Auto-increments VSIX version number</li>
+        <li><a href="https://github.com/timheuer/openvsixpublish">timheuer/openvsixpublish</a> - Publishes to Open VSIX Gallery</li>
+        <li><a href="https://github.com/cezarypiatek/VsixPublisherAction">cezarypiatek/VsixPublisherAction</a> - Publishes to VS Marketplace</li>
+    </ul>
+
+    <p>Real-world examples using GitHub Actions:</p>
+    <ul>
+        <li><a href="https://github.com/madskristensen/InstaSearch/blob/master/.github/workflows/build.yaml">InstaSearch</a></li>
+        <li><a href="https://github.com/madskristensen/AddAnyFile/blob/master/.github/workflows/build.yaml">Add Any File</a></li>
+        <li><a href="https://github.com/madskristensen/EditorConfig/blob/master/.github/workflows/build.yaml">EditorConfig</a></li>
+    </ul>
+</section>
+
+<section id="powershell">
     <h2>Use PowerShell</h2>
 
     <p>First you must execute the VSIX script</p>
@@ -40,7 +144,7 @@
     <pre>Vsix-PublishToGallery .\src\WebCompilerVsix\**\*.vsix</pre>
 </section>
 
-<section>
+<section id="appveyor">
     <h2>Use AppVeyor</h2>
 
     <p>AppVeyor is a build server hosted in the cloud and it's free.</p>
@@ -77,8 +181,6 @@ after_test:
     <ul>
         <li><a href="https://github.com/madskristensen/WebEssentials2019/blob/master/appveyor.yml">Web Essentials 2019</a></li>
         <li><a href="https://github.com/jaredpar/VsVim/blob/master/appveyor.yml">VsVim</a></li>
-        <li><a href="https://github.com/madskristensen/WebCompiler/blob/master/appveyor.yml">Web Compiler</a></li>
-        <li><a href="https://github.com/madskristensen/AddAnyFile/blob/master/appveyor.yml">Add New File</a></li>
     </ul>
 
 </section>

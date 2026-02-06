@@ -8,43 +8,128 @@
 html {
     position: relative;
     height: 100%;
-    background: white;
-    color: black;
+    background: $background;
+    color: $text-primary;
 }
 
 header {
-    background: lighten($light-backdrop, 12%);
-    border-bottom: 1px solid $light-backdrop;
-    box-shadow: 0 8px 6px -6px $light-backdrop;
-    line-height: 55px;
+    background: $surface;
+    border-bottom: 3px solid $primary;
+    box-shadow: $shadow-md;
     padding: 0;
     width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 
-    a {
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        height: 64px;
+    }
+
+    .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
         text-decoration: none;
-        color: inherit;
-        font-size: 35px;
-        font-weight: lighter;
+        color: $text-primary;
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        transition: color $transition-fast;
+        flex-shrink: 0;
+
+        img {
+            width: 28px;
+            height: 28px;
+        }
+
+        &:hover {
+            color: $primary;
+        }
+    }
+
+    nav {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        a {
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            color: $text-secondary;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: $radius-md;
+            transition: all $transition-fast;
+
+            &:hover {
+                color: $primary;
+                background: rgba($primary, 0.08);
+            }
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
     }
 
     form {
-        float: right;
-        margin-top: 2px;
-
         label {
             position: absolute;
             left: -4000px;
         }
 
         input[type=search] {
-            padding: 7px 12px;
-            border: none;
-            border-radius: 50px;
+            padding: 10px 16px;
+            border: 1px solid $light-backdrop;
+            border-radius: $radius-full;
             outline: none;
+            background: $background;
+            font-size: 14px;
+            width: 200px;
+            transition: all $transition-normal;
+
+            &:focus {
+                width: 260px;
+                border-color: $primary;
+                background: $surface;
+                box-shadow: 0 0 0 3px rgba($primary, 0.1);
+            }
+
+            &::placeholder {
+                color: $text-secondary;
+            }
         }
 
         button {
             display: none;
+        }
+    }
+
+    .cta-button {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 18px;
+        background: linear-gradient(135deg, $accent 0%, $accent-dark 100%);
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: $radius-full;
+        transition: all $transition-fast;
+        box-shadow: 0 2px 8px rgba($accent, 0.3);
+        white-space: nowrap;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba($accent, 0.4);
+            color: white;
         }
     }
 }
@@ -72,17 +157,21 @@ main {
 .extgrid {
     display: flex;
     flex-wrap: wrap;
-    margin: 1em 0;
+    margin: 1.5em 0;
+    gap: 16px;
 
     figure {
         flex-grow: 1;
         width: 177px;
         max-width: 250px;
-        margin: 5px;
-        padding: 10px;
+        margin: 0;
+        padding: 20px 16px;
         border: 1px solid $light-backdrop;
+        border-radius: $radius-lg;
         text-align: center;
         position: relative;
+        background: $surface;
+        transition: all $transition-normal;
 
         > a {
             text-decoration: none;
@@ -92,29 +181,58 @@ main {
 
         &.invalid::before {
             content: "⚠";
-            color: orange;
+            color: #f59e0b;
             font-weight: bold;
             position: absolute;
-            right: .4em;
-            top: 0;
+            right: .8em;
+            top: .5em;
+            font-size: 1.2em;
         }
     }
 
     figcaption {
-        font-weight: bold;
+        font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        margin-top: .5em;
+        margin-top: .75em;
+        color: $text-primary;
+        font-size: 1em;
     }
 
     p, span {
-        color: $dark-backdrop;
-        font-size: .8em;
+        color: $text-secondary;
+        font-size: .85em;
     }
 
     .version {
-        margin-bottom: .5em;
+        margin-bottom: .75em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, $accent 0%, $accent-dark 100%);
+            color: white;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: .85em;
+            line-height: 1;
+            transition: all $transition-fast;
+            box-shadow: 0 2px 4px rgba($accent, 0.3);
+
+            &:hover {
+                transform: translateY(-1px) scale(1.1);
+                box-shadow: 0 4px 8px rgba($accent, 0.4);
+                color: white;
+            }
+        }
     }
 
     .description {
@@ -124,23 +242,28 @@ main {
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        height: 50px;
-        font-size: .7em;
-        margin: .3em 0;
+        height: 55px;
+        font-size: .8em;
+        margin: .5em 0;
+        line-height: 1.5;
     }
 }
 
 .icon {
     width: 90px;
     height: 90px;
+    border-radius: $radius-md;
 }
+
 
 a {
     color: $link-color;
+    text-decoration: none;
+    transition: color $transition-fast;
 
     &:hover,
     &:focus {
-        color: inherit;
+        color: $primary-dark;
     }
 }
 
@@ -151,85 +274,146 @@ img {
 .feed {
     position: absolute;
     right: .7em;
-    padding: 4px 5px 4px 30px;
-    background: url("/img/icon-16x16.png") lighten($light-backdrop, 12%) no-repeat 8px 9px; 
-    font-size: 1rem;
-    font-weight: normal;
-    border-radius: 5px;
-    border: 1px solid silver;
-}
+    padding: 8px 12px 8px 36px;
+    background: url("/img/icon-16x16.png") $surface no-repeat 12px center;
+    font-size: .9rem;
+    font-weight: 500;
+    border-radius: $radius-md;
+    border: 1px solid $light-backdrop;
+    color: $text-primary;
+    transition: all $transition-normal;
 
-.shadow {
-    box-shadow: 6px 8px 6px -6px $light-backdrop;
-    transition: box-shadow background .4s;
-
-    &:hover,
-    &:focus-within {
-        box-shadow: 6px 8px 6px -6px $dark-backdrop;
+    &:hover {
+        border-color: $primary;
+        color: $primary;
     }
 }
 
+.shadow {
+    box-shadow: $shadow-md;
+    transition: all $transition-normal;
+
+    &:hover,
+    &:focus-within {
+        box-shadow: $shadow-hover;
+        transform: translateY(-2px);
+    }
+}
+
+
 dt {
-    font-weight: bold;
+    font-weight: 600;
+    color: $text-primary;
 }
 
 #paging {
     text-align: center;
-    margin-bottom: 2em;
+    margin: 2em 0;
+    display: flex;
+    justify-content: center;
+    gap: 1em;
 
     a {
-        color: inherit;
+        color: $primary;
         text-decoration: none;
-        font-weight: bold;
+        font-weight: 600;
         display: inline-block;
-        padding: 1em;
+        padding: .75em 1.5em;
+        background: $surface;
+        border: 1px solid $primary;
+        border-radius: $radius-md;
+        transition: all $transition-fast;
+
+        &:hover {
+            background: $primary;
+            color: white;
+        }
     }
 }
 
 footer {
     background: $dark-backdrop;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: auto;
+    padding: 1.5rem 0;
 
-    a {
-        color: inherit;
+    .container {
+        text-align: center;
     }
 
-    ul {
-        margin: 1em 0 0 0;
-        list-style: none;
-        padding: 0;
+    a {
+        color: rgba(255, 255, 255, 0.9);
+        transition: color $transition-fast;
 
-        li {
-            display: inline-block;
-
-            &:not(:last-child) {
-                &::after {
-                    padding: 0 0.75em;
-                    content: '\00b7'; // &middot;
-                }
-            }
+        &:hover {
+            color: white;
         }
+    }
 
-        &:empty {
-            // Hide the element if none of the links inside it are displayed.
-            display: none;
-        }
+    .separator {
+        margin: 0 0.75em;
+        opacity: 0.5;
     }
 
     #copyright {
-        font-size: .9em;
-        padding: 1em;
+        font-size: .85em;
         margin: 0;
     }
 }
 
-@media screen and (max-width: 600px) {
-    .feed,
-    form {
+@media screen and (max-width: 768px) {
+    header {
+        .header-content {
+            gap: 1rem;
+        }
+
+        nav {
+            display: none;
+        }
+
+        .header-actions {
+            gap: 0.5rem;
+        }
+
+        form input[type=search] {
+            width: 140px;
+
+            &:focus {
+                width: 180px;
+            }
+        }
+
+        .cta-button {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+    }
+}
+
+@media screen and (max-width: 480px) {
+    header {
+        .logo span {
+            display: none;
+        }
+
+        form,
+        .feed {
+            display: none;
+        }
+
+        .cta-button {
+            padding: 10px 14px;
+        }
+    }
+
+    footer .separator {
         display: none;
+    }
+
+    footer #copyright {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
     }
 }
 

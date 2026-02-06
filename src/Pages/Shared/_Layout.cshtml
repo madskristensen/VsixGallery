@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8" />
@@ -24,13 +24,35 @@
 </head>
 <body>
     <header>
-        <div class="container">
-            <a href="/">@ViewData["SiteName"]</a>
-            <form action="~/search/" method="get">
-                <label for="search">Search</label>
-                <input type="search" id="search" value="@Context.Request.Query["q"]" name="q" placeholder="Search..." required />
-                <button type="submit">Search</button>
-            </form>
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <img src="~/img/icon-32x32.png" alt="" width="24" height="24" />
+                <span>@ViewData["SiteName"]</span>
+            </a>
+
+            <nav>
+                @if (!(bool)ViewData["HideSetupLink"]) {
+                    <a href="~/feedguide">Setup Feed</a>
+                }
+                @if (!(bool)ViewData["HideCreateExtensionLink"]) {
+                    <a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Learn</a>
+                }
+                @if (!(bool)ViewData["HideContributeLink"]) {
+                    <a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">GitHub</a>
+                }
+            </nav>
+
+            <div class="header-actions">
+                <form action="~/search/" method="get">
+                    <label for="search">Search</label>
+                    <input type="search" id="search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required />
+                    <button type="submit">Search</button>
+                </form>
+
+                @if (!(bool)ViewData["HideUploadGuideLink"]) {
+                    <a href="~/devguide" class="cta-button">+ Add Extension</a>
+                }
+            </div>
         </div>
     </header>
 
@@ -41,24 +63,13 @@
     </main>
 
     <footer>
-        <ul>
-            @if (!(bool)ViewData["HideSetupLink"]) {
-                <li><a href="~/feedguide">Set up gallery feed</a></li>
-            }
-            @if (!(bool)ViewData["HideUploadGuideLink"]) {
-                <li><a href="~/devguide">Add your extension</a></li>
-            }
-            @if (!(bool)ViewData["HideCreateExtensionLink"]) {
-                <li><a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Write your first extension</a></li>
-            }
-            @if (!(bool)ViewData["HideContributeLink"]) {
-                <li><a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">Contribute on GitHub</a></li>
-            }
-        </ul>
-
-        <p id="copyright">
-            Copyright &copy; 2020 <a href="https://www.madskristensen.net" rel="noopener noreferrer">Mads Kristensen</a>
-        </p>
+        <div class="container">
+            <p id="copyright">
+                &copy; @DateTime.Now.Year <a href="https://www.madskristensen.net" rel="noopener noreferrer">Mads Kristensen</a>
+                <span class="separator">•</span>
+                <a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">Source on GitHub</a>
+            </p>
+        </div>
     </footer>
 </body>
 </html>

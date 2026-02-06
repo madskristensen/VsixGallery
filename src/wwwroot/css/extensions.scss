@@ -4,38 +4,61 @@ article {
 
     .icon {
         float: left;
+        border-radius: $radius-lg;
+        box-shadow: $shadow-md;
+        padding: 12px;
+        background: $surface;
+        border: 1px solid $light-backdrop;
+        width: 128px;
+        height: 128px;
+        object-fit: contain;
     }
 
     .download {
-        border-radius: 5px;
-        background: $link-color;
+        border-radius: $radius-md;
+        background: linear-gradient(135deg, $accent 0%, $accent-dark 100%);
         color: white;
         display: inline-block;
         margin: .5em 0;
-        padding: 5px 8px;
+        padding: 10px 20px;
         text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all $transition-normal;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: $shadow-lg;
+            color: white;
+        }
     }
 }
 
 #details {
-    margin-left: 150px;
+    margin-left: 160px;
+
 
     p {
         white-space: pre-wrap;
+        color: $text-secondary;
+        line-height: 1.7;
     }
 
     dl {
-        line-height: 1.8em;
+        line-height: 2em;
         display: grid;
         grid-template-columns: max-content auto;
+        gap: 0 1.5em;
     }
 
     dt {
         grid-column-start: 1;
+        color: $text-secondary;
     }
 
     dd {
         grid-column-start: 2;
+        color: $text-primary;
 
         &:first-letter {
             text-transform: capitalize
@@ -46,27 +69,67 @@ article {
 #links {
     list-style: none;
     padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5em;
+    margin-top: 1.5em;
 
     li {
         display: inline-block;
-        margin-right: 1.5em;
+
+        a {
+            display: inline-block;
+            padding: 8px 16px;
+            background: $background;
+            border: 1px solid $light-backdrop;
+            border-radius: $radius-md;
+            color: $text-primary;
+            font-size: .9em;
+            transition: all $transition-fast;
+
+            &:hover {
+                border-color: $primary;
+                color: $primary;
+                background: white;
+            }
+        }
     }
 }
 
 #validation {
-    background: rgb(255, 216, 0);
-    border-radius: 5px;
-    padding: 0 1em .7em 1em;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: $radius-md;
+    padding: 1em 1.5em;
+    border: 1px solid #f59e0b;
+    margin-top: 1.5em;
+
+    h2 {
+        margin-top: 0;
+        color: #92400e;
+    }
+
+    ul {
+        margin-bottom: 0;
+    }
+
+    a {
+        color: #92400e;
+        font-weight: 600;
+    }
 }
 
 #readme {
     margin-top: 3em;
     clear: both;
-    padding: 0 .5em .1em .5em;
+    padding: 1.5em;
     min-height: 500px;
+    background: $surface;
+    border: 1px solid $light-backdrop;
+    border-radius: $radius-lg;
 
     img {
         max-width: 100%;
+        border-radius: $radius-sm;
     }
 
     table {
@@ -76,19 +139,23 @@ article {
         width: auto;
         max-width: 100%;
         overflow: auto;
+        border-radius: $radius-sm;
+        overflow: hidden;
 
         th, td {
-            padding: 6px 13px;
+            padding: 10px 16px;
             border: 1px solid $light-backdrop;
         }
 
         th {
             font-weight: 600;
-            background: lighten($light-backdrop, 8%);
+            background: $background;
+            color: $text-primary;
         }
 
         tr:nth-child(2n) {
-            background: lighten($light-backdrop, 12%);
+            background: $background;
         }
     }
 }
+
