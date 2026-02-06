@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace VsixGallery
@@ -68,7 +68,7 @@ namespace VsixGallery
 				if (File.Exists(json))
 				{
 					string content = File.ReadAllText(json);
-					Package package = JsonConvert.DeserializeObject(content, typeof(Package)) as Package;
+						Package package = JsonSerializer.Deserialize<Package>(content);
 					Validate(package);
 					Sanitize(package);
 					packages.Add(package);
@@ -160,7 +160,7 @@ namespace VsixGallery
 		private static Package DeserializePackage(string version)
 		{
 			string content = File.ReadAllText(Path.Combine(version, "extension.json"));
-			return JsonConvert.DeserializeObject(content, typeof(Package)) as Package;
+			return JsonSerializer.Deserialize<Package>(content);
 		}
 
 		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker, string readmeUrl)
@@ -243,7 +243,7 @@ namespace VsixGallery
 				package.Icon = "icon-" + package.Version + ".png";
 			}
 
-			string json = JsonConvert.SerializeObject(package);
+			string json = JsonSerializer.Serialize(package);
 
 			File.WriteAllText(Path.Combine(vsixFolder, "extension.json"), json, Encoding.UTF8);
 
