@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -42,6 +42,7 @@ namespace VsixGallery
 				IsCustomExtensionPath = true;
 			}
 
+			Directory.CreateDirectory(_extensionRoot);
 			FileProvider = new PhysicalFileProvider(_extensionRoot);
 			_cache = GetAllPackages();
 		}

@@ -68,4 +68,27 @@ article {
     img {
         max-width: 100%;
     }
+
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        margin: 1em 0;
+        width: auto;
+        max-width: 100%;
+        overflow: auto;
+
+        th, td {
+            padding: 6px 13px;
+            border: 1px solid $light-backdrop;
+        }
+
+        th {
+            font-weight: 600;
+            background: lighten($light-backdrop, 8%);
+        }
+
+        tr:nth-child(2n) {
+            background: lighten($light-backdrop, 12%);
+        }
+    }
 }
