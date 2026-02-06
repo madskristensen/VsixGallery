@@ -1,4 +1,4 @@
-﻿@import "variables";
+@import "variables";
 
 *, *::before {
     box-sizing: border-box;
@@ -152,7 +152,7 @@ img {
     position: absolute;
     right: .7em;
     padding: 4px 5px 4px 30px;
-    background: url("/img/vs.svg") lighten($light-backdrop, 12%) no-repeat 8px 9px;
+    background: url("/img/icon-16x16.png") lighten($light-backdrop, 12%) no-repeat 8px 9px; 
     font-size: 1rem;
     font-weight: normal;
     border-radius: 5px;
