@@ -1,0 +1,188 @@
+/* ========================================
+   Extension Detail Page Styles
+   ======================================== */
+
+article .icon {
+    float: left;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--light-backdrop);
+    width: 128px;
+    height: 128px;
+    object-fit: contain;
+}
+
+article .download {
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white;
+    display: inline-block;
+    margin: .5em 0;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+}
+
+article .download:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    color: white;
+}
+
+#details {
+    margin-left: 160px;
+}
+
+#details p {
+    white-space: pre-wrap;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+#details dl {
+    line-height: 2em;
+    display: grid;
+    grid-template-columns: max-content auto;
+    gap: 0 1.5em;
+}
+
+#details dt {
+    grid-column-start: 1;
+    color: var(--text-secondary);
+}
+
+#details dd {
+    grid-column-start: 2;
+    color: var(--text-primary);
+}
+
+#details dd::first-letter {
+    text-transform: capitalize;
+}
+
+#links {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5em;
+    margin-top: 1.5em;
+}
+
+#links li {
+    display: inline-block;
+}
+
+#links li a {
+    display: inline-block;
+    padding: 8px 16px;
+    background: var(--background);
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: .9em;
+    transition: all var(--transition-fast);
+}
+
+#links li a:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--surface);
+}
+
+#validation {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: var(--radius-md);
+    padding: 1em 1.5em;
+    border: 1px solid #f59e0b;
+    margin-top: 1.5em;
+}
+
+#validation h2 {
+    margin-top: 0;
+    color: #92400e;
+}
+
+#validation ul {
+    margin-bottom: 0;
+}
+
+#validation a {
+    color: #92400e;
+    font-weight: 600;
+}
+
+/* Dark mode adjustments for validation */
+@media (prefers-color-scheme: dark) {
+    #validation {
+        background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+        border-color: #b45309;
+    }
+
+    #validation h2,
+    #validation a {
+        color: #fef3c7;
+    }
+
+    #validation li {
+        color: #fde68a;
+    }
+}
+
+#readme {
+    margin-top: 3em;
+    clear: both;
+    padding: 1.5em;
+    min-height: 500px;
+    background: var(--surface);
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-lg);
+}
+
+#readme img {
+    max-width: 100%;
+    border-radius: var(--radius-sm);
+}
+
+#readme table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 1em 0;
+    width: auto;
+    max-width: 100%;
+    overflow: auto;
+    border-radius: var(--radius-sm);
+}
+
+#readme th,
+#readme td {
+    padding: 10px 16px;
+    border: 1px solid var(--light-backdrop);
+}
+
+#readme th {
+    font-weight: 600;
+    background: var(--background);
+    color: var(--text-primary);
+}
+
+#readme tr:nth-child(2n) {
+    background: var(--background);
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+    article .icon {
+        float: none;
+        display: block;
+        margin: 0 auto 1em;
+    }
+
+    #details {
+        margin-left: 0;
+    }
+}

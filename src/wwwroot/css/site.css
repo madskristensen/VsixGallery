@@ -1,0 +1,522 @@
+/* ========================================
+   CSS Custom Properties (Variables)
+   ======================================== */
+:root {
+    /* Color palette - based on logo colors */
+    --primary: #4f6bed;
+    --primary-dark: #3b5bdb;
+    --primary-light: #748ffc;
+    --accent: #ff6b35;
+    --accent-dark: #e85a2a;
+
+    /* Neutral colors */
+    --light-backdrop: #e5e7eb;
+    --dark-backdrop: #4b5563;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --background: #f9fafb;
+    --surface: #ffffff;
+
+    /* Link color */
+    --link-color: #4f6bed;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+    /* Border radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 350ms ease;
+
+    /* Accent with alpha for shadows */
+    --accent-shadow: rgba(255, 107, 53, 0.3);
+    --accent-shadow-hover: rgba(255, 107, 53, 0.4);
+    --primary-alpha: rgba(79, 107, 237, 0.08);
+    --primary-shadow: rgba(79, 107, 237, 0.1);
+}
+
+/* ========================================
+   Dark Mode
+   ======================================== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #748ffc;
+        --primary-dark: #5c7cfa;
+        --primary-light: #91a7ff;
+        --accent: #ff8c5a;
+        --accent-dark: #ff6b35;
+
+        --light-backdrop: #374151;
+        --dark-backdrop: #1f2937;
+        --text-primary: #f9fafb;
+        --text-secondary: #9ca3af;
+        --background: #111827;
+        --surface: #1f2937;
+
+        --link-color: #748ffc;
+
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+        --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+
+        --accent-shadow: rgba(255, 140, 90, 0.3);
+        --accent-shadow-hover: rgba(255, 140, 90, 0.4);
+        --primary-alpha: rgba(116, 143, 252, 0.15);
+        --primary-shadow: rgba(116, 143, 252, 0.2);
+    }
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+*, *::before {
+    box-sizing: border-box;
+    margin-top: 0;
+}
+
+html {
+    position: relative;
+    height: 100%;
+    background: var(--background);
+    color: var(--text-primary);
+    color-scheme: light dark;
+}
+
+body {
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+header {
+    background: var(--surface);
+    border-bottom: 3px solid var(--primary);
+    box-shadow: var(--shadow-md);
+    padding: 0;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header .header-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 64px;
+}
+
+header .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    transition: color var(--transition-fast);
+    flex-shrink: 0;
+}
+
+header .logo img {
+    width: 28px;
+    height: 28px;
+}
+
+header .logo:hover {
+    color: var(--primary);
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+header nav a {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+header nav a:hover {
+    color: var(--primary);
+    background: var(--primary-alpha);
+}
+
+header .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+}
+
+header form label {
+    position: absolute;
+    left: -4000px;
+}
+
+header form input[type=search] {
+    padding: 10px 16px;
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-full);
+    outline: none;
+    background: var(--background);
+    color: var(--text-primary);
+    font-size: 14px;
+    width: 200px;
+    transition: all var(--transition-normal);
+}
+
+header form input[type=search]:focus {
+    width: 260px;
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px var(--primary-shadow);
+}
+
+header form input[type=search]::placeholder {
+    color: var(--text-secondary);
+}
+
+header form button {
+    display: none;
+}
+
+header .cta-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 8px var(--accent-shadow);
+    white-space: nowrap;
+}
+
+header .cta-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--accent-shadow-hover);
+    color: white;
+}
+
+/* ========================================
+   Main Content
+   ======================================== */
+main {
+    margin: 30px 0 0 0;
+    flex: 1;
+}
+
+.container {
+    max-width: 1152px;
+    margin: 0 auto;
+    padding: 0 .5em;
+    position: relative;
+}
+
+/* ========================================
+   Extension Grid
+   ======================================== */
+.extgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    margin: 1.5em 0;
+    gap: 16px;
+}
+
+.extgrid figure {
+    margin: 0;
+    padding: 20px 16px;
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    position: relative;
+    background: var(--surface);
+    transition: all var(--transition-normal);
+}
+
+.extgrid figure > a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.extgrid figure.invalid::before {
+    content: "⚠";
+    color: #f59e0b;
+    font-weight: bold;
+    position: absolute;
+    right: .8em;
+    top: .5em;
+    font-size: 1.2em;
+}
+
+.extgrid figcaption {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: .75em;
+    color: var(--text-primary);
+    font-size: 1em;
+}
+
+.extgrid p,
+.extgrid span {
+    color: var(--text-secondary);
+    font-size: .85em;
+}
+
+.extgrid .version {
+    margin-bottom: .75em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.extgrid .version a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: .85em;
+    line-height: 1;
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 4px var(--accent-shadow);
+}
+
+.extgrid .version a:hover {
+    transform: translateY(-1px) scale(1.1);
+    box-shadow: 0 4px 8px var(--accent-shadow-hover);
+    color: white;
+}
+
+.extgrid .description {
+    text-align: left;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 55px;
+    font-size: .8em;
+    margin: .5em 0;
+    line-height: 1.5;
+}
+
+/* ========================================
+   Common Elements
+   ======================================== */
+.icon {
+    width: 90px;
+    height: 90px;
+    border-radius: var(--radius-md);
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover,
+a:focus {
+    color: var(--primary-dark);
+}
+
+img {
+    max-width: 100%;
+}
+
+.feed {
+    position: absolute;
+    right: .7em;
+    padding: 8px 12px 8px 36px;
+    background: url("/img/icon-16x16.png") var(--surface) no-repeat 12px center;
+    font-size: .9rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--light-backdrop);
+    color: var(--text-primary);
+    transition: all var(--transition-normal);
+}
+
+.feed:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.shadow {
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+}
+
+.shadow:hover,
+.shadow:focus-within {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+
+dt {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ========================================
+   Pagination
+   ======================================== */
+#paging {
+    text-align: center;
+    margin: 2em 0;
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+}
+
+#paging a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    padding: .75em 1.5em;
+    background: var(--surface);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+#paging a:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+footer {
+    background: var(--dark-backdrop);
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: auto;
+    padding: 1.5rem 0;
+}
+
+footer .container {
+    text-align: center;
+}
+
+footer a {
+    color: rgba(255, 255, 255, 0.9);
+    transition: color var(--transition-fast);
+}
+
+footer a:hover {
+    color: white;
+}
+
+footer .separator {
+    margin: 0 0.75em;
+    opacity: 0.5;
+}
+
+footer #copyright {
+    font-size: .85em;
+    margin: 0;
+}
+
+/* ========================================
+   Responsive - Tablet
+   ======================================== */
+@media screen and (max-width: 768px) {
+    header .header-content {
+        gap: 1rem;
+    }
+
+    header nav {
+        display: none;
+    }
+
+    header .header-actions {
+        gap: 0.5rem;
+    }
+
+    header form input[type=search] {
+        width: 140px;
+    }
+
+    header form input[type=search]:focus {
+        width: 180px;
+    }
+
+    header .cta-button {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================
+   Responsive - Mobile
+   ======================================== */
+@media screen and (max-width: 480px) {
+    header .logo span {
+        display: none;
+    }
+
+    header form,
+    .feed {
+        display: none;
+    }
+
+    header .cta-button {
+        padding: 10px 14px;
+    }
+
+    footer .separator {
+        display: none;
+    }
+
+    footer #copyright {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }
+}
+
+/* ========================================
+   Safe Area (iPhone notch)
+   ======================================== */
+@supports (padding: env(safe-area-inset-left)) {
+    .container {
+        padding-left: max(.5em, env(safe-area-inset-left));
+        padding-right: max(.5em, env(safe-area-inset-right));
+    }
+}

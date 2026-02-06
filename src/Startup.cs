@@ -6,9 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
-using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
-using JavaScriptEngineSwitcher.Jint;
-
 using System;
 using System.IO;
 using WebMarkupMin.AspNetCoreLatest;
@@ -41,12 +38,6 @@ namespace VsixGallery
 			});
 
 			services.AddOutputCaching();
-			services.AddJsEngineSwitcher(options =>
-				options.DefaultEngineName = JintJsEngine.EngineName
-			).AddJint();
-			services.AddWebOptimizer(pipeline =>
-				pipeline.CompileScssFiles()
-			);
 
 			// PackgeHelper caches packages, so we need to register it as a singleton.
 			services.AddSingleton<PackageHelper>();
@@ -115,7 +106,6 @@ namespace VsixGallery
 				}
 			}
 
-			app.UseWebOptimizer();
 			app.UseStaticFilesWithCache();
 
 			if (!env.IsDevelopment())

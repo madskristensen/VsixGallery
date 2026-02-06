@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,7 +13,7 @@ namespace VsixGallery.Pages
 {
 	public class IndexModel : PageModel
 	{
-		private const int _pageSize = 24;
+		private const int _pageSize = 25;
 
 		private readonly PackageHelper _helper;
 		public IEnumerable<Package> Packages { get; private set; }
@@ -30,13 +30,15 @@ namespace VsixGallery.Pages
 			HttpContext.EnableOutputCaching(TimeSpan.FromDays(7), fileProvider: _helper.FileProvider, fileDependencies: "*", varyByParam: "page");
 			IEnumerable<Package> packages = _helper.PackageCache.Where(p => !p.Unlisted);
 
+			int totalCount = packages.Count();
 			int skip = (page - 1) * _pageSize;
-			int take = page * _pageSize;
+
 			Packages = packages.OrderByDescending(p => p.DatePublished)
 							  .Skip(skip)
 							  .Take(_pageSize);
 
-			Pages = packages.Count() / _pageSize;
+			// Calculate total pages, rounding up to include partial last page
+			Pages = (totalCount + _pageSize - 1) / _pageSize;
 			CurrentPage = page;
 		}
 	}
