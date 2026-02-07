@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Xml;
 
@@ -89,6 +90,18 @@ namespace VsixGallery
 			writer.WriteRaw("\r\n<Rating xsi:nil=\"true\" />");
 			writer.WriteRaw("\r\n<RatingCount xsi:nil=\"true\" />");
 			writer.WriteRaw("\r\n<DownloadCount xsi:nil=\"true\" />\r\n");
+
+			if (package.InstallationTargets != null)
+			{
+				foreach (var target in package.InstallationTargets)
+				{
+					string arch = !string.IsNullOrEmpty(target.ProductArchitecture)
+						? $"<ProductArchitecture>{SecurityElement.Escape(target.ProductArchitecture)}</ProductArchitecture>"
+						: "";
+					writer.WriteRaw($"\r\n<Installations><Identifier>{SecurityElement.Escape(target.Identifier)}</Identifier><VersionRange>{SecurityElement.Escape(target.VersionRange)}</VersionRange>{arch}</Installations>");
+				}
+				writer.WriteRaw("\r\n");
+			}
 
 			if (package.ExtensionList?.Extensions != null)
 			{

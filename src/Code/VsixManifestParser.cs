@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -101,6 +101,7 @@ namespace VsixGallery
 			package.Tags = ParseNode(doc, "Tags", false);
 			package.DatePublished = DateTime.UtcNow;
 			package.SupportedVersions = GetSupportedVersions(doc);
+			package.InstallationTargets = GetInstallationTargets(doc);
 			package.ReleaseNotesUrl = ParseNode(doc, "ReleaseNotes", false);
 			package.GettingStartedUrl = ParseNode(doc, "GettingStartedGuide", false);
 			package.MoreInfoUrl = ParseNode(doc, "MoreInfo", false);
@@ -116,6 +117,7 @@ namespace VsixGallery
 			package.Icon = ParseNode(doc, "Icon", false);
 			package.DatePublished = DateTime.UtcNow;
 			package.SupportedVersions = GetSupportedVersions(doc);
+			package.InstallationTargets = GetInstallationTargets(doc);
 			package.ReleaseNotesUrl = ParseNode(doc, "ReleaseNotes", false);
 			package.GettingStartedUrl = ParseNode(doc, "GettingStartedGuide", false);
 			package.MoreInfoUrl = ParseNode(doc, "MoreInfo", false);
@@ -147,6 +149,34 @@ namespace VsixGallery
 			}
 
 			return versions;
+		}
+
+		private static List<InstallationTarget> GetInstallationTargets(XmlDocument doc)
+		{
+			XmlNodeList list = doc.GetElementsByTagName("InstallationTarget");
+
+			if (list.Count == 0)
+			{
+				list = doc.GetElementsByTagName("VisualStudio");
+			}
+
+			List<InstallationTarget> targets = new List<InstallationTarget>();
+
+			foreach (XmlNode node in list)
+			{
+				string identifier = node.Attributes?["Id"]?.Value;
+				string versionRange = node.Attributes?["Version"]?.Value;
+
+				if (string.IsNullOrEmpty(identifier) || string.IsNullOrEmpty(versionRange))
+				{
+					continue;
+				}
+
+				string architecture = node["ProductArchitecture"]?.InnerText;
+				targets.Add(new InstallationTarget(identifier, versionRange, architecture));
+			}
+
+			return targets;
 		}
 
 		private string ParseNode(XmlDocument doc, string name, bool required, string attribute = "")

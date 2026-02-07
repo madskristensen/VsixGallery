@@ -73,6 +73,29 @@ article .download:hover {
     margin-top: 1.5em;
 }
 
+#supported-versions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5em;
+    margin-top: 1em;
+}
+
+#supported-versions .label {
+    color: var(--text-secondary);
+    font-size: .9em;
+}
+
+#supported-versions .version-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--background);
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-sm);
+    font-size: .85em;
+    color: var(--text-primary);
+}
+
 #links li {
     display: inline-block;
 }
