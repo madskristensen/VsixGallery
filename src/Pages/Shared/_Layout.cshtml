@@ -62,9 +62,9 @@
             </label>
 
             <div class="mobile-menu">
-                <form action="~/search/" method="get" class="mobile-search">
+                <form action="~/search/" method="get" class="mobile-search" style="display:block;width:250px;margin:0 auto;">
                     <label for="mobile-search">Search</label>
-                    <input type="search" id="mobile-search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required />
+                    <input type="search" id="mobile-search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required size="20" style="width:100%;max-width:250px;" />
                     <button type="submit">Search</button>
                 </form>
                 <nav>
