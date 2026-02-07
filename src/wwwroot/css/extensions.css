@@ -53,6 +53,7 @@ article .download:hover {
 #details dt {
     grid-column-start: 1;
     color: var(--text-secondary);
+    font-weight: 600;
 }
 
 #details dd {
@@ -64,6 +65,17 @@ article .download:hover {
     text-transform: capitalize;
 }
 
+#details dd .version-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--background);
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-sm);
+    font-size: .85em;
+    color: var(--text-primary);
+    margin: 1px 2px;
+}
+
 #links {
     list-style: none;
     padding: 0;
@@ -73,29 +85,6 @@ article .download:hover {
     margin-top: 1.5em;
 }
 
-#supported-versions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: .5em;
-    margin-top: 1em;
-}
-
-#supported-versions .label {
-    color: var(--text-secondary);
-    font-size: .9em;
-}
-
-#supported-versions .version-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    background: var(--background);
-    border: 1px solid var(--light-backdrop);
-    border-radius: var(--radius-sm);
-    font-size: .85em;
-    color: var(--text-primary);
-}
-
 #links li {
     display: inline-block;
 }
@@ -103,18 +92,19 @@ article .download:hover {
 #links li a {
     display: inline-block;
     padding: 8px 16px;
-    background: var(--background);
-    border: 1px solid var(--light-backdrop);
+    background: var(--primary-alpha);
+    border: 1px solid var(--primary);
     border-radius: var(--radius-md);
-    color: var(--text-primary);
+    color: var(--primary);
     font-size: .9em;
+    font-weight: 500;
     transition: all var(--transition-fast);
 }
 
 #links li a:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    background: var(--surface);
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
 }
 
 #validation {

@@ -83,19 +83,12 @@ namespace VsixGallery
 
 		private IEnumerable<string> GetFriendlyTargets()
 		{
-			// Use InstallationTargets if available (new packages), otherwise
-			// fall back to SupportedVersions for older extension.json files.
-			if (InstallationTargets != null && InstallationTargets.Any())
+			if (InstallationTargets == null || !InstallationTargets.Any())
 			{
-				return GetFriendlyTargetsFromInstallationTargets();
+				return Enumerable.Empty<string>();
 			}
 
-			if (SupportedVersions != null && SupportedVersions.Any())
-			{
-				return GetFriendlyTargetsFromSupportedVersions();
-			}
-
-			return Enumerable.Empty<string>();
+			return GetFriendlyTargetsFromInstallationTargets();
 		}
 
 		private IEnumerable<string> GetFriendlyTargetsFromInstallationTargets()
@@ -125,22 +118,6 @@ namespace VsixGallery
 						string label = isArm ? $"VS (v{major}, ARM64)" : $"VS (v{major})";
 						names.Add(label);
 					}
-				}
-			}
-
-			return names;
-		}
-
-		private IEnumerable<string> GetFriendlyTargetsFromSupportedVersions()
-		{
-			HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
-
-			foreach (string version in SupportedVersions)
-			{
-				if (System.Version.TryParse(version, out Version v) &&
-					_majorVersionToProduct.TryGetValue(v.Major, out string product))
-				{
-					names.Add(product);
 				}
 			}
 

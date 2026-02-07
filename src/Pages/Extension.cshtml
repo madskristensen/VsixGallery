@@ -30,18 +30,24 @@
 
             <dt>Updated</dt>
             <dd title="@Model.Package.DatePublished.ToUniversalTime()">@Model.Package.DatePublished.FromNow()</dd>
-        </dl>
 
-        @if (Model.Package.FriendlyTargets.Any())
-        {
-            <div id="supported-versions">
-                <span class="label">Supports:</span>
-                @foreach (var target in Model.Package.FriendlyTargets)
-                {
-                    <span class="version-badge">@target</span>
-                }
-            </div>
-        }
+            @if (!string.IsNullOrWhiteSpace(Model.Package.Tags))
+            {
+                <dt>Tags</dt>
+                <dd>@Model.Package.Tags</dd>
+            }
+
+            @if (Model.Package.FriendlyTargets.Any())
+            {
+                <dt>Supports</dt>
+                <dd>
+                    @foreach (var target in Model.Package.FriendlyTargets)
+                    {
+                        <span class="version-badge">@target</span>
+                    }
+                </dd>
+            }
+        </dl>
 
         <ul id="links">
             <li><a href="@Model.Package.MoreInfoUrl" rel="noopener noreferrer">✪ Website</a></li>
