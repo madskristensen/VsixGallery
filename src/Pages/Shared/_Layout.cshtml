@@ -53,8 +53,38 @@
                     <a href="~/devguide" class="cta-button">+ Add Extension</a>
                 }
             </div>
+
+            <input type="checkbox" id="hamburger-toggle" class="hamburger-toggle" aria-hidden="true" />
+            <label for="hamburger-toggle" class="hamburger-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+
+            <div class="mobile-menu">
+                <form action="~/search/" method="get" class="mobile-search">
+                    <label for="mobile-search">Search</label>
+                    <input type="search" id="mobile-search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required />
+                    <button type="submit">Search</button>
+                </form>
+                <nav>
+                    @if (!(bool)ViewData["HideSetupLink"]) {
+                        <a href="~/feedguide">Setup Feed</a>
+                    }
+                    @if (!(bool)ViewData["HideCreateExtensionLink"]) {
+                        <a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Learn</a>
+                    }
+                    @if (!(bool)ViewData["HideContributeLink"]) {
+                        <a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">GitHub</a>
+                    }
+                    @if (!(bool)ViewData["HideUploadGuideLink"]) {
+                        <a href="~/devguide">+ Add Extension</a>
+                    }
+                </nav>
+            </div>
         </div>
     </header>
+    <label for="hamburger-toggle" class="mobile-menu-overlay" aria-hidden="true"></label>
 
     <main>
         <div class="container">
