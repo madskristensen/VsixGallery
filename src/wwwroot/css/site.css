@@ -267,8 +267,8 @@ main {
 
 .extgrid figure.invalid::before {
     content: "⚠";
-    color: #f59e0b;
-    font-weight: bold;
+    color: #eab308;
+    font-weight: normal;
     position: absolute;
     right: .8em;
     top: .5em;

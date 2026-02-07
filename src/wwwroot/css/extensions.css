@@ -80,9 +80,10 @@ article .download:hover {
     list-style: none;
     padding: 0;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: .5em;
     margin-top: 1.5em;
+    overflow-x: auto;
 }
 
 #links li {
@@ -91,7 +92,8 @@ article .download:hover {
 
 #links li a {
     display: inline-block;
-    padding: 8px 16px;
+    white-space: nowrap;
+    padding: 6px 10px;
     background: var(--primary-alpha);
     border: 1px solid var(--primary);
     border-radius: var(--radius-md);
@@ -108,32 +110,39 @@ article .download:hover {
 }
 
 #validation {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
     border-radius: var(--radius-md);
     padding: 1em 1.5em;
-    border: 1px solid #f59e0b;
+    border: 1px solid #eab308;
     margin-top: 1.5em;
 }
 
 #validation h2 {
     margin-top: 0;
-    color: #92400e;
+    color: #713f12;
 }
 
 #validation ul {
-    margin-bottom: 0;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: .75em;
+}
+
+#validation li::before {
+    content: "⚠";
+    margin-right: .4em;
 }
 
 #validation a {
-    color: #92400e;
+    color: #713f12;
     font-weight: 600;
 }
 
 /* Dark mode adjustments for validation */
 @media (prefers-color-scheme: dark) {
     #validation {
-        background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
-        border-color: #b45309;
+        background: linear-gradient(135deg, #422006 0%, #713f12 100%);
+        border-color: #a16207;
     }
 
     #validation h2,
