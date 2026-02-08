@@ -170,6 +170,32 @@ article .download:hover {
     border-radius: var(--radius-sm);
 }
 
+#readme pre,
+#readme code {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+#readme pre {
+    background: var(--background);
+    padding: 1em;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--light-backdrop);
+}
+
+#readme code {
+    background: var(--background);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-sm);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+#readme pre code {
+    background: transparent;
+    padding: 0;
+}
+
 #readme table {
     border-collapse: collapse;
     border-spacing: 0;

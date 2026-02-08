@@ -358,6 +358,19 @@ img {
     max-width: 100%;
 }
 
+pre,
+code {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+pre {
+    background: var(--background);
+    padding: 1em;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--light-backdrop);
+}
+
 .feed {
     position: absolute;
     right: .7em;
