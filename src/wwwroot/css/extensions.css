@@ -170,13 +170,9 @@ article .download:hover {
     border-radius: var(--radius-sm);
 }
 
-#readme pre,
-#readme code {
+#readme pre {
     max-width: 100%;
     overflow-x: auto;
-}
-
-#readme pre {
     background: var(--background);
     padding: 1em;
     border-radius: var(--radius-sm);
@@ -187,7 +183,7 @@ article .download:hover {
     background: var(--background);
     padding: 0.2em 0.4em;
     border-radius: var(--radius-sm);
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-family: ui-monospace, 'SF Mono', Menlo, Monaco, 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     font-size: 0.9em;
 }
 

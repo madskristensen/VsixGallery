@@ -358,17 +358,26 @@ img {
     max-width: 100%;
 }
 
-pre,
-code {
+pre {
     max-width: 100%;
     overflow-x: auto;
-}
-
-pre {
     background: var(--background);
     padding: 1em;
     border-radius: var(--radius-sm);
     border: 1px solid var(--light-backdrop);
+}
+
+code {
+    background: var(--background);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-sm);
+    font-family: ui-monospace, 'SF Mono', Menlo, Monaco, 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+pre code {
+    background: transparent;
+    padding: 0;
 }
 
 .feed {
