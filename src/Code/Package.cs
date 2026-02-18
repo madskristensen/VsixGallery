@@ -53,10 +53,44 @@ namespace VsixGallery
 		public string Repo { get; set; }
 		public string IssueTracker { get; set; }
 		public string ReadmeUrl { get; set; }
-		public ExtensionList ExtensionList { get; set; }
+			public ExtensionList ExtensionList { get; set; }
 
-		[JsonIgnore]
-		public IEnumerable<string> Errors { get; set; }
+			[JsonIgnore]
+			public IEnumerable<string> Errors { get; set; }
+
+			/// <summary>
+			/// The size of the VSIX file in bytes.
+			/// </summary>
+			[JsonIgnore]
+			public long FileSize { get; set; }
+
+			/// <summary>
+			/// Returns the file size formatted as KB or MB depending on the size.
+			/// </summary>
+			public string FormattedFileSize
+			{
+				get
+				{
+					if (FileSize <= 0)
+					{
+						return string.Empty;
+					}
+
+					const long kb = 1024;
+					const long mb = kb * 1024;
+
+					if (FileSize >= mb)
+					{
+						double sizeMb = FileSize / (double)mb;
+						return $"{sizeMb:F1} MB";
+					}
+					else
+					{
+						double sizeKb = FileSize / (double)kb;
+						return $"{sizeKb:F0} KB";
+					}
+				}
+			}
 
 		public string AuthorLink =>
 			$"/author/{Uri.EscapeDataString(Author)}";

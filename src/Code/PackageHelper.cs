@@ -65,14 +65,15 @@ namespace VsixGallery
 			foreach (string extension in Directory.EnumerateDirectories(_extensionRoot))
 			{
 				string json = Path.Combine(extension, "extension.json");
-				if (File.Exists(json))
-				{
-					string content = File.ReadAllText(json);
-						Package package = JsonSerializer.Deserialize<Package>(content);
-					Validate(package);
-					Sanitize(package);
-					packages.Add(package);
-				}
+					if (File.Exists(json))
+					{
+						string content = File.ReadAllText(json);
+							Package package = JsonSerializer.Deserialize<Package>(content);
+						Validate(package);
+						Sanitize(package);
+						SetFileSize(package, extension);
+						packages.Add(package);
+					}
 			}
 
 			return packages.OrderByDescending(p => p.DatePublished).ToList();
@@ -142,9 +143,18 @@ namespace VsixGallery
 			}
 
 			package.Errors = errors;
-		}
+			}
 
-		public Package GetPackage(string id)
+			private void SetFileSize(Package package, string extensionFolder)
+			{
+				string vsixPath = Path.Combine(extensionFolder, "extension.vsix");
+				if (File.Exists(vsixPath))
+				{
+					package.FileSize = new FileInfo(vsixPath).Length;
+				}
+			}
+
+			public Package GetPackage(string id)
 		{
 			if (_cache.Any(p => p.ID == id))
 			{
@@ -152,9 +162,10 @@ namespace VsixGallery
 			}
 
 			string folder = Path.Combine(_extensionRoot, id);
-			List<Package> packages = new List<Package>();
 
-			return DeserializePackage(folder);
+			Package package = DeserializePackage(folder);
+			SetFileSize(package, folder);
+			return package;
 		}
 
 		private static Package DeserializePackage(string version)
