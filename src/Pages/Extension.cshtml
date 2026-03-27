@@ -82,9 +82,41 @@
             var readme = document.getElementById('readme');
             var url = '@Model.Package.ReadmeUrl';
 
-            fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + url)
-                .then(response => response.text())
-                .then(text => readme.innerHTML = text);
+            function fetchReadme(readmeUrl) {
+                return fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + readmeUrl)
+                    .then(response => response.text());
+            }
+
+            function getAlternateUrl(readmeUrl) {
+                // Try swapping main <-> master in the branch segment
+                if (readmeUrl.includes('/refs/heads/main/')) {
+                    return readmeUrl.replace('/refs/heads/main/', '/refs/heads/master/');
+                }
+                if (readmeUrl.includes('/refs/heads/master/')) {
+                    return readmeUrl.replace('/refs/heads/master/', '/refs/heads/main/');
+                }
+                // Legacy URLs without /refs/heads/
+                if (readmeUrl.includes('/main/')) {
+                    return readmeUrl.replace('/main/', '/master/');
+                }
+                if (readmeUrl.includes('/master/')) {
+                    return readmeUrl.replace('/master/', '/main/');
+                }
+                return null;
+            }
+
+            fetchReadme(url).then(text => {
+                if (text && text.trim().length > 0 && !text.includes('404')) {
+                    readme.innerHTML = text;
+                } else {
+                    var alt = getAlternateUrl(url);
+                    if (alt) {
+                        fetchReadme(alt).then(t => readme.innerHTML = t);
+                    } else {
+                        readme.innerHTML = text;
+                    }
+                }
+            });
         </script>
     }
 </article>

@@ -52,10 +52,10 @@ namespace VsixGallery
 
 		private string BuildReadmeUrl(string repo, string readmeUrl)
 		{
-			// Default to `master/README.md` if a URL was not specified.
+			// Default to `main/README.md` if a URL was not specified.
 			if (string.IsNullOrWhiteSpace(readmeUrl))
 			{
-				readmeUrl = "master/README.md";
+				readmeUrl = "main/README.md";
 			}
 
 			// If the provided URL is absolute, then use it
@@ -70,7 +70,16 @@ namespace VsixGallery
 				return "";
 			}
 
-			return repo.Replace("https://github.com", "https://raw.githubusercontent.com").TrimEnd('/') + "/" + readmeUrl.TrimStart('/');
+			string baseUrl = repo.Replace("https://github.com", "https://raw.githubusercontent.com").TrimEnd('/');
+			string path = readmeUrl.TrimStart('/');
+
+			// Insert /refs/heads/ before the branch name for reliable resolution.
+			if (!path.StartsWith("refs/", StringComparison.OrdinalIgnoreCase))
+			{
+				path = "refs/heads/" + path;
+			}
+
+			return baseUrl + "/" + path;
 		}
 
 		private void AddExtensionList(Package package, string tempFolder)
