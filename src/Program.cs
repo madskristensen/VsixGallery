@@ -14,6 +14,15 @@ namespace VsixGallery
 			Host.CreateDefaultBuilder(args)
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
+					webBuilder.ConfigureKestrel(options =>
+					{
+						// Don't advertise the server in response headers (was: removeServerHeader in web.config).
+						options.AddServerHeader = false;
+
+						// Match the IIS requestLimits/maxAllowedContentLength from web.config (~500 MB).
+						options.Limits.MaxRequestBodySize = 500_000_000;
+					});
+
 					webBuilder.UseStartup<Startup>();
 				});
 	}

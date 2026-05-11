@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -8,6 +11,8 @@ using Microsoft.Extensions.Hosting;
 
 using System;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using WebMarkupMin.AspNetCoreLatest;
 using WebMarkupMin.Core;
 
@@ -38,6 +43,30 @@ namespace VsixGallery
 			});
 
 			services.AddOutputCaching();
+
+			// Response compression replaces the IIS <httpCompression> section so it
+			// works on both Kestrel (Linux) and IIS.
+			services.AddResponseCompression(options =>
+			{
+				options.EnableForHttps = true;
+				options.Providers.Add<BrotliCompressionProvider>();
+				options.Providers.Add<GzipCompressionProvider>();
+				options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+				{
+					"image/svg+xml",
+					"application/manifest+json",
+					"application/atom+xml",
+					"application/xaml+xml",
+				});
+			});
+			services.Configure<BrotliCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
+			services.Configure<GzipCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
+
+			// Match the IIS requestLimits/maxAllowedContentLength from web.config (~500 MB).
+			services.Configure<FormOptions>(options =>
+			{
+				options.MultipartBodyLengthLimit = 500_000_000;
+			});
 
 			// PackgeHelper caches packages, so we need to register it as a singleton.
 			services.AddSingleton<PackageHelper>();
@@ -93,11 +122,17 @@ namespace VsixGallery
 			app.Use((context, next) =>
 				{
 					context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+					// Replaces the Arr-Disable-Session-Affinity custom header from web.config.
+					context.Response.Headers["Arr-Disable-Session-Affinity"] = "true";
 					return next();
 				});
 
-			// When running outside of IIS, we need to manually apply the rewrite
-			// rules that convert the extension file names to "extension.vsix".
+			app.UseResponseCompression();
+
+			// Apply the IIS-style URL rewrite rules from web.config. AddIISUrlRewrite
+			// parses the rules in managed code, so this works on Kestrel (Linux) too.
+			// When running under IIS in-process, IIS itself will already have applied
+			// these rules, so we skip them to avoid double-processing.
 			if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APP_POOL_ID")))
 			{
 				using (StreamReader webConfig = File.OpenText("web.config"))
@@ -105,6 +140,16 @@ namespace VsixGallery
 					app.UseRewriter(new RewriteOptions().AddIISUrlRewrite(webConfig));
 				}
 			}
+
+			// Register MIME types previously defined in <staticContent> in web.config
+			// so Kestrel serves .webmanifest and .svg with the correct content type.
+			FileExtensionContentTypeProvider contentTypeProvider = new();
+			contentTypeProvider.Mappings[".webmanifest"] = "application/manifest+json; charset=utf-8";
+			contentTypeProvider.Mappings[".svg"] = "image/svg+xml; charset=utf-8";
+			app.UseStaticFiles(new StaticFileOptions
+			{
+				ContentTypeProvider = contentTypeProvider,
+			});
 
 			app.UseStaticFilesWithCache();
 
