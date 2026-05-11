@@ -16,10 +16,10 @@ namespace VsixGallery
 			string xml = File.ReadAllText(Path.Combine(tempFolder, "extension.vsixmanifest"));
 			xml = Regex.Replace(xml, "( xmlns(:\\w+)?)=\"([^\"]+)\"", string.Empty);
 
-			XmlDocument doc = new XmlDocument();
+			XmlDocument doc = new();
 			doc.LoadXml(xml);
 
-			Package package = new Package
+			Package package = new()
 			{
 				Repo = repo,
 				IssueTracker = issuetracker,
@@ -90,9 +90,9 @@ namespace VsixGallery
 			{
 				string json = File.ReadAllText(vsext);
 
-				using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+				using (MemoryStream ms = new(Encoding.UTF8.GetBytes(json)))
 				{
-					DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ExtensionList));
+					DataContractJsonSerializer serializer = new(typeof(ExtensionList));
 					ExtensionList list = (ExtensionList)serializer.ReadObject(ms);
 					package.ExtensionList = list;
 				}
@@ -141,7 +141,7 @@ namespace VsixGallery
 				list = doc.GetElementsByTagName("VisualStudio");
 			}
 
-			List<string> versions = new List<string>();
+			List<string> versions = [];
 
 			foreach (XmlNode node in list)
 			{
@@ -169,7 +169,7 @@ namespace VsixGallery
 				list = doc.GetElementsByTagName("VisualStudio");
 			}
 
-			List<InstallationTarget> targets = new List<InstallationTarget>();
+			List<InstallationTarget> targets = [];
 
 			foreach (XmlNode node in list)
 			{

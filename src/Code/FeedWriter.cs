@@ -10,8 +10,8 @@ namespace VsixGallery
 	{
 		public string GetFeed(string baseUrl, params Package[] packages)
 		{
-			StringBuilder sb = new StringBuilder();
-			XmlWriterSettings settings = new XmlWriterSettings
+			StringBuilder sb = new();
+			XmlWriterSettings settings = new()
 			{
 				Indent = true
 			};
@@ -74,12 +74,12 @@ namespace VsixGallery
 			writer.WriteAttributeString("src", baseUrl + "/extensions/" + package.ID + "/extension.vsix");
 			writer.WriteEndElement(); // content
 
-            writer.WriteStartElement("link");
-            writer.WriteAttributeString("rel", "icon");
-            writer.WriteAttributeString("href", baseUrl + package.Icon);
-            writer.WriteEndElement(); // icon
+			writer.WriteStartElement("link");
+			writer.WriteAttributeString("rel", "icon");
+			writer.WriteAttributeString("href", baseUrl + package.Icon);
+			writer.WriteEndElement(); // icon
 
-            writer.WriteRaw("\r\n<Vsix xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://schemas.microsoft.com/developer/vsx-syndication-schema/2010\">\r\n");
+			writer.WriteRaw("\r\n<Vsix xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"http://schemas.microsoft.com/developer/vsx-syndication-schema/2010\">\r\n");
 
 			writer.WriteElementString("Id", package.ID);
 			writer.WriteElementString("Version", package.Version);
@@ -93,7 +93,7 @@ namespace VsixGallery
 
 			if (package.InstallationTargets != null)
 			{
-				foreach (var target in package.InstallationTargets)
+				foreach (InstallationTarget target in package.InstallationTargets)
 				{
 					string arch = !string.IsNullOrEmpty(target.ProductArchitecture)
 						? $"<ProductArchitecture>{SecurityElement.Escape(target.ProductArchitecture)}</ProductArchitecture>"

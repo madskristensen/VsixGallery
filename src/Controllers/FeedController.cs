@@ -19,9 +19,9 @@ namespace VsixGallery.Controllers
 		public IActionResult Index()
 		{
 			Response.ContentType = "text/xml";
-			Package[] packages = _helper.PackageCache
+			Package[] packages = [.. _helper.PackageCache
 				.Where(p => !p.Unlisted)
-				.OrderByDescending(p => p.DatePublished).ToArray();
+				.OrderByDescending(p => p.DatePublished)];
 
 			if (this.IsConditionalGet(packages))
 			{
@@ -68,7 +68,7 @@ namespace VsixGallery.Controllers
 					return new EmptyResult();
 				}
 
-				return Content(_feed.GetFeed(baseUrl, packages.ToArray()));
+				return Content(_feed.GetFeed(baseUrl, [.. packages]));
 			}
 
 			return new RedirectResult("/", true);

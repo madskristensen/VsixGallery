@@ -33,7 +33,7 @@ namespace VsixGallery.Pages
 
 		private IEnumerable<Package> Lookup(string q, IEnumerable<Package> packages)
 		{
-			Dictionary<Package, int> list = new Dictionary<Package, int>();
+			Dictionary<Package, int> list = [];
 			foreach (Package package in packages)
 			{
 				int points = 0;

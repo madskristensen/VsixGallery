@@ -6,12 +6,12 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VsixGallery
@@ -24,6 +24,14 @@ namespace VsixGallery
 		private readonly List<Package> _cache;
 		private readonly bool _canRemoveOldExtensions;
 		private readonly bool _canValidateLicenses;
+
+		// Serializes upload/mutation work. PackageHelper is registered as a
+		// singleton, but the cache and the on-disk extension folders are shared
+		// mutable state. Concurrent CI uploads (very common, since many
+		// extension repos publish to the same gallery) would otherwise race on
+		// the _cache list and on Directory.Delete/Create of the same folder.
+		private readonly SemaphoreSlim _uploadLock = new(1, 1);
+		private readonly Lock _cacheLock = new();
 
 		public PackageHelper(IWebHostEnvironment env, IOptions<ExtensionsOptions> options)
 		{
@@ -51,32 +59,40 @@ namespace VsixGallery
 
 		public IFileProvider FileProvider { get; }
 
-		public IReadOnlyList<Package> PackageCache => _cache;
+		public IReadOnlyList<Package> PackageCache
+		{
+			get {
+				lock (_cacheLock)
+				{
+					return [.. _cache];
+				}
+			}
+		}
 
 		private List<Package> GetAllPackages()
 		{
-			List<Package> packages = new List<Package>();
+			List<Package> packages = [];
 
 			if (!Directory.Exists(_extensionRoot))
 			{
-				return packages.ToList();
+				return [.. packages];
 			}
 
 			foreach (string extension in Directory.EnumerateDirectories(_extensionRoot))
 			{
 				string json = Path.Combine(extension, "extension.json");
-					if (File.Exists(json))
-					{
-						string content = File.ReadAllText(json);
-							Package package = JsonSerializer.Deserialize<Package>(content);
-						Validate(package);
-						Sanitize(package);
-						SetFileSize(package, extension);
-						packages.Add(package);
-					}
+				if (File.Exists(json))
+				{
+					string content = File.ReadAllText(json);
+					Package package = JsonSerializer.Deserialize<Package>(content);
+					Validate(package);
+					Sanitize(package);
+					SetFileSize(package, extension);
+					packages.Add(package);
+				}
 			}
 
-			return packages.OrderByDescending(p => p.DatePublished).ToList();
+			return [.. packages.OrderByDescending(p => p.DatePublished)];
 		}
 
 		private static void Sanitize(Package package)
@@ -98,7 +114,7 @@ namespace VsixGallery
 
 		public void Validate(Package package)
 		{
-			List<string> errors = new List<string>();
+			List<string> errors = [];
 
 			if (string.IsNullOrWhiteSpace(package.Icon))
 			{
@@ -116,17 +132,11 @@ namespace VsixGallery
 
 				if (File.Exists(iconFile))
 				{
-					using (FileStream file = new FileStream(iconFile, FileMode.Open, FileAccess.Read))
+					if (ImageDimensionReader.TryGetDimensions(iconFile, out int width, out int height))
 					{
-						using (Image img = Image.FromStream(stream: file, useEmbeddedColorManagement: false, validateImageData: false))
+						if (width < 90 || height < 90 || width > 128 || height > 128)
 						{
-							float width = img.PhysicalDimension.Width;
-							float height = img.PhysicalDimension.Height;
-
-							if (width < 90 || height < 90 || width > 128 || height > 128)
-							{
-								errors.Add($"The icon is {width}x{height}px. It must be 90x90px for best rendering on Marketplace and in Visual Studio");
-							}
+							errors.Add($"The icon is {width}x{height}px. It must be 90x90px for best rendering on Marketplace and in Visual Studio");
 						}
 					}
 				}
@@ -143,22 +153,26 @@ namespace VsixGallery
 			}
 
 			package.Errors = errors;
-			}
+		}
 
-			private void SetFileSize(Package package, string extensionFolder)
-			{
-				string vsixPath = Path.Combine(extensionFolder, "extension.vsix");
-				if (File.Exists(vsixPath))
-				{
-					package.FileSize = new FileInfo(vsixPath).Length;
-				}
-			}
-
-			public Package GetPackage(string id)
+		private static void SetFileSize(Package package, string extensionFolder)
 		{
-			if (_cache.Any(p => p.ID == id))
+			string vsixPath = Path.Combine(extensionFolder, "extension.vsix");
+			if (File.Exists(vsixPath))
 			{
-				return _cache.SingleOrDefault(p => p.ID == id);
+				package.FileSize = new FileInfo(vsixPath).Length;
+			}
+		}
+
+		public Package GetPackage(string id)
+		{
+			lock (_cacheLock)
+			{
+				Package cached = _cache.FirstOrDefault(p => p.ID == id);
+				if (cached != null)
+				{
+					return cached;
+				}
 			}
 
 			string folder = Path.Combine(_extensionRoot, id);
@@ -176,8 +190,14 @@ namespace VsixGallery
 
 		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker, string readmeUrl)
 		{
+			if (file == null || file.Length == 0)
+			{
+				throw new InvalidOperationException("No .vsix file was included in the upload request.");
+			}
+
 			string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
+			await _uploadLock.WaitAsync();
 			try
 			{
 				string tempVsix = Path.Combine(tempFolder, "extension.vsix");
@@ -187,14 +207,14 @@ namespace VsixGallery
 					Directory.CreateDirectory(tempFolder);
 				}
 
-				using (FileStream fileStream = new FileStream(tempVsix, FileMode.CreateNew))
+				using (FileStream fileStream = new(tempVsix, FileMode.CreateNew))
 				{
 					await file.CopyToAsync(fileStream);
 				}
 
 				ZipFile.ExtractToDirectory(tempVsix, tempFolder);
 
-				VsixManifestParser parser = new VsixManifestParser();
+				VsixManifestParser parser = new();
 				Package package = parser.CreateFromManifest(tempFolder, repo, issuetracker, readmeUrl);
 
 				string vsixFolder = Path.Combine(_extensionRoot, package.ID);
@@ -209,8 +229,28 @@ namespace VsixGallery
 			}
 			finally
 			{
-				Directory.Delete(tempFolder, true);
-				RemoveOldExtensions();
+				try
+				{
+					if (Directory.Exists(tempFolder))
+					{
+						Directory.Delete(tempFolder, true);
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.Write(ex);
+				}
+
+				try
+				{
+					RemoveOldExtensions();
+				}
+				catch (Exception ex)
+				{
+					Debug.Write(ex);
+				}
+
+				_uploadLock.Release();
 			}
 		}
 
@@ -221,15 +261,25 @@ namespace VsixGallery
 				return;
 			}
 
-			Package[] oldPackages = _cache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18)).ToArray();
+			Package[] oldPackages;
+			lock (_cacheLock)
+			{
+				oldPackages = [.. _cache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18))];
+			}
 
 			foreach (Package package in oldPackages)
 			{
 				try
 				{
 					string vsixFolder = Path.Combine(_extensionRoot, package.ID);
-					Directory.Delete(vsixFolder, true);
-					_cache.Remove(package);
+					if (Directory.Exists(vsixFolder))
+					{
+						Directory.Delete(vsixFolder, true);
+					}
+					lock (_cacheLock)
+					{
+						_cache.Remove(package);
+					}
 				}
 				catch (Exception ex)
 				{
@@ -258,14 +308,11 @@ namespace VsixGallery
 
 			File.WriteAllText(Path.Combine(vsixFolder, "extension.json"), json, Encoding.UTF8);
 
-			Package existing = _cache.FirstOrDefault(p => p.ID == package.ID);
-
-			if (_cache.Contains(existing))
+			lock (_cacheLock)
 			{
-				_cache.Remove(existing);
+				_cache.RemoveAll(p => p.ID == package.ID);
+				_cache.Add(package);
 			}
-
-			_cache.Add(package);
 		}
 	}
 }

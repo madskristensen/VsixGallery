@@ -1,33 +1,25 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace VsixGallery.Controllers
 {
-	public class ApiController : Controller
+	public class ApiController(PackageHelper helper, IOptions<UploadOptions> uploadOptions) : Controller
 	{
 		private const string AuthorizationPrefix = "Bearer ";
-
-		private readonly PackageHelper _helper;
-		private readonly string _secretKey;
-
-		public ApiController(PackageHelper helper, IOptions<UploadOptions> uploadOptions)
-		{
-			_helper = helper;
-			_secretKey = uploadOptions.Value.SecretKey;
-		}
+		private readonly string _secretKey = uploadOptions.Value.SecretKey;
 
 		public object Get(string id)
 		{
-			Response.Headers["Cache-Control"] = "no-cache";
+			Response.Headers.CacheControl = "no-cache";
 
 			if (string.IsNullOrWhiteSpace(id))
 			{
-				IOrderedEnumerable<Package> packages = _helper.PackageCache.OrderByDescending(p => p.DatePublished);
+				IOrderedEnumerable<Package> packages = helper.PackageCache.OrderByDescending(p => p.DatePublished);
 
 				if (this.IsConditionalGet(packages))
 				{
@@ -37,7 +29,7 @@ namespace VsixGallery.Controllers
 				return packages;
 			}
 
-			Package package = _helper.GetPackage(id);
+			Package package = helper.GetPackage(id);
 
 			if (this.IsConditionalGet(package))
 			{
@@ -57,18 +49,38 @@ namespace VsixGallery.Controllers
 
 			try
 			{
-				HttpContext.Request.EnableBuffering();
+				if (Request.Form.Files.Count == 0)
+				{
+					Response.StatusCode = 400;
+					return Content("No .vsix file was included in the upload request.");
+				}
 
-				Package package = await _helper.ProcessVsix(Request.Form.Files[0], repo, issuetracker, readmeUrl);
+				Package package = await helper.ProcessVsix(Request.Form.Files[0], repo, issuetracker, readmeUrl);
 
 				return Json(package);
 			}
 			catch (Exception ex)
 			{
 				Response.StatusCode = 500;
-				Response.Headers["x-error"] = ex.Message;
+				// HTTP headers cannot contain CR/LF. Exception messages from
+				// ZipFile, IO, etc. frequently do, and attempting to set an
+				// invalid header value would abort the response and surface as
+				// a connection reset to the CI client.
+				Response.Headers["x-error"] = SanitizeHeaderValue(ex.Message);
 				return Content(ex.Message);
 			}
+		}
+
+		private static string SanitizeHeaderValue(string value)
+		{
+			if (string.IsNullOrEmpty(value))
+			{
+				return string.Empty;
+			}
+
+			return value
+				.Replace("\r", " ")
+				.Replace("\n", " ");
 		}
 
 		private bool IsAuthorized()
