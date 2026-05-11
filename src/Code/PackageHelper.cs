@@ -224,6 +224,7 @@ namespace VsixGallery
 				Sanitize(package);
 
 				File.Copy(tempVsix, Path.Combine(vsixFolder, "extension.vsix"), true);
+				SetFileSize(package, vsixFolder);
 
 				return package;
 			}
