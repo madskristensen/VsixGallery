@@ -38,8 +38,8 @@ namespace VsixGallery
 			string license = ParseNode(doc, "License", false);
 			if (!string.IsNullOrEmpty(license))
 			{
-				string path = Path.Combine(tempFolder, NormalizeRelativePath(license));
-				if (File.Exists(path))
+				string path = ResolveRelativeFile(tempFolder, license);
+				if (path != null)
 				{
 					package.License = File.ReadAllText(path);
 				}
@@ -201,6 +201,51 @@ namespace VsixGallery
 			}
 
 			return path.Replace('\\', Path.DirectorySeparatorChar);
+		}
+
+		// Resolves a manifest-relative file path against an extracted VSIX folder.
+		// Manifest paths use Windows-style separators and Windows-style casing
+		// (e.g. "Resources\License.txt"), but the actual zip entry casing can
+		// differ (e.g. "Resources\LICENSE.txt"). On Linux the file system is
+		// case-sensitive, so we fall back to a case-insensitive segment lookup
+		// when the literal path doesn't exist on disk. Returns null when no
+		// matching file can be found.
+		internal static string ResolveRelativeFile(string root, string relativePath)
+		{
+			if (string.IsNullOrEmpty(relativePath))
+			{
+				return null;
+			}
+
+			string normalized = NormalizeRelativePath(relativePath);
+			string direct = Path.Combine(root, normalized);
+			if (File.Exists(direct))
+			{
+				return direct;
+			}
+
+			string[] segments = normalized.Split([Path.DirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+			string current = root;
+			foreach (string segment in segments)
+			{
+				if (!Directory.Exists(current))
+				{
+					return null;
+				}
+
+				string match = Directory
+					.EnumerateFileSystemEntries(current)
+					.FirstOrDefault(entry => string.Equals(Path.GetFileName(entry), segment, StringComparison.OrdinalIgnoreCase));
+
+				if (match == null)
+				{
+					return null;
+				}
+
+				current = match;
+			}
+
+			return File.Exists(current) ? current : null;
 		}
 
 		private string ParseNode(XmlDocument doc, string name, bool required, string attribute = "")

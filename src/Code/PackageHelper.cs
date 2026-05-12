@@ -338,8 +338,8 @@ namespace VsixGallery
 
 			Directory.CreateDirectory(vsixFolder);
 
-			string icon = Path.Combine(tempFolder, VsixManifestParser.NormalizeRelativePath(package.Icon ?? string.Empty));
-			if (File.Exists(icon))
+			string icon = VsixManifestParser.ResolveRelativeFile(tempFolder, package.Icon);
+			if (icon != null)
 			{
 				File.Copy(icon, Path.Combine(vsixFolder, "icon-" + package.Version + ".png"), true);
 				package.Icon = "icon-" + package.Version + ".png";
