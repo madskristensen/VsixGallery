@@ -30,7 +30,7 @@ IMvcBuilder mvcBuilder = builder.Services.AddRazorPages();
 mvcBuilder.AddRazorRuntimeCompilation();
 #endif
 
-builder.Services.AddMvc(options => options.EnableEndpointRouting = false);
+builder.Services.AddControllers();
 builder.Services.AddHsts(options =>
 {
 	options.MaxAge = TimeSpan.FromDays(126);
@@ -76,7 +76,7 @@ builder.Services
 .AddWebMarkupMin(
 options =>
 {
-	options.AllowMinificationInDevelopmentEnvironment = true;
+	options.AllowMinificationInDevelopmentEnvironment = false;
 	options.DisablePoweredByHttpHeaders = true;
 })
 .AddHtmlMinification(
@@ -147,10 +147,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseWebMarkupMin();
 app.UseRouting();
-app.UseMvcWithDefaultRoute();
 
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapControllers();
 
 app.Run();

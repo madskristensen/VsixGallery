@@ -1,2 +1,4 @@
-﻿User-agent: *
+User-agent: *
 Disallow:
+
+Sitemap: https://www.vsixgallery.com/sitemap.xml

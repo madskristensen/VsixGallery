@@ -1,7 +1,7 @@
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
@@ -16,6 +16,7 @@ namespace VsixGallery
 		private readonly List<Package> _cache;
 		private readonly bool _canRemoveOldExtensions;
 		private readonly bool _canValidateLicenses;
+		private readonly ILogger<PackageHelper> _logger;
 
 		// Serializes upload/mutation work. PackageHelper is registered as a
 		// singleton, but the cache and the on-disk extension folders are shared
@@ -25,8 +26,9 @@ namespace VsixGallery
 		private readonly SemaphoreSlim _uploadLock = new(1, 1);
 		private readonly Lock _cacheLock = new();
 
-		public PackageHelper(IWebHostEnvironment env, IOptions<ExtensionsOptions> options)
+		public PackageHelper(IWebHostEnvironment env, IOptions<ExtensionsOptions> options, ILogger<PackageHelper> logger)
 		{
+			_logger = logger;
 			_canRemoveOldExtensions = options.Value.RemoveOldExtensions;
 			_canValidateLicenses = options.Value.ValidateLicenses;
 			_extensionRoot = options.Value.Directory;
@@ -77,6 +79,10 @@ namespace VsixGallery
 				{
 					string content = File.ReadAllText(json);
 					Package package = JsonSerializer.Deserialize<Package>(content);
+					if (package is null)
+					{
+						continue;
+					}
 					Validate(package);
 					Sanitize(package);
 					SetFileSize(package, extension);
@@ -276,7 +282,7 @@ namespace VsixGallery
 				}
 				catch (Exception ex)
 				{
-					Debug.Write(ex);
+					_logger.LogError(ex, "Failed to delete temp folder: {TempFolder}", tempFolder);
 				}
 
 				try
@@ -285,7 +291,7 @@ namespace VsixGallery
 				}
 				catch (Exception ex)
 				{
-					Debug.Write(ex);
+					_logger.LogError(ex, "Failed to remove old extensions");
 				}
 
 				_uploadLock.Release();
@@ -302,7 +308,7 @@ namespace VsixGallery
 			Package[] oldPackages;
 			lock (_cacheLock)
 			{
-				oldPackages = [.. _cache.Where(p => p.DatePublished < DateTime.Now.AddMonths(-18))];
+				oldPackages = [.. _cache.Where(p => p.DatePublished < DateTime.UtcNow.AddMonths(-18))];
 			}
 
 			foreach (Package package in oldPackages)
@@ -321,7 +327,7 @@ namespace VsixGallery
 				}
 				catch (Exception ex)
 				{
-					Debug.Write(ex);
+					_logger.LogError(ex, "Failed to delete extension folder for package: {PackageId}", package.ID);
 				}
 			}
 		}

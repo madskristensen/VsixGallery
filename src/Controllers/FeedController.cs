@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using System.Linq;
 
 namespace VsixGallery.Controllers
 {
+	[Route("feed")]
 	public class FeedController : Controller
 	{
 		private readonly PackageHelper _helper;
@@ -16,6 +16,7 @@ namespace VsixGallery.Controllers
 			_feed = new FeedWriter();
 		}
 
+		[HttpGet("")]
 		public IActionResult Index()
 		{
 			Response.ContentType = "text/xml";
@@ -32,6 +33,7 @@ namespace VsixGallery.Controllers
 			return Content(_feed.GetFeed(baseUrl, packages));
 		}
 
+		[HttpGet("extension/{id}")]
 		public IActionResult Extension(string id)
 		{
 			Response.ContentType = "text/xml";
@@ -52,6 +54,7 @@ namespace VsixGallery.Controllers
 			return new RedirectResult("/", true);
 		}
 
+		[HttpGet("author/{id}")]
 		public IActionResult Author(string id)
 		{
 			Response.ContentType = "text/xml";

@@ -28,9 +28,9 @@ namespace VsixGallery.Pages
 		public void OnGet([FromQuery] int page = 1)
 		{
 			HttpContext.EnableOutputCaching(TimeSpan.FromDays(7), fileProvider: _helper.FileProvider, fileDependencies: "*", varyByParam: "page");
-			IEnumerable<Package> packages = _helper.PackageCache.Where(p => !p.Unlisted);
+			List<Package> packages = [.. _helper.PackageCache.Where(p => !p.Unlisted)];
 
-			int totalCount = packages.Count();
+			int totalCount = packages.Count;
 			int skip = (page - 1) * _pageSize;
 
 			Packages = packages.OrderByDescending(p => p.DatePublished)

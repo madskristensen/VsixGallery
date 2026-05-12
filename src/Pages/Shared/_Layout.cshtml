@@ -6,6 +6,7 @@
     <title>@ViewData["Title"]</title>
     <meta name="description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
 
     <link rel="apple-touch-icon" href="~/img/icon-180x180.png?v=1" />
     <link rel="icon" type="image/png" sizes="32x32" href="~/img/icon-32x32.png?v=1" />

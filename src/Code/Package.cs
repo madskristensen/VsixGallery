@@ -97,6 +97,61 @@ namespace VsixGallery
 		public string AuthorLink =>
 			$"/author/{Uri.EscapeDataString(Author)}";
 
+		/// <summary>
+		/// Returns a human-readable relative time string (e.g. "3 days ago", "2 months ago").
+		/// </summary>
+		public string TimeAgo()
+		{
+			TimeSpan elapsed = DateTime.UtcNow - DatePublished.ToUniversalTime();
+
+			if (elapsed.TotalMinutes < 1)
+			{
+				return "just now";
+			}
+			if (elapsed.TotalHours < 1)
+			{
+				int minutes = (int)elapsed.TotalMinutes;
+				return $"{minutes} {(minutes == 1 ? "minute" : "minutes")} ago";
+			}
+			if (elapsed.TotalDays < 1)
+			{
+				int hours = (int)elapsed.TotalHours;
+				return $"{hours} {(hours == 1 ? "hour" : "hours")} ago";
+			}
+			if (elapsed.TotalDays < 30)
+			{
+				int days = (int)elapsed.TotalDays;
+				return $"{days} {(days == 1 ? "day" : "days")} ago";
+			}
+			if (elapsed.TotalDays < 365)
+			{
+				int months = (int)(elapsed.TotalDays / 30);
+				return $"{months} {(months == 1 ? "month" : "months")} ago";
+			}
+
+			int years = (int)(elapsed.TotalDays / 365);
+			return $"{years} {(years == 1 ? "year" : "years")} ago";
+		}
+
+		/// <summary>
+		/// Returns the description truncated at a word boundary with an ellipsis appended.
+		/// </summary>
+		public string TruncatedDescription(int maxLength = 120)
+		{
+			if (string.IsNullOrEmpty(Description) || Description.Length <= maxLength)
+			{
+				return Description ?? string.Empty;
+			}
+
+			int cutAt = Description.LastIndexOf(' ', maxLength);
+			if (cutAt <= 0)
+			{
+				cutAt = maxLength;
+			}
+
+			return Description[..cutAt] + "\u2026";
+		}
+
 		public string DownloadLink =>
 			$"/extensions/{ID}/{Uri.EscapeDataString(Name + " ")}v{Version}.vsix";
 

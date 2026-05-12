@@ -2,9 +2,34 @@
 @model SearchModel
 
 @{
-    ViewData["Title"] = $"Search results for '{Model.Term}'";
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.Term)
+        ? "Search extensions"
+        : $"Search results for '{Model.Term}'";
 }
 
-<h1>@Model.Packages.Count() results for <em>@Model.Term</em></h1>
+@if (string.IsNullOrWhiteSpace(Model.Term))
+{
+    <h1>Search extensions</h1>
+}
+else
+{
+    <h1>@Model.Packages.Count() results for <em>@Model.Term</em></h1>
 
-@await Html.PartialAsync("_ExtensionList", Model.Packages)
+    @await Html.PartialAsync("_ExtensionList", Model.Packages)
+
+    <div id="paging">
+        @if (Model.CurrentPage > 2)
+        {
+            <a rel="prev" href="?q=@Model.Term&page=@(Model.CurrentPage - 1)">&lt; Previous</a>
+        }
+        else if (Model.CurrentPage > 1)
+        {
+            <a rel="prev" href="?q=@Model.Term">&lt; Previous</a>
+        }
+
+        @if (Model.CurrentPage < Model.Pages)
+        {
+            <a rel="next" href="?q=@Model.Term&page=@(Model.CurrentPage + 1)">Next &gt;</a>
+        }
+    </div>
+}

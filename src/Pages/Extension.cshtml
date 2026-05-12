@@ -1,6 +1,5 @@
 @page "{id?}"
 @model ExtensionModel
-@using moment.net;
 @using System.Text.Json;
 @using VsixGallery;
 
@@ -75,7 +74,7 @@
             <dd>@Model.Package.Version</dd>
 
             <dt>Updated</dt>
-            <dd title="@Model.Package.DatePublished.ToUniversalTime()">@Model.Package.DatePublished.FromNow()</dd>
+            <dd title="@Model.Package.DatePublished.ToUniversalTime()">@Model.Package.TimeAgo()</dd>
 
             @if (!string.IsNullOrWhiteSpace(Model.Package.Tags))
             {
@@ -96,7 +95,10 @@
         </dl>
 
         <ul id="links">
-            <li><a href="@Model.Package.MoreInfoUrl" rel="noopener noreferrer">✪ Website</a></li>
+            @if (!string.IsNullOrWhiteSpace(Model.Package.MoreInfoUrl))
+            {
+                <li><a href="@Model.Package.MoreInfoUrl" rel="noopener noreferrer">✪ Website</a></li>
+            }
 
             @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
             {

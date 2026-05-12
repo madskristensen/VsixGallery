@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 
 namespace VsixGallery.Controllers
 {
+	[Route("api")]
 	public class ApiController(PackageHelper helper, IOptions<UploadOptions> uploadOptions) : Controller
 	{
 		private const string AuthorizationPrefix = "Bearer ";
 		private readonly string _secretKey = uploadOptions.Value.SecretKey;
 
+		[HttpGet("{id?}")]
 		public object Get(string id)
 		{
 			Response.Headers.CacheControl = "no-cache";
@@ -39,7 +41,7 @@ namespace VsixGallery.Controllers
 			return package;
 		}
 
-		[HttpPost, DisableRequestSizeLimit]
+		[HttpPost("upload"), DisableRequestSizeLimit]
 		public async Task<IActionResult> Upload([FromQuery] string repo, string issuetracker, string readmeUrl)
 		{
 			if (!IsAuthorized())
