@@ -43,6 +43,8 @@ namespace VsixGallery
 		public string Version { get; set; }
 		public string Icon { get; set; }
 		public string Tags { get; set; }
+		public int IconWidth { get; set; }
+		public int IconHeight { get; set; }
 		public DateTime DatePublished { get; set; }
 		public IEnumerable<string> SupportedVersions { get; set; }
 		public IEnumerable<InstallationTarget> InstallationTargets { get; set; }

@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "Extensions by " + Model.Author;
+    ViewData["FeedUrl"] = $"/feed/author/{Uri.EscapeDataString(Model.Author ?? string.Empty)}";
+    ViewData["FeedTitle"] = $"Extensions by {Model.Author}";
 }
 
 <h1>

@@ -134,6 +134,9 @@ namespace VsixGallery
 				{
 					if (ImageDimensionReader.TryGetDimensions(iconFile, out int width, out int height))
 					{
+						package.IconWidth = width;
+						package.IconHeight = height;
+
 						if (width < 90 || height < 90 || width > 128 || height > 128)
 						{
 							errors.Add($"The icon is {width}x{height}px. It must be 90x90px for best rendering on Marketplace and in Visual Studio");

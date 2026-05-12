@@ -12,7 +12,13 @@
     <link rel="icon" type="image/png" sizes="16x16" href="~/img/icon-16x16.png?v=1" />
     <link rel="manifest" href="/site.webmanifest?v=1" />
 
-    <meta name="twitter:card" content="summary" />
+    @{
+        string feedUrl = ViewData["FeedUrl"] as string ?? "/feed/";
+        string feedTitle = ViewData["FeedTitle"] as string ?? "Gallery feed";
+    }
+    <link rel="alternate" type="application/atom+xml" title="@feedTitle" href="@feedUrl" />
+
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@@mkristensen" />
     <meta name="twitter:creator" content="@@mkristensen" />
 
@@ -21,6 +27,16 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
     <meta property="og:image" content="@($"{Context.Request.Scheme}://{Context.Request.Host}" + (ViewData["Image"] ?? "/img/icon-180x180.png"))" />
+    @if (ViewData["ImageWidth"] is int imgW && ViewData["ImageHeight"] is int imgH)
+    {
+        <meta property="og:image:width" content="@imgW" />
+        <meta property="og:image:height" content="@imgH" />
+    }
+    else if (ViewData["Image"] == null)
+    {
+        <meta property="og:image:width" content="180" />
+        <meta property="og:image:height" content="180" />
+    }
 </head>
 <body>
     <header>

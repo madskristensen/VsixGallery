@@ -1,14 +1,58 @@
 @page "{id?}"
 @model ExtensionModel
 @using moment.net;
+@using System.Text.Json;
 
 @{
     ViewData["Title"] = Model.Package.Name;
     ViewData["Description"] = Model.Package.Description.Substring(0, Math.Min(Model.Package.Description.Length, 200));
     ViewData["Image"] = Model.Package.Icon;
+    if (Model.Package.IconWidth > 0 && Model.Package.IconHeight > 0)
+    {
+        ViewData["ImageWidth"] = Model.Package.IconWidth;
+        ViewData["ImageHeight"] = Model.Package.IconHeight;
+    }
+    ViewData["FeedUrl"] = Model.Package.FeedLink;
+    ViewData["FeedTitle"] = $"{Model.Package.Name} – extension feed";
+
+    var request = ViewContext.HttpContext.Request;
+    string baseUrl = $"{request.Scheme}://{request.Host}";
+    var jsonLd = new Dictionary<string, object>
+    {
+        ["@context"] = "https://schema.org",
+        ["@type"] = "SoftwareApplication",
+        ["name"] = Model.Package.Name,
+        ["description"] = Model.Package.Description,
+        ["image"] = baseUrl + Model.Package.Icon,
+        ["url"] = baseUrl + Model.Package.DetailsLink,
+        ["applicationCategory"] = "DeveloperApplication",
+        ["operatingSystem"] = "Windows",
+        ["softwareVersion"] = Model.Package.Version,
+        ["datePublished"] = Model.Package.DatePublished.ToString("o"),
+        ["author"] = new Dictionary<string, object>
+        {
+            ["@type"] = "Person",
+            ["name"] = Model.Package.Author,
+            ["url"] = baseUrl + Model.Package.AuthorLink,
+        },
+        ["downloadUrl"] = baseUrl + Model.Package.DownloadLink,
+        ["offers"] = new Dictionary<string, object>
+        {
+            ["@type"] = "Offer",
+            ["price"] = "0",
+            ["priceCurrency"] = "USD",
+        },
+    };
+    if (!string.IsNullOrWhiteSpace(Model.Package.License))
+    {
+        jsonLd["license"] = Model.Package.License;
+    }
+    string jsonLdScript = JsonSerializer.Serialize(jsonLd, new JsonSerializerOptions { WriteIndented = false });
 }
 
 <link href="~/css/extensions.css" rel="stylesheet" />
+
+<script type="application/ld+json">@Html.Raw(jsonLdScript)</script>
 
 <article>
     <h1>
@@ -77,46 +121,7 @@
 
     @if (!string.IsNullOrWhiteSpace(Model.Package.ReadmeUrl))
     {
-        <p id="readme">Loading...</p>
-        <script>
-            var readme = document.getElementById('readme');
-            var url = '@Model.Package.ReadmeUrl';
-
-            function fetchReadme(readmeUrl) {
-                return fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + readmeUrl)
-                    .then(response => response.text());
-            }
-
-            function getAlternateUrl(readmeUrl) {
-                // Try swapping main <-> master in the branch segment
-                if (readmeUrl.includes('/refs/heads/main/')) {
-                    return readmeUrl.replace('/refs/heads/main/', '/refs/heads/master/');
-                }
-                if (readmeUrl.includes('/refs/heads/master/')) {
-                    return readmeUrl.replace('/refs/heads/master/', '/refs/heads/main/');
-                }
-                // Legacy URLs without /refs/heads/
-                if (readmeUrl.includes('/main/')) {
-                    return readmeUrl.replace('/main/', '/master/');
-                }
-                if (readmeUrl.includes('/master/')) {
-                    return readmeUrl.replace('/master/', '/main/');
-                }
-                return null;
-            }
-
-            fetchReadme(url).then(text => {
-                if (text && text.trim().length > 0 && !text.includes('404')) {
-                    readme.innerHTML = text;
-                } else {
-                    var alt = getAlternateUrl(url);
-                    if (alt) {
-                        fetchReadme(alt).then(t => readme.innerHTML = t);
-                    } else {
-                        readme.innerHTML = text;
-                    }
-                }
-            });
-        </script>
+        <p id="readme" data-url="@Model.Package.ReadmeUrl">Loading...</p>
+        <script src="~/js/readme.js" defer></script>
     }
 </article>
