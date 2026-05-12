@@ -1,45 +1,54 @@
 (function () {
     var el = document.getElementById('readme');
-    if (!el) {
+    if (!el || !el.dataset.url) {
         return;
     }
 
-    var url = el.dataset.url;
-    if (!url) {
-        return;
-    }
+    var SERVICE = 'https://markdownservice.azurewebsites.net/markdown.ashx?url=';
 
     function fetchReadme(readmeUrl) {
-        return fetch('https://markdownservice.azurewebsites.net/markdown.ashx?url=' + readmeUrl)
-            .then(function (response) { return response.text(); });
+        return fetch(SERVICE + readmeUrl).then(function (response) {
+            return response.text().then(function (text) {
+                return { ok: response.ok, text: text };
+            });
+        });
     }
 
     function getAlternateUrl(readmeUrl) {
-        if (readmeUrl.indexOf('/refs/heads/main/') !== -1) {
-            return readmeUrl.replace('/refs/heads/main/', '/refs/heads/master/');
-        }
-        if (readmeUrl.indexOf('/refs/heads/master/') !== -1) {
-            return readmeUrl.replace('/refs/heads/master/', '/refs/heads/main/');
-        }
-        if (readmeUrl.indexOf('/main/') !== -1) {
-            return readmeUrl.replace('/main/', '/master/');
-        }
-        if (readmeUrl.indexOf('/master/') !== -1) {
-            return readmeUrl.replace('/master/', '/main/');
+        var swaps = [
+            ['/refs/heads/main/', '/refs/heads/master/'],
+            ['/refs/heads/master/', '/refs/heads/main/'],
+            ['/main/', '/master/'],
+            ['/master/', '/main/']
+        ];
+        for (var i = 0; i < swaps.length; i++) {
+            if (readmeUrl.indexOf(swaps[i][0]) !== -1) {
+                return readmeUrl.replace(swaps[i][0], swaps[i][1]);
+            }
         }
         return null;
     }
 
-    fetchReadme(url).then(function (text) {
-        if (text && text.trim().length > 0 && text.indexOf('404') === -1) {
-            el.innerHTML = text;
-        } else {
-            var altUrl = getAlternateUrl(url);
-            if (altUrl) {
-                fetchReadme(altUrl).then(function (t) { el.innerHTML = t; });
-            } else {
-                el.innerHTML = text;
-            }
+    function isValid(result) {
+        return result.ok && result.text && result.text.trim().length > 0;
+    }
+
+    fetchReadme(el.dataset.url).then(function (result) {
+        if (isValid(result)) {
+            el.innerHTML = result.text;
+            return;
         }
+        var altUrl = getAlternateUrl(el.dataset.url);
+        if (!altUrl) {
+            el.remove();
+            return;
+        }
+        fetchReadme(altUrl).then(function (alt) {
+            if (isValid(alt)) {
+                el.innerHTML = alt.text;
+            } else {
+                el.remove();
+            }
+        });
     });
 })();

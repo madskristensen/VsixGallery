@@ -12,7 +12,7 @@ namespace VsixGallery
 
 	public class Package
 	{
-		private static readonly Dictionary<int, string> _majorVersionToProduct = new()
+		private readonly static Dictionary<int, string> _majorVersionToProduct = new()
 		{
 			{ 10, "VS 2010" },
 			{ 11, "VS 2012" },
@@ -24,7 +24,7 @@ namespace VsixGallery
 			{ 18, "VS 2026" },
 		};
 
-		private static readonly Dictionary<string, string> _identifierToProduct = new(StringComparer.OrdinalIgnoreCase)
+		private readonly static Dictionary<string, string> _identifierToProduct = new(StringComparer.OrdinalIgnoreCase)
 		{
 			{ "Microsoft.VisualStudio.Community", "Visual Studio" },
 			{ "Microsoft.VisualStudio.Pro", "Visual Studio" },

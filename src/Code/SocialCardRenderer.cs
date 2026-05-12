@@ -14,11 +14,11 @@ namespace VsixGallery
 		public const int Width = 1200;
 		public const int Height = 630;
 
-		private static readonly SKColor _bgTop = new(0x1B, 0x2A, 0x4E);
-		private static readonly SKColor _bgBottom = new(0x0B, 0x14, 0x2A);
-		private static readonly SKColor _textPrimary = new(0xFF, 0xFF, 0xFF);
-		private static readonly SKColor _textSecondary = new(0xAE, 0xB8, 0xD0);
-		private static readonly SKColor _accent = new(0x4F, 0x9C, 0xFF);
+		private readonly static SKColor _bgTop = new(0x1B, 0x2A, 0x4E);
+		private readonly static SKColor _bgBottom = new(0x0B, 0x14, 0x2A);
+		private readonly static SKColor _textPrimary = new(0xFF, 0xFF, 0xFF);
+		private readonly static SKColor _textSecondary = new(0xAE, 0xB8, 0xD0);
+		private readonly static SKColor _accent = new(0x4F, 0x9C, 0xFF);
 
 		private readonly object _renderLock = new();
 

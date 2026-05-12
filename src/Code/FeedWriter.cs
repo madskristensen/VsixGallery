@@ -41,7 +41,7 @@ namespace VsixGallery
 			return sb.ToString().Replace("utf-16", "utf-8");
 		}
 
-		private void AddEntry(XmlWriter writer, Package package, string baseUrl)
+		private static void AddEntry(XmlWriter writer, Package package, string baseUrl)
 		{
 			writer.WriteStartElement("entry");
 

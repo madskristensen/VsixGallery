@@ -7,7 +7,7 @@ namespace VsixGallery
 {
 	public class ExtensionsFileProvider : IFileProvider
 	{
-		private static readonly char[] _pathSeparators = new[] { '/', '\\' };
+		private readonly static char[] _pathSeparators = new[] { '/', '\\' };
 
 		private readonly IFileProvider _underlyingFileProvider;
 

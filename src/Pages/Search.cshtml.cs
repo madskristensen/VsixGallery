@@ -31,7 +31,7 @@ namespace VsixGallery.Pages
 			Term = q;
 		}
 
-		private IEnumerable<Package> Lookup(string q, IEnumerable<Package> packages)
+		private static IEnumerable<Package> Lookup(string q, IEnumerable<Package> packages)
 		{
 			Dictionary<Package, int> list = [];
 			foreach (Package package in packages)

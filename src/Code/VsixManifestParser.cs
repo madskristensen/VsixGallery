@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -23,7 +19,6 @@ namespace VsixGallery
 			{
 				Repo = repo,
 				IssueTracker = issuetracker,
-				ReadmeUrl = BuildReadmeUrl(repo, readmeUrl)
 			};
 
 			if (doc.GetElementsByTagName("DisplayName").Count > 0)
@@ -33,6 +28,15 @@ namespace VsixGallery
 			else
 			{
 				Vs2010Format(doc, package);
+			}
+
+			ApplyRepoFallback(package);
+
+			// An explicit readmeUrl from the upload always wins over whatever
+			// ApplyRepoFallback inferred.
+			if (!string.IsNullOrWhiteSpace(readmeUrl))
+			{
+				package.ReadmeUrl = BuildReadmeUrl(package.Repo, readmeUrl);
 			}
 
 			string license = ParseNode(doc, "License", false);
@@ -50,7 +54,67 @@ namespace VsixGallery
 			return package;
 		}
 
-		private string BuildReadmeUrl(string repo, string readmeUrl)
+		// Fills in Repo, IssueTracker, and ReadmeUrl when the uploader didn't
+		// supply a `repo` query parameter, by falling back to the manifest's
+		// <MoreInfo> URL when it points at a GitHub repository. Idempotent:
+		// any value already set is preserved.
+		public static void ApplyRepoFallback(Package package)
+		{
+			if (package == null)
+			{
+				return;
+			}
+
+			if (string.IsNullOrWhiteSpace(package.Repo))
+			{
+				string inferred = InferGitHubRepo(package.MoreInfoUrl);
+				if (!string.IsNullOrEmpty(inferred))
+				{
+					package.Repo = inferred;
+				}
+			}
+
+			// Resolve a relative issue tracker (e.g. "issues/") against the
+			// repo so it renders as a usable absolute URL.
+			if (!string.IsNullOrWhiteSpace(package.IssueTracker)
+				&& !Regex.IsMatch(package.IssueTracker, "^https?://")
+				&& !string.IsNullOrEmpty(package.Repo))
+			{
+				package.IssueTracker = package.Repo.TrimEnd('/') + "/" + package.IssueTracker.TrimStart('/');
+			}
+
+			// Backfill a missing ReadmeUrl for legacy cached packages whose
+			// stored JSON was written before the fallback existed.
+			if (string.IsNullOrEmpty(package.ReadmeUrl) && !string.IsNullOrEmpty(package.Repo))
+			{
+				package.ReadmeUrl = BuildReadmeUrl(package.Repo, null);
+			}
+		}
+
+		private static string InferGitHubRepo(string moreInfoUrl)
+		{
+			if (string.IsNullOrWhiteSpace(moreInfoUrl))
+			{
+				return null;
+			}
+
+			// Match https://github.com/<owner>/<name> with optional trailing
+			// path/slash. Anything deeper (e.g. a tree/blob URL) is rejected
+			// so we don't construct nonsense raw URLs later.
+			Match match = Regex.Match(
+				moreInfoUrl.Trim(),
+				@"^https?://github\.com/([^/\s]+)/([^/\s#?]+?)(?:\.git)?/?$",
+				RegexOptions.IgnoreCase);
+
+			if (!match.Success)
+			{
+				return null;
+			}
+
+			return "https://github.com/" + match.Groups[1].Value + "/" + match.Groups[2].Value;
+		}
+
+		private static string BuildReadmeUrl(string repo, string readmeUrl)
 		{
 			// Default to `main/README.md` if a URL was not specified.
 			if (string.IsNullOrWhiteSpace(readmeUrl))
@@ -82,7 +146,7 @@ namespace VsixGallery
 			return baseUrl + "/" + path;
 		}
 
-		private void AddExtensionList(Package package, string tempFolder)
+		private static void AddExtensionList(Package package, string tempFolder)
 		{
 			string vsext = Directory.EnumerateFiles(tempFolder, "*.vsext", SearchOption.AllDirectories).FirstOrDefault();
 
@@ -99,7 +163,7 @@ namespace VsixGallery
 			}
 		}
 
-		private void Vs2012Format(XmlDocument doc, Package package)
+		private static void Vs2012Format(XmlDocument doc, Package package)
 		{
 			package.ID = ParseNode(doc, "Identity", true, "Id");
 			package.Name = ParseNode(doc, "DisplayName", true);
@@ -116,7 +180,7 @@ namespace VsixGallery
 			package.MoreInfoUrl = ParseNode(doc, "MoreInfo", false);
 		}
 
-		private void Vs2010Format(XmlDocument doc, Package package)
+		private static void Vs2010Format(XmlDocument doc, Package package)
 		{
 			package.ID = ParseNode(doc, "Identifier", true, "Id");
 			package.Name = ParseNode(doc, "Name", true);
@@ -132,7 +196,7 @@ namespace VsixGallery
 			package.MoreInfoUrl = ParseNode(doc, "MoreInfo", false);
 		}
 
-		private static IEnumerable<string> GetSupportedVersions(XmlDocument doc)
+		private static List<string> GetSupportedVersions(XmlDocument doc)
 		{
 			XmlNodeList list = doc.GetElementsByTagName("InstallationTarget");
 
@@ -193,14 +257,9 @@ namespace VsixGallery
 		// backslash is a valid filename character, so Path.Combine produces a
 		// literal path that doesn't match what ZipFile.ExtractToDirectory wrote
 		// to disk. Normalize to the host's separator before combining.
-		internal static string NormalizeRelativePath(string path)
+		static internal string NormalizeRelativePath(string path)
 		{
-			if (string.IsNullOrEmpty(path))
-			{
-				return path;
-			}
-
-			return path.Replace('\\', Path.DirectorySeparatorChar);
+			return string.IsNullOrEmpty(path) ? path : path.Replace('\\', Path.DirectorySeparatorChar);
 		}
 
 		// Resolves a manifest-relative file path against an extracted VSIX folder.
@@ -210,7 +269,7 @@ namespace VsixGallery
 		// case-sensitive, so we fall back to a case-insensitive segment lookup
 		// when the literal path doesn't exist on disk. Returns null when no
 		// matching file can be found.
-		internal static string ResolveRelativeFile(string root, string relativePath)
+		static internal string ResolveRelativeFile(string root, string relativePath)
 		{
 			if (string.IsNullOrEmpty(relativePath))
 			{
@@ -248,7 +307,7 @@ namespace VsixGallery
 			return File.Exists(current) ? current : null;
 		}
 
-		private string ParseNode(XmlDocument doc, string name, bool required, string attribute = "")
+		private static string ParseNode(XmlDocument doc, string name, bool required, string attribute = "")
 		{
 			XmlNodeList list = doc.GetElementsByTagName(name);
 

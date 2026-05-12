@@ -1,18 +1,10 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace VsixGallery
 {
@@ -110,6 +102,11 @@ namespace VsixGallery
 			{
 				package.Repo = "https://" + package.Repo;
 			}
+
+			// Backfill Repo/IssueTracker/ReadmeUrl for legacy cached packages
+			// whose extension.json was written before MoreInfoUrl-based
+			// inference existed.
+			VsixManifestParser.ApplyRepoFallback(package);
 		}
 
 		public void Validate(Package package)

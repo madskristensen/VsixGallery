@@ -12,8 +12,8 @@ namespace VsixGallery.Controllers
 	{
 		// Bump when the renderer output changes to invalidate cached cards.
 		private const int CardVersion = 2;
-		private static readonly string CardFileName = $"social-v{CardVersion}.png";
-		private static readonly string DefaultCardFileName = $"default-social-v{CardVersion}.png";
+		private readonly static string CardFileName = $"social-v{CardVersion}.png";
+		private readonly static string DefaultCardFileName = $"default-social-v{CardVersion}.png";
 
 		private readonly PackageHelper _helper;
 		private readonly SocialCardRenderer _renderer;
