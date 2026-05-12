@@ -456,7 +456,6 @@ footer #copyright {
 /* ========================================
    Hamburger Menu (hidden by default, mobile only)
    ======================================== */
-.hamburger-toggle,
 .hamburger-btn,
 .mobile-menu,
 .mobile-menu-overlay {
@@ -467,6 +466,14 @@ footer #copyright {
    Responsive - Tablet/Mobile
    ======================================== */
 @media screen and (max-width: 900px) {
+    header.is-open .mobile-menu-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 100;
+    }
+
     header .header-content {
         gap: 1rem;
     }
@@ -502,16 +509,16 @@ footer #copyright {
         transition: all 0.15s ease;
     }
 
-    .hamburger-toggle:checked ~ .hamburger-btn span:nth-child(1) {
+    header.is-open .hamburger-btn span:nth-child(1) {
         -webkit-transform: rotate(45deg) translate(5px, 5px);
         transform: rotate(45deg) translate(5px, 5px);
     }
 
-    .hamburger-toggle:checked ~ .hamburger-btn span:nth-child(2) {
+    header.is-open .hamburger-btn span:nth-child(2) {
         opacity: 0;
     }
 
-    .hamburger-toggle:checked ~ .hamburger-btn span:nth-child(3) {
+    header.is-open .hamburger-btn span:nth-child(3) {
         -webkit-transform: rotate(-45deg) translate(5px, -5px);
         transform: rotate(-45deg) translate(5px, -5px);
     }
@@ -534,7 +541,7 @@ footer #copyright {
         z-index: 150;
     }
 
-    .hamburger-toggle:checked ~ .mobile-menu {
+    header.is-open .mobile-menu {
         display: -webkit-flex;
         display: flex;
     }
@@ -635,4 +642,45 @@ footer #copyright {
         padding-left: max(.5em, env(safe-area-inset-left));
         padding-right: max(.5em, env(safe-area-inset-right));
     }
+}
+
+
+/* ========================================
+   Accessibility: skip link + button reset
+   ======================================== */
+.skip-link {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    z-index: 10000;
+    padding: 0.75rem 1rem;
+    background: var(--surface, #fff);
+    color: var(--primary, #0066cc);
+    border: 2px solid var(--primary, #0066cc);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.skip-link:focus {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    width: auto;
+    height: auto;
+    overflow: visible;
+}
+
+#main-content:focus {
+    outline: none;
+}
+
+/* Reset native <button> defaults on the hamburger trigger. */
+.hamburger-btn {
+    background: none;
+    border: 0;
+    color: inherit;
+    font: inherit;
 }

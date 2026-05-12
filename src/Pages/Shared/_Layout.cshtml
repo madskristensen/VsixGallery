@@ -48,6 +48,8 @@
     <meta property="og:image:height" content="@socialImageHeight" />
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
     <header>
         <div class="container header-content">
             <a href="/" class="logo">
@@ -55,7 +57,7 @@
                 <span>@ViewData["SiteName"]</span>
             </a>
 
-            <nav>
+            <nav aria-label="Primary">
                 @if (!(bool)ViewData["HideSetupLink"]) {
                     <a href="~/feedguide">Setup Feed</a>
                 }
@@ -68,7 +70,7 @@
             </nav>
 
             <div class="header-actions">
-                <form action="~/search/" method="get">
+                <form action="~/search/" method="get" role="search">
                     <label for="search">Search</label>
                     <input type="search" id="search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required />
                     <button type="submit">Search</button>
@@ -79,20 +81,23 @@
                 }
             </div>
 
-            <input type="checkbox" id="hamburger-toggle" class="hamburger-toggle" aria-hidden="true" />
-            <label for="hamburger-toggle" class="hamburger-btn" aria-label="Menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </label>
+            <button type="button"
+                    class="hamburger-btn"
+                    aria-label="Menu"
+                    aria-expanded="false"
+                    aria-controls="mobile-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </button>
 
-            <div class="mobile-menu">
-                <form action="~/search/" method="get" class="mobile-search" style="display:block;width:250px;margin:0 auto;">
+            <div id="mobile-menu" class="mobile-menu" hidden>
+                <form action="~/search/" method="get" class="mobile-search" role="search">
                     <label for="mobile-search">Search</label>
-                    <input type="search" id="mobile-search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required size="20" style="width:100%;max-width:250px;" />
+                    <input type="search" id="mobile-search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required size="20" />
                     <button type="submit">Search</button>
                 </form>
-                <nav>
+                <nav aria-label="Mobile">
                     @if (!(bool)ViewData["HideSetupLink"]) {
                         <a href="~/feedguide">Setup Feed</a>
                     }
@@ -109,9 +114,9 @@
             </div>
         </div>
     </header>
-    <label for="hamburger-toggle" class="mobile-menu-overlay" aria-hidden="true"></label>
+    <div class="mobile-menu-overlay" aria-hidden="true"></div>
 
-    <main>
+    <main id="main-content" tabindex="-1">
         <div class="container">
             @RenderBody()
         </div>
@@ -121,10 +126,12 @@
         <div class="container">
             <p id="copyright">
                 &copy; @DateTime.Now.Year <a href="https://www.madskristensen.net" rel="noopener noreferrer">Mads Kristensen</a>
-                <span class="separator">•</span>
+                <span class="separator" aria-hidden="true">•</span>
                 <a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">Source on GitHub</a>
             </p>
         </div>
     </footer>
+
+    <script src="~/js/site.js" defer></script>
 </body>
 </html>

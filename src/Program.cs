@@ -114,13 +114,7 @@ else
 
 app.UseHttpsRedirection();
 
-app.Use((context, next) =>
-{
-	context.Response.Headers["X-Content-Type-Options"] = "nosniff";
-	// Replaces the Arr-Disable-Session-Affinity custom header from web.config.
-	context.Response.Headers["Arr-Disable-Session-Affinity"] = "true";
-	return next();
-});
+app.UseSecurityHeaders();
 
 app.UseResponseCompression();
 

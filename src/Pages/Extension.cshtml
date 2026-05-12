@@ -2,6 +2,7 @@
 @model ExtensionModel
 @using moment.net;
 @using System.Text.Json;
+@using VsixGallery;
 
 @{
     ViewData["Title"] = Model.Package.Name;
@@ -46,6 +47,9 @@
         jsonLd["license"] = Model.Package.License;
     }
     string jsonLdScript = JsonSerializer.Serialize(jsonLd, new JsonSerializerOptions { WriteIndented = false });
+
+    // Register this inline script's SHA-256 with the CSP so the Content-Security-Policy header allows it.
+    ViewContext.HttpContext.AddInlineScriptHash(jsonLdScript);
 }
 
 <link href="~/css/extensions.css" rel="stylesheet" />
@@ -57,7 +61,7 @@
         @Model.Package.Name
         <a href="@Model.Package.FeedLink" class="feed shadow" title="ATOM feed for this extension only">Gallery feed (extension)</a>
     </h1>
-    <img class="icon" src="@Model.Package.Icon" asp-append-version="true" alt="@Model.Package.Name" />
+    <img class="icon" src="@Model.Package.Icon" asp-append-version="true" alt="" />
 
     <div id="details">
         <p>@Model.Package.Description</p>
@@ -123,3 +127,4 @@
         <script src="~/js/readme.js" defer></script>
     }
 </article>
+
