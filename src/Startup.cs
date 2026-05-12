@@ -70,6 +70,7 @@ namespace VsixGallery
 
 			// PackgeHelper caches packages, so we need to register it as a singleton.
 			services.AddSingleton<PackageHelper>();
+			services.AddSingleton<SocialCardRenderer>();
 
 			services.Configure<ExtensionsOptions>(Configuration.GetSection("Extensions"));
 			services.Configure<DisplayOptions>(Configuration.GetSection("Display"));

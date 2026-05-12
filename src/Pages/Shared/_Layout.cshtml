@@ -21,14 +21,20 @@
             ? $"{pageTitle} – {pageDescription}"
             : pageTitle;
         string socialDescription = pageDescription ?? "An alternative Visual Studio extension gallery for nightly builds.";
+        string twitterCard = ViewData["TwitterCard"] as string ?? "summary_large_image";
+        string socialImagePath = ViewData["Image"] as string ?? "/social/default.png";
+        int socialImageWidth = ViewData["ImageWidth"] is int w ? w : VsixGallery.SocialCardRenderer.Width;
+        int socialImageHeight = ViewData["ImageHeight"] is int h ? h : VsixGallery.SocialCardRenderer.Height;
+        string absoluteImage = $"{Context.Request.Scheme}://{Context.Request.Host}{socialImagePath}";
     }
     <link rel="alternate" type="application/atom+xml" title="@feedTitle" href="@feedUrl" />
 
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="@twitterCard" />
     <meta name="twitter:site" content="@@mkristensen" />
     <meta name="twitter:creator" content="@@mkristensen" />
     <meta name="twitter:title" content="@socialTitle" />
     <meta name="twitter:description" content="@socialDescription" />
+    <meta name="twitter:image" content="@absoluteImage" />
 
     <meta property="og:title" content="@socialTitle" />
     <meta property="og:description" content="@socialDescription" />
@@ -36,17 +42,10 @@
     <meta property="og:image:alt" content="@pageTitle" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
-    <meta property="og:image" content="@($"{Context.Request.Scheme}://{Context.Request.Host}" + (ViewData["Image"] ?? "/img/icon-180x180.png"))" />
-    @if (ViewData["ImageWidth"] is int imgW && ViewData["ImageHeight"] is int imgH)
-    {
-        <meta property="og:image:width" content="@imgW" />
-        <meta property="og:image:height" content="@imgH" />
-    }
-    else if (ViewData["Image"] == null)
-    {
-        <meta property="og:image:width" content="180" />
-        <meta property="og:image:height" content="180" />
-    }
+    <meta property="og:image" content="@absoluteImage" />
+    <meta property="og:image:secure_url" content="@absoluteImage" />
+    <meta property="og:image:width" content="@socialImageWidth" />
+    <meta property="og:image:height" content="@socialImageHeight" />
 </head>
 <body>
     <header>

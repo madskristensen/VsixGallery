@@ -185,6 +185,43 @@ namespace VsixGallery
 			return package;
 		}
 
+		public string GetIconDiskPath(Package package)
+		{
+			if (package == null || string.IsNullOrEmpty(package.Icon))
+			{
+				return null;
+			}
+
+			const string prefix = "/extensions/";
+			if (!package.Icon.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+			{
+				return null;
+			}
+
+			string rest = package.Icon.Substring(prefix.Length);
+			int slash = rest.IndexOf('/');
+			if (slash < 0)
+			{
+				return null;
+			}
+
+			string id = rest.Substring(0, slash);
+			string fileName = Uri.UnescapeDataString(rest.Substring(slash + 1));
+			string path = Path.Combine(_extensionRoot, id, fileName);
+			return File.Exists(path) ? path : null;
+		}
+
+		public string GetExtensionFolder(string id)
+		{
+			if (string.IsNullOrEmpty(id))
+			{
+				return null;
+			}
+
+			string folder = Path.Combine(_extensionRoot, id);
+			return Directory.Exists(folder) ? folder : null;
+		}
+
 		private static Package DeserializePackage(string version)
 		{
 			string content = File.ReadAllText(Path.Combine(version, "extension.json"));

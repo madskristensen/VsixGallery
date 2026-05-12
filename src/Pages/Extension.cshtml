@@ -6,12 +6,10 @@
 @{
     ViewData["Title"] = Model.Package.Name;
     ViewData["Description"] = Model.Package.Description.Substring(0, Math.Min(Model.Package.Description.Length, 200));
-    ViewData["Image"] = Model.Package.Icon;
-    if (Model.Package.IconWidth > 0 && Model.Package.IconHeight > 0)
-    {
-        ViewData["ImageWidth"] = Model.Package.IconWidth;
-        ViewData["ImageHeight"] = Model.Package.IconHeight;
-    }
+    ViewData["Image"] = $"/social/extension/{Model.Package.ID}.png";
+    ViewData["ImageWidth"] = VsixGallery.SocialCardRenderer.Width;
+    ViewData["ImageHeight"] = VsixGallery.SocialCardRenderer.Height;
+    ViewData["TwitterCard"] = "summary_large_image";
     ViewData["FeedUrl"] = Model.Package.FeedLink;
     ViewData["FeedTitle"] = $"{Model.Package.Name} – extension feed";
 
