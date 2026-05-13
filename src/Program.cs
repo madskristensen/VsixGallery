@@ -118,15 +118,17 @@ app.UseSecurityHeaders();
 
 app.UseResponseCompression();
 
-// Apply the IIS-style URL rewrite rules from web.config. AddIISUrlRewrite
-// parses the rules in managed code, so this works on Kestrel (Linux) too.
-// When running under IIS in-process, IIS itself will already have applied
-// these rules, so we skip them to avoid double-processing.
-if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APP_POOL_ID")))
+// VSIX path rewrite always runs (even under IIS Express).
+// The www redirect only runs on Kestrel — IIS handles it natively.
+RewriteOptions rewriteOptions = new RewriteOptions()
+	.AddRewrite(@"^(.+)/(.+\.vsix)$", "$1/extension.vsix", skipRemainingRules: true);
+
+if (!app.Environment.IsDevelopment())
 {
-	using StreamReader webConfig = File.OpenText("web.config");
-	app.UseRewriter(new RewriteOptions().AddIISUrlRewrite(webConfig));
+	rewriteOptions.AddRedirectToWwwPermanent();
 }
+
+app.UseRewriter(rewriteOptions);
 
 // Register MIME types previously defined in <staticContent> in web.config
 // so Kestrel serves .webmanifest and .svg with the correct content type.
