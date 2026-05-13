@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 
 using System.IO.Compression;
@@ -63,7 +62,7 @@ builder.Services.Configure<FormOptions>(options =>
 	options.MultipartBodyLengthLimit = 500_000_000;
 });
 
-// PackgeHelper caches packages, so we need to register it as a singleton.
+// PackageHelper caches packages, so we need to register it as a singleton.
 builder.Services.AddSingleton<PackageHelper>();
 builder.Services.AddSingleton<SocialCardRenderer>();
 
@@ -101,14 +100,9 @@ if (packageHelper.IsCustomExtensionPath)
 	);
 }
 
-if (app.Environment.IsDevelopment())
-{
-	app.UseDeveloperExceptionPage();
-}
-else
+if (!app.Environment.IsDevelopment())
 {
 	app.UseExceptionHandler("/Error");
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
 }
 
@@ -118,37 +112,22 @@ app.UseSecurityHeaders();
 
 app.UseResponseCompression();
 
-// VSIX path rewrite always runs (even under IIS Express).
-// The www redirect only runs on Kestrel — IIS handles it natively.
 RewriteOptions rewriteOptions = new RewriteOptions()
 	.AddRewrite(@"^(.+)/(.+\.vsix)$", "$1/extension.vsix", skipRemainingRules: true);
 
 if (!app.Environment.IsDevelopment())
 {
 	rewriteOptions.AddRedirectToWwwPermanent();
+	app.UseOutputCaching();
 }
 
 app.UseRewriter(rewriteOptions);
 
-// Register MIME types previously defined in <staticContent> in web.config
-// so Kestrel serves .webmanifest and .svg with the correct content type.
-FileExtensionContentTypeProvider contentTypeProvider = new();
-contentTypeProvider.Mappings[".webmanifest"] = "application/manifest+json; charset=utf-8";
-contentTypeProvider.Mappings[".svg"] = "image/svg+xml; charset=utf-8";
-app.UseStaticFiles(new StaticFileOptions
-{
-	ContentTypeProvider = contentTypeProvider,
-});
+app.UseStaticFiles();
 
 app.UseStaticFilesWithCache();
 
-if (!app.Environment.IsDevelopment())
-{
-	app.UseOutputCaching();
-}
-
 app.UseWebMarkupMin();
-app.UseRouting();
 
 app.UseAuthorization();
 
