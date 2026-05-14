@@ -13,7 +13,12 @@ namespace VsixGallery
 
 	/// <summary>
 	/// A package that has been soft-deleted into the trash, paired with the
-	/// timestamp it was moved there.
+	/// timestamp it was moved there. <see cref="TrashFolder"/> identifies the
+	/// physical folder name under <c>.trash/</c> so admins can restore or
+	/// purge a specific entry.
 	/// </summary>
-	public record TrashedPackage(Package Package, System.DateTime? DeletedAt);
+	public record TrashedPackage(Package Package, System.DateTime? DeletedAt)
+	{
+		public string TrashFolder { get; init; } = string.Empty;
+	}
 }

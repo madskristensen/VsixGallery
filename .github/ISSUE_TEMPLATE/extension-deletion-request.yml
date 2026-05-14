@@ -1,0 +1,61 @@
+name: 🗑️ Request extension deletion
+description: Ask the gallery admin to delete an extension you can't manage yourself (e.g. uploaded before the manage-token feature shipped, or token lost).
+title: "[delete] <extension id>"
+labels: ["deletion-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form **only** to request deletion of an extension you cannot delete from the
+        gallery's own manage page. If you have the manage token, delete it yourself at
+        `https://www.vsixgallery.com/extension/<id>/manage` &mdash; it's instant.
+
+  - type: input
+    id: extension-id
+    attributes:
+      label: Extension ID
+      description: The ID shown in the URL, e.g. `MadsKristensen.FileIcons`.
+      placeholder: Author.ExtensionName
+    validations:
+      required: true
+
+  - type: input
+    id: extension-url
+    attributes:
+      label: Extension URL
+      description: Direct link to the extension page on the gallery.
+      placeholder: https://www.vsixgallery.com/extension/Author.ExtensionName
+    validations:
+      required: true
+
+  - type: textarea
+    id: ownership
+    attributes:
+      label: Proof of ownership
+      description: |
+        How can we confirm you're the publisher? Examples:
+          - Link to the source repository under your GitHub account.
+          - Comment on this issue from the repository that publishes the extension.
+          - Mention the GitHub Action / CI job that uploaded it.
+      placeholder: |
+        I'm the owner of github.com/<me>/<repo> which publishes this extension.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for deletion
+      description: Optional. Helps us prioritize and decide whether a soft-delete + retention period is enough or a hard-delete is warranted.
+      placeholder: |
+        e.g. "Project is discontinued", "Replaced by <new-id>", "Accidental upload", ...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I understand that deleted extensions stop appearing in the gallery and are permanently purged after the retention period.
+          required: true

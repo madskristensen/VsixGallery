@@ -1,0 +1,103 @@
+@page "/admin"
+@model VsixGallery.Pages.AdminModel
+@{
+    ViewData["Title"] = "Admin";
+    ViewData["HideUploadGuideLink"] = true;
+    ViewData["HideSetupLink"] = true;
+    ViewData["HideCreateExtensionLink"] = true;
+}
+
+<article>
+    <h1>Admin &mdash; trash bin</h1>
+
+    @if (!Model.IsConfigured)
+    {
+        <section>
+            <h2>Admin password not configured</h2>
+            <p>
+                Set the <code>Admin:Password</code> configuration value (e.g. via
+                <code>appsettings.json</code> or an environment variable) to enable
+                this page.
+            </p>
+        </section>
+    }
+    else if (!Model.IsAuthenticated)
+    {
+        <section>
+            <h2>Sign in</h2>
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <p role="alert"><strong>@Model.ErrorMessage</strong></p>
+            }
+            <form method="post" asp-page-handler="SignIn">
+                <label for="password">Admin password</label>
+                <input type="password" id="password" name="Password" autocomplete="current-password" required />
+                <button type="submit">Sign in</button>
+            </form>
+        </section>
+    }
+    else
+    {
+        <p>
+            Soft-deleted extensions are retained for
+            <strong>@Model.RetentionDays day(s)</strong> before being permanently purged.
+        </p>
+
+        @if (!string.IsNullOrEmpty(Model.StatusMessage))
+        {
+            <p role="status"><strong>@Model.StatusMessage</strong></p>
+        }
+
+        @if (Model.Trash.Count == 0)
+        {
+            <p><em>The trash bin is empty.</em></p>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Extension</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Deleted</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var entry in Model.Trash)
+                {
+                    <tr>
+                        <td>
+                            <strong>@(entry.Package.Name ?? entry.Package.ID)</strong>
+                            <br />
+                            <code>@entry.Package.ID</code>
+                        </td>
+                        <td>@entry.Package.Author</td>
+                        <td>
+                            @(entry.DeletedAt.HasValue
+                                ? entry.DeletedAt.Value.ToString("u")
+                                : "unknown")
+                        </td>
+                        <td>
+                            <form method="post" asp-page-handler="Restore" style="display:inline">
+                                <input type="hidden" name="TrashFolder" value="@entry.TrashFolder" />
+                                <button type="submit">Restore</button>
+                            </form>
+                            <form method="post" asp-page-handler="HardDelete" style="display:inline">
+                                <input type="hidden" name="TrashFolder" value="@entry.TrashFolder" />
+                                <button type="submit" data-confirm="Permanently delete this extension?">Delete forever</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <p>
+            <form method="post" asp-page-handler="SignOut">
+                <button type="submit">Sign out</button>
+            </form>
+        </p>
+    }
+</article>
