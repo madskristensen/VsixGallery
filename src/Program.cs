@@ -76,6 +76,7 @@ builder.Services.Configure<ExtensionsOptions>(builder.Configuration.GetSection("
 builder.Services.Configure<DisplayOptions>(builder.Configuration.GetSection("Display"));
 builder.Services.Configure<UploadOptions>(builder.Configuration.GetSection("Upload"));
 builder.Services.Configure<AdminOptions>(builder.Configuration.GetSection("Admin"));
+builder.Services.AddSingleton<AdminAuth>();
 builder.Services.AddHostedService<TrashCleanupService>();
 
 // HTML minification (https://github.com/Taritsyn/WebMarkupMin)

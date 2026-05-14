@@ -19,10 +19,32 @@
             (<a href="@Model.Package.DetailsLink">view details</a>)
         </p>
 
-        @if (!Model.HasManageToken)
+        @if (Model.IsAuthenticated)
         {
             <section>
-                <h2>This extension can&rsquo;t be managed</h2>
+                <h2>Delete extension</h2>
+                <p>
+                    Deleting moves the extension into a trash bin. It will be hidden from
+                    the gallery immediately and permanently removed after the retention
+                    period unless an admin restores it.
+                </p>
+                @if (Model.IsAdmin)
+                {
+                    <p><em>Signed in as admin.</em></p>
+                }
+                <form method="post" asp-page-handler="Delete" class="manage-form">
+                    @if (!string.IsNullOrEmpty(Model.Token))
+                    {
+                        <input type="hidden" name="Token" value="@Model.Token" />
+                    }
+                    <button type="submit" class="btn btn-danger" data-confirm="Delete this extension?">Delete extension</button>
+                </form>
+            </section>
+        }
+        else if (!Model.HasManageToken)
+        {
+            <section>
+                <h2>This extension can&rsquo;t be self-managed</h2>
                 <p>
                     No manage token was recorded for this extension when it was uploaded,
                     so the publisher cannot delete it from this page.
@@ -38,15 +60,29 @@
                     <a href="https://github.com/madskristensen/VsixGallery/issues/new?template=extension-deletion-request.yml&title=%5Bdelete%5D+@(Model.Package?.ID)" rel="noopener noreferrer">deletion request</a>
                     on GitHub.
                 </p>
+                <details>
+                    <summary>Site admin?</summary>
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <p class="manage-alert" role="alert"><strong>@Model.ErrorMessage</strong></p>
+                    }
+                    <form method="post" class="manage-form">
+                        <label for="token">Admin password</label>
+                        <input type="password" id="token" name="Token" autocomplete="off" required placeholder="Enter the site admin password" />
+                        <button type="submit" class="btn">Continue</button>
+                    </form>
+                </details>
             </section>
         }
-        else if (!Model.IsAuthenticated)
+        else
         {
             <section>
                 <h2>Enter your manage token</h2>
                 <p>
                     The manage token was set when this extension was uploaded. It acts like
-                    a password and is the only way to delete the extension from this page.
+                    a password and is the only way for the publisher to delete the
+                    extension from this page. Site admins can also enter the admin
+                    password here.
                 </p>
                 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
                 {
@@ -56,21 +92,6 @@
                     <label for="token">Manage token</label>
                     <input type="password" id="token" name="Token" autocomplete="off" required placeholder="Paste your manage token" />
                     <button type="submit" class="btn">Continue</button>
-                </form>
-            </section>
-        }
-        else
-        {
-            <section>
-                <h2>Delete extension</h2>
-                <p>
-                    Deleting moves the extension into a trash bin. It will be hidden from
-                    the gallery immediately and permanently removed after the retention
-                    period unless an admin restores it.
-                </p>
-                <form method="post" asp-page-handler="Delete" class="manage-form">
-                    <input type="hidden" name="Token" value="@Model.Token" />
-                    <button type="submit" class="btn btn-danger" data-confirm="Delete this extension?">Delete extension</button>
                 </form>
             </section>
         }
