@@ -282,9 +282,21 @@ main {
 }
 
 .extgrid p,
-.extgrid span {
+.extgrid .author {
     color: var(--text-secondary);
     font-size: .85em;
+}
+
+.extgrid .author::before {
+    content: "by ";
+}
+
+.extgrid .author {
+    text-decoration: none;
+}
+
+.extgrid .author:hover {
+    text-decoration: underline;
 }
 
 .extgrid .version {

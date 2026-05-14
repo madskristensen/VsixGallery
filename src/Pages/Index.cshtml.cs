@@ -13,7 +13,7 @@ namespace VsixGallery.Pages
 {
 	public class IndexModel : PageModel
 	{
-		private const int _pageSize = 25;
+		private const int _pageSize = 18;
 
 		private readonly PackageHelper _helper;
 		public IEnumerable<Package> Packages { get; private set; } = [];

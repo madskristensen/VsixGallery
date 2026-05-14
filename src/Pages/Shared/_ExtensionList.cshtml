@@ -4,7 +4,7 @@
     @foreach (var package in Model)
     {
         <figure class="shadow @(package.HasValidatorErrors ? "invalid" : null)">
-            <a href="@package.DetailsLink" class="ext-link">
+            <a href="@package.DetailsLink" class="ext-link" aria-label="@package.Name v@(package.Version)">
                 <img class="icon" src="@package.Icon" asp-append-version="true"
                     alt=""
                     width="@(package.IconWidth > 0 ? package.IconWidth.ToString() : "90")"
@@ -20,7 +20,7 @@
 
             <p class="description">@package.TruncatedDescription()</p>
 
-            <span>by <a href="@package.AuthorLink" aria-label="Extensions by @package.Author">@package.Author</a></span>
+            <a href="@package.AuthorLink" class="author" aria-label="Extensions by @package.Author">@package.Author</a>
         </figure>
     }
 </div>
