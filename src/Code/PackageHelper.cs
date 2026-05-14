@@ -358,7 +358,7 @@ namespace VsixGallery
 
 			Directory.CreateDirectory(vsixFolder);
 
-			string icon = VsixManifestParser.ResolveRelativeFile(tempFolder, package.Icon);
+			string? icon = VsixManifestParser.ResolveRelativeFile(tempFolder, package.Icon);
 			if (icon != null)
 			{
 				string? processedIcon = ProcessAndSaveIcon(icon, vsixFolder, package.Version!);

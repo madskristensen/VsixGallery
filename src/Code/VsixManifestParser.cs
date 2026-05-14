@@ -42,7 +42,7 @@ namespace VsixGallery
 			string? license = ParseNode(doc, "License", false);
 			if (!string.IsNullOrEmpty(license))
 			{
-				string path = ResolveRelativeFile(tempFolder, license);
+				string? path = ResolveRelativeFile(tempFolder, license);
 				if (path != null)
 				{
 					package.License = File.ReadAllText(path);
@@ -67,7 +67,7 @@ namespace VsixGallery
 
 			if (string.IsNullOrWhiteSpace(package.Repo))
 			{
-				string inferred = InferGitHubRepo(package.MoreInfoUrl);
+				string? inferred = InferGitHubRepo(package.MoreInfoUrl);
 				if (!string.IsNullOrEmpty(inferred))
 				{
 					package.Repo = inferred;
@@ -287,7 +287,7 @@ namespace VsixGallery
 				return direct;
 			}
 
-			string[] segments = normalized.Split([Path.DirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+			string[] segments = normalized!.Split([Path.DirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
 			string current = root;
 			foreach (string segment in segments)
 			{

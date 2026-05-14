@@ -4,11 +4,6 @@
 
 article .icon {
     float: left;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    padding: 12px;
-    background: var(--surface);
-    border: 1px solid var(--light-backdrop);
     width: 128px;
     height: 128px;
     object-fit: contain;
