@@ -1,9 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-	<rect id="s" width="90" height="90"/>
-	<g fill="#09F">
-		<use href="#s" x="30" y="30"/>
-		<use href="#s" x="30" y="136"/>
-		<use href="#s" x="136" y="136"/>
-	</g>
-	<use href="#s" x="151" y="15" fill="#A8D4FF" transform="rotate(45 196 60)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><defs><rect id="s" width="90" height="90"/></defs><g fill="#09F"><use href="#s" x="30" y="30"/><use href="#s" x="30" y="136"/><use href="#s" x="136" y="136"/></g><use href="#s" x="151" y="15" fill="#A8D4FF" transform="rotate(45 196 60)"/></svg>
