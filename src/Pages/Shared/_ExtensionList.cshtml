@@ -7,6 +7,7 @@
             <a href="@package.DetailsLink" class="ext-link" aria-label="@package.Name v@(package.Version)">
                 <img class="icon" src="@package.Icon" asp-append-version="true"
                     alt=""
+                    loading="lazy"
                     width="@(package.IconWidth > 0 ? package.IconWidth.ToString() : "90")"
                     height="@(package.IconHeight > 0 ? package.IconHeight.ToString() : "90")" />
                 <figcaption>@package.Name</figcaption>
