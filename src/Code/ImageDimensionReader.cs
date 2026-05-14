@@ -1,3 +1,5 @@
+using SkiaSharp;
+
 using System.IO;
 
 namespace VsixGallery
@@ -44,6 +46,19 @@ namespace VsixGallery
 			{
 				// Ignore malformed images; validation will surface the missing dimensions.
 			}
+
+			// Fallback: use SkiaSharp for formats not handled above (e.g. WebP).
+			try
+			{
+				using SKBitmap bitmap = SKBitmap.Decode(path);
+				if (bitmap != null)
+				{
+					width = bitmap.Width;
+					height = bitmap.Height;
+					return width > 0 && height > 0;
+				}
+			}
+			catch { }
 
 			return false;
 		}

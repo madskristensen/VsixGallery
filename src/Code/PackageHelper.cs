@@ -2,6 +2,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using SkiaSharp;
+
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
@@ -120,15 +122,16 @@ namespace VsixGallery
 			List<string> errors = [];
 
 			if (string.IsNullOrWhiteSpace(package.Icon))
-			{
-				errors.Add("Icon is missing. Must be 90x90 pixel PNG, GIF, or JPEG");
-			}
-			else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
-					 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
-					 !package.Icon.ToLowerInvariant().EndsWith(".gif"))
-			{
-				errors.Add("The icon must be 90x90 pixel PNG, GIF, or JPEG");
-			}
+				{
+					errors.Add("Icon is missing. Must be 90x90 pixel PNG, GIF, JPEG, or WebP");
+				}
+				else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
+						 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
+						 !package.Icon.ToLowerInvariant().EndsWith(".gif") &&
+						 !package.Icon.ToLowerInvariant().EndsWith(".webp"))
+				{
+					errors.Add("The icon must be 90x90 pixel PNG, GIF, JPEG, or WebP");
+				}
 			else
 			{
 				string iconFile = Path.Combine(_extensionRoot, package.ID!, package.Icon!);
@@ -358,8 +361,17 @@ namespace VsixGallery
 			string icon = VsixManifestParser.ResolveRelativeFile(tempFolder, package.Icon);
 			if (icon != null)
 			{
-				File.Copy(icon, Path.Combine(vsixFolder, "icon-" + package.Version + ".png"), true);
-				package.Icon = "icon-" + package.Version + ".png";
+				string? processedIcon = ProcessAndSaveIcon(icon, vsixFolder, package.Version!);
+				if (processedIcon != null)
+				{
+					package.Icon = processedIcon;
+				}
+				else
+				{
+					// Fallback: copy original if SkiaSharp processing fails.
+					File.Copy(icon, Path.Combine(vsixFolder, "icon-" + package.Version + ".png"), true);
+					package.Icon = "icon-" + package.Version + ".png";
+				}
 			}
 
 			string json = JsonSerializer.Serialize(package, PackageJsonContext.Default.Package);
@@ -370,6 +382,34 @@ namespace VsixGallery
 			{
 				_cache.RemoveAll(p => p.ID == package.ID);
 				_cache.Add(package);
+			}
+		}
+
+		// Resizes the icon to 90x90 and encodes it as lossless WebP to reduce
+		// file size while preserving quality at display dimensions.
+		private static string? ProcessAndSaveIcon(string sourceIconPath, string vsixFolder, string version)
+		{
+			try
+			{
+				using SKBitmap source = SKBitmap.Decode(sourceIconPath);
+				if (source == null) return null;
+
+				const int IconSize = 90;
+				SKImageInfo targetInfo = new(IconSize, IconSize, SKColorType.Rgba8888, SKAlphaType.Premul);
+				using SKBitmap resized = source.Resize(targetInfo, new SKSamplingOptions(SKCubicResampler.Mitchell));
+				if (resized == null) return null;
+
+				using SKImage image = SKImage.FromBitmap(resized);
+				using SKData data = image.Encode(SKEncodedImageFormat.Webp, 100); // 100 = lossless
+				if (data == null) return null;
+
+				string fileName = $"icon-{version}.webp";
+				File.WriteAllBytes(Path.Combine(vsixFolder, fileName), data.ToArray());
+				return fileName;
+			}
+			catch
+			{
+				return null;
 			}
 		}
 	}
