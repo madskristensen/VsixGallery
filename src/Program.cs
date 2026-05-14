@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 
 using System.IO.Compression;
@@ -146,8 +147,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRewriter(rewriteOptions);
 
+FileExtensionContentTypeProvider contentTypeProvider = new();
+contentTypeProvider.Mappings[".vsix"] = "application/vsix";
+contentTypeProvider.Mappings[".webmanifest"] = "application/manifest+json; charset=utf-8";
+
 app.UseStaticFiles(new StaticFileOptions
 {
+	ContentTypeProvider = contentTypeProvider,
 	OnPrepareResponse = static ctx =>
 	{
 		// All assets with a ?v= content-hash query (fingerprinted by asp-append-version)
