@@ -57,11 +57,11 @@ namespace VsixGallery.Pages
 				{
 					int points = 0;
 
-					if (package.Name.Contains(token, StringComparison.OrdinalIgnoreCase))
+					if (package.Name?.Contains(token, StringComparison.OrdinalIgnoreCase) == true)
 					{
 						points += 10;
 					}
-					if (package.Author.Contains(token, StringComparison.OrdinalIgnoreCase))
+					if (package.Author?.Contains(token, StringComparison.OrdinalIgnoreCase) == true)
 					{
 						points += 5;
 					}

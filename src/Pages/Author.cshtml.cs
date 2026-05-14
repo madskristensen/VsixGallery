@@ -22,11 +22,11 @@ namespace VsixGallery.Pages
 		public void OnGet([FromRoute] string author)
 		{
 			Packages = _helper.PackageCache.OrderByDescending(p => p.DatePublished)
-							  .Where(p => p.Author.Equals(author, StringComparison.OrdinalIgnoreCase));
+						  .Where(p => p.Author?.Equals(author, StringComparison.OrdinalIgnoreCase) == true);
 
 			if (Packages.Any())
 			{
-				Author = Packages.First().Author;
+				Author = Packages.First().Author ?? string.Empty;
 			}
 			else
 			{

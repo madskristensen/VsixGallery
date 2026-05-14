@@ -39,7 +39,7 @@ namespace VsixGallery
 				package.ReadmeUrl = BuildReadmeUrl(package.Repo, readmeUrl);
 			}
 
-			string license = ParseNode(doc, "License", false);
+			string? license = ParseNode(doc, "License", false);
 			if (!string.IsNullOrEmpty(license))
 			{
 				string path = ResolveRelativeFile(tempFolder, license);
@@ -91,7 +91,7 @@ namespace VsixGallery
 			}
 		}
 
-		private static string InferGitHubRepo(string moreInfoUrl)
+		private static string? InferGitHubRepo(string? moreInfoUrl)
 		{
 			if (string.IsNullOrWhiteSpace(moreInfoUrl))
 			{
@@ -114,7 +114,7 @@ namespace VsixGallery
 			return "https://github.com/" + match.Groups[1].Value + "/" + match.Groups[2].Value;
 		}
 
-		private static string BuildReadmeUrl(string repo, string readmeUrl)
+		private static string BuildReadmeUrl(string? repo, string? readmeUrl)
 		{
 			// Default to `main/README.md` if a URL was not specified.
 			if (string.IsNullOrWhiteSpace(readmeUrl))
@@ -148,7 +148,7 @@ namespace VsixGallery
 
 		private static void AddExtensionList(Package package, string tempFolder)
 		{
-			string vsext = Directory.EnumerateFiles(tempFolder, "*.vsext", SearchOption.AllDirectories).FirstOrDefault();
+			string? vsext = Directory.EnumerateFiles(tempFolder, "*.vsext", SearchOption.AllDirectories).FirstOrDefault();
 
 			if (!string.IsNullOrEmpty(vsext))
 			{
@@ -157,8 +157,10 @@ namespace VsixGallery
 				using (MemoryStream ms = new(Encoding.UTF8.GetBytes(json)))
 				{
 					DataContractJsonSerializer serializer = new(typeof(ExtensionList));
-					ExtensionList list = (ExtensionList)serializer.ReadObject(ms);
-					package.ExtensionList = list;
+					if (serializer.ReadObject(ms) is ExtensionList list)
+					{
+						package.ExtensionList = list;
+					}
 				}
 			}
 		}
@@ -209,12 +211,14 @@ namespace VsixGallery
 
 			foreach (XmlNode node in list)
 			{
-				string raw = node.Attributes["Version"]!.Value.Trim('[', '(', ']', ')');
+				string? rawVal = node.Attributes?["Version"]?.Value;
+				if (rawVal is null) continue;
+				string raw = rawVal.Trim('[', '(', ']', ')');
 				string[] entries = raw.Split(',');
 
 				foreach (string entry in entries)
 				{
-					if (Version.TryParse(entry, out Version v) && !versions.Contains(v.ToString()))
+					if (Version.TryParse(entry, out Version? v) && v is not null && !versions.Contains(v.ToString()))
 					{
 						versions.Add(v.ToString());
 					}
@@ -269,15 +273,15 @@ namespace VsixGallery
 		// case-sensitive, so we fall back to a case-insensitive segment lookup
 		// when the literal path doesn't exist on disk. Returns null when no
 		// matching file can be found.
-		static internal string ResolveRelativeFile(string root, string relativePath)
+		static internal string? ResolveRelativeFile(string root, string? relativePath)
 		{
 			if (string.IsNullOrEmpty(relativePath))
 			{
 				return null;
 			}
 
-			string normalized = NormalizeRelativePath(relativePath);
-			string direct = Path.Combine(root, normalized);
+			string? normalized = NormalizeRelativePath(relativePath);
+			string direct = Path.Combine(root, normalized!);
 			if (File.Exists(direct))
 			{
 				return direct;
@@ -292,11 +296,11 @@ namespace VsixGallery
 					return null;
 				}
 
-				string match = Directory
+				string? match = Directory
 					.EnumerateFileSystemEntries(current)
 					.FirstOrDefault(entry => string.Equals(Path.GetFileName(entry), segment, StringComparison.OrdinalIgnoreCase));
 
-				if (match == null)
+					if (match == null)
 				{
 					return null;
 				}
@@ -313,14 +317,15 @@ namespace VsixGallery
 
 			if (list.Count > 0)
 			{
-				XmlNode node = list[0];
+				XmlNode? node = list[0];
+				if (node is null) return null;
 
 				if (string.IsNullOrEmpty(attribute))
 				{
 					return node.InnerText;
 				}
 
-				XmlAttribute attr = node.Attributes[attribute];
+				XmlAttribute? attr = node.Attributes?[attribute];
 
 				if (attr != null)
 				{

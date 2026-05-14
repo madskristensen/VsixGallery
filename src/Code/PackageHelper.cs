@@ -31,7 +31,7 @@ namespace VsixGallery
 			_logger = logger;
 			_canRemoveOldExtensions = options.Value.RemoveOldExtensions;
 			_canValidateLicenses = options.Value.ValidateLicenses;
-			_extensionRoot = options.Value.Directory;
+			_extensionRoot = options.Value.Directory ?? string.Empty;
 
 			// Default to an "extensions" directory under the web root
 			// path when a directory is not specified in the options.
@@ -131,7 +131,7 @@ namespace VsixGallery
 			}
 			else
 			{
-				string iconFile = Path.Combine(_extensionRoot, package.ID, package.Icon);
+				string iconFile = Path.Combine(_extensionRoot, package.ID!, package.Icon!);
 
 				if (File.Exists(iconFile))
 				{
@@ -274,7 +274,7 @@ namespace VsixGallery
 				VsixManifestParser parser = new();
 				Package package = parser.CreateFromManifest(tempFolder, repo, issuetracker, readmeUrl);
 
-				string vsixFolder = Path.Combine(_extensionRoot, package.ID);
+				string vsixFolder = Path.Combine(_extensionRoot, package.ID!);
 
 				SavePackage(tempFolder, package, vsixFolder);
 				Validate(package);
@@ -329,7 +329,7 @@ namespace VsixGallery
 			{
 				try
 				{
-					string vsixFolder = Path.Combine(_extensionRoot, package.ID);
+					string vsixFolder = Path.Combine(_extensionRoot, package.ID!);
 					if (Directory.Exists(vsixFolder))
 					{
 						Directory.Delete(vsixFolder, true);

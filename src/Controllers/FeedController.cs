@@ -68,7 +68,7 @@ namespace VsixGallery.Controllers
 			if (!string.IsNullOrEmpty(id))
 			{
 				IOrderedEnumerable<Package> packages = _helper.PackageCache
-									  .Where(p => p.Author.Equals(id, System.StringComparison.OrdinalIgnoreCase))
+									  .Where(p => p.Author?.Equals(id, System.StringComparison.OrdinalIgnoreCase) == true)
 									  .OrderByDescending(p => p.DatePublished);
 
 				if (this.IsConditionalGet(packages))

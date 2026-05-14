@@ -72,8 +72,8 @@ namespace VsixGallery
 					textWidth = Width - textX - padding;
 				}
 
-				using SKTypeface boldFace = GetTypeface(SKFontStyle.Bold);
-				using SKTypeface regularFace = GetTypeface(SKFontStyle.Normal);
+				using SKTypeface? boldFace = GetTypeface(SKFontStyle.Bold);
+				using SKTypeface? regularFace = GetTypeface(SKFontStyle.Normal);
 
 				int titleY = padding + 70;
 				DrawWrappedText(canvas, title, boldFace, 64, _textPrimary, textX, titleY, textWidth, 2, out int titleBottom);
@@ -214,7 +214,7 @@ namespace VsixGallery
 			finalBottom = (int)(currentY - lineHeight * 0.2f);
 		}
 
-		private static void DrawFooter(SKCanvas canvas, SKTypeface regular, SKTypeface bold, string? author, string? version, string? siteName, int padding, string? logoPath)
+		private static void DrawFooter(SKCanvas canvas, SKTypeface? regular, SKTypeface? bold, string? author, string? version, string? siteName, int padding, string? logoPath)
 		{
 			int footerY = Height - padding;
 

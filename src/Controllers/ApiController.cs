@@ -12,7 +12,7 @@ namespace VsixGallery.Controllers
 	public class ApiController(PackageHelper helper, IOptions<UploadOptions> uploadOptions) : Controller
 	{
 		private const string AuthorizationPrefix = "Bearer ";
-		private readonly string _secretKey = uploadOptions.Value.SecretKey;
+		private readonly string? _secretKey = uploadOptions.Value.SecretKey;
 
 		[HttpGet("{id?}")]
 		public object Get(string id)
@@ -102,8 +102,8 @@ namespace VsixGallery.Controllers
 			{
 				if (values.Count == 1)
 				{
-					string authorization = values[0];
-					if (authorization.StartsWith(AuthorizationPrefix, StringComparison.OrdinalIgnoreCase))
+					string? authorization = values[0];
+					if (authorization?.StartsWith(AuthorizationPrefix, StringComparison.OrdinalIgnoreCase) == true)
 					{
 						return string.Equals(_secretKey, authorization.Substring(AuthorizationPrefix.Length).Trim());
 					}

@@ -10,7 +10,7 @@ namespace VsixGallery.Controllers
 	{
 		public static bool IsConditionalGet(this Controller controller, IEnumerable<Package> packages)
 		{
-			Package package = packages.FirstOrDefault();
+			Package? package = packages.FirstOrDefault();
 			return controller.IsConditionalGet(package);
 		}
 

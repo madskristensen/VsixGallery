@@ -17,7 +17,7 @@
         string feedUrl = ViewData["FeedUrl"] as string ?? "/feed/";
         string feedTitle = ViewData["FeedTitle"] as string ?? "Gallery feed";
         string pageTitle = ViewData["Title"]?.ToString() ?? string.Empty;
-        string pageDescription = ViewData["Description"]?.ToString();
+        string? pageDescription = ViewData["Description"]?.ToString();
         string socialTitle = !string.IsNullOrWhiteSpace(pageDescription)
             ? $"{pageTitle} – {pageDescription}"
             : pageTitle;
@@ -77,7 +77,7 @@
                     <button type="submit">Search</button>
                 </form>
 
-                @if (!(bool)ViewData["HideUploadGuideLink"]) {
+                @if (ViewData["HideUploadGuideLink"] is not true) {
                     <a href="~/devguide" class="cta-button">+ Add Extension</a>
                 }
             </div>
@@ -99,16 +99,16 @@
                     <button type="submit">Search</button>
                 </form>
                 <nav aria-label="Mobile">
-                    @if (!(bool)ViewData["HideSetupLink"]) {
+                    @if (ViewData["HideSetupLink"] is not true) {
                         <a href="~/feedguide">Setup Feed</a>
                     }
-                    @if (!(bool)ViewData["HideCreateExtensionLink"]) {
+                    @if (ViewData["HideCreateExtensionLink"] is not true) {
                         <a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Learn</a>
                     }
-                    @if (!(bool)ViewData["HideContributeLink"]) {
+                    @if (ViewData["HideContributeLink"] is not true) {
                         <a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">GitHub</a>
                     }
-                    @if (!(bool)ViewData["HideUploadGuideLink"]) {
+                    @if (ViewData["HideUploadGuideLink"] is not true) {
                         <a href="~/devguide">+ Add Extension</a>
                     }
                 </nav>

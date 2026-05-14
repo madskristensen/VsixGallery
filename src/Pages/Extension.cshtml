@@ -4,8 +4,9 @@
 @using VsixGallery;
 
 @{
-    ViewData["Title"] = Model.Package.Name;
-    ViewData["Description"] = Model.Package.Description.Substring(0, Math.Min(Model.Package.Description.Length, 200));
+    ViewData["Title"] = Model.Package!.Name;
+    var _desc = Model.Package.Description ?? string.Empty;
+    ViewData["Description"] = _desc[..Math.Min(_desc.Length, 200)];
     ViewData["Image"] = $"/social/extension/{Model.Package.ID}.png";
     ViewData["ImageWidth"] = VsixGallery.SocialCardRenderer.Width;
     ViewData["ImageHeight"] = VsixGallery.SocialCardRenderer.Height;
@@ -19,18 +20,18 @@
     {
         ["@context"] = "https://schema.org",
         ["@type"] = "SoftwareApplication",
-        ["name"] = Model.Package.Name,
-        ["description"] = Model.Package.Description,
+        ["name"] = Model.Package.Name ?? string.Empty,
+        ["description"] = Model.Package.Description ?? string.Empty,
         ["image"] = baseUrl + Model.Package.Icon,
         ["url"] = baseUrl + Model.Package.DetailsLink,
         ["applicationCategory"] = "DeveloperApplication",
         ["operatingSystem"] = "Windows",
-        ["softwareVersion"] = Model.Package.Version,
+        ["softwareVersion"] = Model.Package.Version ?? string.Empty,
         ["datePublished"] = Model.Package.DatePublished.ToString("o"),
         ["author"] = new Dictionary<string, object>
         {
             ["@type"] = "Person",
-            ["name"] = Model.Package.Author,
+            ["name"] = Model.Package.Author ?? string.Empty,
             ["url"] = baseUrl + Model.Package.AuthorLink,
         },
         ["downloadUrl"] = baseUrl + Model.Package.DownloadLink,
@@ -113,7 +114,7 @@
         <div id="validation">
             <h2>Validation</h2>
             <ul>
-                @foreach (var error in Model.Package.Errors)
+                @foreach (var error in Model.Package!.Errors!)
                 {
                     <li>@error</li>
                 }

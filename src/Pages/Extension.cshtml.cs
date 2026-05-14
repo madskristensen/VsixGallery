@@ -15,9 +15,10 @@ namespace VsixGallery.Pages
 			_helper = helper;
 		}
 
-		public void OnGet([FromRoute] string id)
+		public IActionResult OnGet([FromRoute] string id)
 		{
 			Package = _helper.GetPackage(id);
+			return Package is null ? NotFound() : Page();
 		}
 	}
 }

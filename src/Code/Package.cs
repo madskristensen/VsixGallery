@@ -186,7 +186,7 @@ namespace VsixGallery
 		{
 			HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
 
-			foreach (InstallationTarget target in InstallationTargets)
+			foreach (InstallationTarget target in InstallationTargets!)
 			{
 				bool isArm = target.Identifier.Contains("Arm64", StringComparison.OrdinalIgnoreCase) ||
 							 string.Equals(target.ProductArchitecture, "arm64", StringComparison.OrdinalIgnoreCase);
