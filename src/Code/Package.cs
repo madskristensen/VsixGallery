@@ -59,17 +59,21 @@ namespace VsixGallery
 
 			/// <summary>
 			/// Transient management URL returned only in the upload response.
-			/// Never serialized to <c>extension.json</c>.
+			/// Skipped when null so it never leaks into <c>extension.json</c> on
+			/// disk or into the public GET /api responses where cached packages
+			/// have no manage URL set.
 			/// </summary>
-			[JsonIgnore]
+			[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 			public string? ManageUrl { get; set; }
 
 			/// <summary>
 			/// Transient flag indicating whether the manage URL embeds the token
 			/// (true when the server auto-generated the token) or just points at
 			/// the manage page (false when the publisher supplied the token).
+			/// Skipped when default (false) so it stays out of <c>extension.json</c>
+			/// and public GET responses.
 			/// </summary>
-			[JsonIgnore]
+			[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 			public bool ManageTokenIncludedInUrl { get; set; }
 
 			[JsonIgnore]
