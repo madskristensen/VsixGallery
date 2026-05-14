@@ -179,6 +179,20 @@ article .download:hover {
     border: 1px solid var(--light-backdrop);
 }
 
+#readme blockquote {
+    margin: 1em 0;
+    padding: 0.75em 1em;
+    border-left: 4px solid var(--primary);
+    background: var(--background);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-secondary);
+}
+
+#readme blockquote p {
+    margin: 0;
+    white-space: normal;
+}
+
 #readme code {
     background: var(--background);
     padding: 0.2em 0.4em;
