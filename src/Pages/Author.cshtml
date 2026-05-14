@@ -1,11 +1,30 @@
 ﻿@page "{author?}"
 @model AuthorModel
-
+@using System.Text.Json
 @{
     ViewData["Title"] = "Extensions by " + Model.Author;
     ViewData["FeedUrl"] = $"/feed/author/{Uri.EscapeDataString(Model.Author ?? string.Empty)}";
     ViewData["FeedTitle"] = $"Extensions by {Model.Author}";
+
+    var request = ViewContext.HttpContext.Request;
+    string baseUrl = $"{request.Scheme}://{request.Host}";
+    var jsonLd = new Dictionary<string, object>
+    {
+        ["@context"] = "https://schema.org",
+        ["@type"] = "ProfilePage",
+        ["name"] = $"Extensions by {Model.Author} – {ViewData["SiteName"]}",
+        ["url"] = $"{baseUrl}/author/{Uri.EscapeDataString(Model.Author ?? string.Empty)}",
+        ["mainEntity"] = new Dictionary<string, object>
+        {
+            ["@type"] = "Person",
+            ["name"] = Model.Author ?? string.Empty,
+        },
+    };
+    string jsonLdScript = JsonSerializer.Serialize(jsonLd, new JsonSerializerOptions { WriteIndented = false });
+    ViewContext.HttpContext.AddInlineScriptHash(jsonLdScript);
 }
+
+<script type="application/ld+json">@Html.Raw(jsonLdScript)</script>
 
 <h1>
     Extensions by @Model.Author

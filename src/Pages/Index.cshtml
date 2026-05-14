@@ -1,11 +1,36 @@
 ﻿@page
 @model IndexModel
+@using System.Text.Json
 @{
     ViewData["Title"] = ViewData["SiteName"];
     ViewData["Description"] = "Browse all Visual Studio extensions published to this alternative VSIX gallery. Includes nightly builds and extensions not available on the official Marketplace.";
     ViewData["FeedUrl"] = "/feed/";
     ViewData["FeedTitle"] = $"{ViewData["SiteName"]} – all extensions";
+
+    var request = ViewContext.HttpContext.Request;
+    string baseUrl = $"{request.Scheme}://{request.Host}";
+    var jsonLd = new Dictionary<string, object>
+    {
+        ["@context"] = "https://schema.org",
+        ["@type"] = "WebSite",
+        ["name"] = ViewData["SiteName"] ?? string.Empty,
+        ["url"] = baseUrl + "/",
+        ["potentialAction"] = new Dictionary<string, object>
+        {
+            ["@type"] = "SearchAction",
+            ["target"] = new Dictionary<string, object>
+            {
+                ["@type"] = "EntryPoint",
+                ["urlTemplate"] = baseUrl + "/search?q={search_term_string}",
+            },
+            ["query-input"] = "required name=search_term_string",
+        },
+    };
+    string jsonLdScript = JsonSerializer.Serialize(jsonLd, new JsonSerializerOptions { WriteIndented = false });
+    ViewContext.HttpContext.AddInlineScriptHash(jsonLdScript);
 }
+
+<script type="application/ld+json">@Html.Raw(jsonLdScript)</script>
 
 <h1>
     All extensions 
