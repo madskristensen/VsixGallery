@@ -303,22 +303,17 @@ main {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-    color: white;
-    border-radius: 50%;
+    padding: 14px;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
     text-decoration: none;
-    font-size: .85em;
-    line-height: 1;
     transition: all var(--transition-fast);
-    box-shadow: 0 2px 4px var(--accent-shadow);
+    margin: -14px;
 }
 
 .extgrid .version a:hover {
-    transform: translateY(-1px) scale(1.1);
-    box-shadow: 0 4px 8px var(--accent-shadow-hover);
-    color: white;
+    color: var(--accent);
+    transform: translateY(-1px);
 }
 
 .extgrid .description {
@@ -384,7 +379,6 @@ img {
 .shadow:hover,
 .shadow:focus-within {
     box-shadow: var(--shadow-hover);
-    transform: translateY(-2px);
 }
 
 dt {

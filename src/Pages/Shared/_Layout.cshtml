@@ -64,13 +64,13 @@
             </a>
 
             <nav aria-label="Primary">
-                @if (!(bool)ViewData["HideSetupLink"]) {
+                @if (ViewData["HideSetupLink"] is not true) {
                     <a href="~/feedguide">Setup Feed</a>
                 }
-                @if (!(bool)ViewData["HideCreateExtensionLink"]) {
+                @if (ViewData["HideCreateExtensionLink"] is not true) {
                     <a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Learn</a>
                 }
-                @if (!(bool)ViewData["HideContributeLink"]) {
+                @if (ViewData["HideContributeLink"] is not true) {
                     <a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">GitHub</a>
                 }
             </nav>
