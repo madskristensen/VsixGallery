@@ -117,6 +117,8 @@ if (!app.Environment.IsDevelopment())
 	app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/NotFound");
+
 app.UseHttpsRedirection();
 
 // Pre-warm CSS/JS helpers and register their hashes globally.
