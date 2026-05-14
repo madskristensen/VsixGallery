@@ -50,12 +50,12 @@
                 </p>
                 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
                 {
-                    <p role="alert"><strong>@Model.ErrorMessage</strong></p>
+                    <p class="manage-alert" role="alert"><strong>@Model.ErrorMessage</strong></p>
                 }
-                <form method="post">
+                <form method="post" class="manage-form">
                     <label for="token">Manage token</label>
-                    <input type="password" id="token" name="Token" autocomplete="off" required />
-                    <button type="submit">Continue</button>
+                    <input type="password" id="token" name="Token" autocomplete="off" required placeholder="Paste your manage token" />
+                    <button type="submit" class="btn">Continue</button>
                 </form>
             </section>
         }
@@ -68,9 +68,9 @@
                     the gallery immediately and permanently removed after the retention
                     period unless an admin restores it.
                 </p>
-                <form method="post" asp-page-handler="Delete">
+                <form method="post" asp-page-handler="Delete" class="manage-form">
                     <input type="hidden" name="Token" value="@Model.Token" />
-                    <button type="submit" class="cta-button" data-confirm="Delete this extension?">Delete extension</button>
+                    <button type="submit" class="btn btn-danger" data-confirm="Delete this extension?">Delete extension</button>
                 </form>
             </section>
         }
