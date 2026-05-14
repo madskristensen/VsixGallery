@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +14,6 @@
     <PackageReference Include="SkiaSharp" Version="3.119.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.2" />
     <PackageReference Include="WebEssentials.AspNetCore.OutputCaching" Version="1.0.43" />
-    <PackageReference Include="WebEssentials.AspNetCore.StaticFilesWithCache" Version="1.0.3" />
     <PackageReference Include="WebMarkupMin.AspNetCoreLatest" Version="2.21.0" />
   </ItemGroup>
 

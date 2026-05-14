@@ -8,7 +8,7 @@ namespace VsixGallery
 	/// <summary>
 	/// Represents a single VSIX installation target (e.g. VS Community, Pro, Enterprise) with its version range and optional architecture.
 	/// </summary>
-	public record InstallationTarget(string Identifier, string VersionRange, string ProductArchitecture = null);
+	public record InstallationTarget(string Identifier, string VersionRange, string? ProductArchitecture = null);
 
 	public class Package
 	{
@@ -36,29 +36,29 @@ namespace VsixGallery
 			{ "SSMS.Microsoft.SQL", "SSMS" },
 			{ "Microsoft.SSMS", "SSMS" },
 		};
-		public string ID { get; set; }
-		public string Name { get; set; }
-		public string Description { get; set; }
-		public string Author { get; set; }
-		public string Version { get; set; }
-		public string Icon { get; set; }
-		public string Tags { get; set; }
+		public string? ID { get; set; }
+		public string? Name { get; set; }
+		public string? Description { get => field?.Trim(); set; }
+		public string? Author { get; set; }
+		public string? Version { get; set; }
+		public string? Icon { get; set; }
+		public string? Tags { get => field?.Trim(); set; }
 		public int IconWidth { get; set; }
 		public int IconHeight { get; set; }
 		public DateTime DatePublished { get; set; }
-		public IEnumerable<string> SupportedVersions { get; set; }
-		public IEnumerable<InstallationTarget> InstallationTargets { get; set; }
-		public string License { get; set; }
-		public string GettingStartedUrl { get; set; }
-		public string ReleaseNotesUrl { get; set; }
-		public string MoreInfoUrl { get; set; }
-		public string Repo { get; set; }
-		public string IssueTracker { get; set; }
-		public string ReadmeUrl { get; set; }
-			public ExtensionList ExtensionList { get; set; }
+		public IEnumerable<string>? SupportedVersions { get; set; }
+		public IEnumerable<InstallationTarget>? InstallationTargets { get; set; }
+		public string? License { get; set; }
+		public string? GettingStartedUrl { get; set; }
+		public string? ReleaseNotesUrl { get; set; }
+		public string? MoreInfoUrl { get; set; }
+		public string? Repo { get; set; }
+		public string? IssueTracker { get; set; }
+		public string? ReadmeUrl { get; set; }
+		public ExtensionList? ExtensionList { get; set; }
 
 			[JsonIgnore]
-			public IEnumerable<string> Errors { get; set; }
+			public IEnumerable<string>? Errors { get; set; }
 
 			/// <summary>
 			/// The size of the VSIX file in bytes.
@@ -95,14 +95,14 @@ namespace VsixGallery
 			}
 
 		public string AuthorLink =>
-			$"/author/{Uri.EscapeDataString(Author)}";
+			$"/author/{Uri.EscapeDataString(Author ?? string.Empty)}";
 
 		/// <summary>
 		/// Returns a human-readable relative time string (e.g. "3 days ago", "2 months ago").
 		/// </summary>
-		public string TimeAgo()
+		public string TimeAgo(TimeProvider? timeProvider = null)
 		{
-			TimeSpan elapsed = DateTime.UtcNow - DatePublished.ToUniversalTime();
+			TimeSpan elapsed = (timeProvider ?? TimeProvider.System).GetUtcNow() - DatePublished.ToUniversalTime();
 
 			if (elapsed.TotalMinutes < 1)
 			{
@@ -153,7 +153,7 @@ namespace VsixGallery
 		}
 
 		public string DownloadLink =>
-			$"/extensions/{ID}/{Uri.EscapeDataString(Name + " ")}v{Version}.vsix";
+			$"/extensions/{ID}/{Uri.EscapeDataString((Name ?? string.Empty) + " ")}v{Version}.vsix";
 
 		public string DetailsLink =>
 			$"/extension/{ID}";
@@ -162,7 +162,7 @@ namespace VsixGallery
 			$"/feed/extension/{ID}";
 
 		public bool HasValidatorErrors =>
-			Errors != null && Errors.Any();
+			Errors?.Any() == true;
 
 		public bool Unlisted =>
 			!string.IsNullOrEmpty(Tags) && Tags.Contains("unlisted", StringComparison.OrdinalIgnoreCase);
@@ -174,9 +174,9 @@ namespace VsixGallery
 
 		private IEnumerable<string> GetFriendlyTargets()
 		{
-			if (InstallationTargets == null || !InstallationTargets.Any())
+			if (InstallationTargets is null || !InstallationTargets.Any())
 			{
-				return Enumerable.Empty<string>();
+				return [];
 			}
 
 			return GetFriendlyTargetsFromInstallationTargets();
@@ -199,7 +199,7 @@ namespace VsixGallery
 					{
 						names.Add($"SSMS {major}");
 					}
-					else if (_majorVersionToProduct.TryGetValue(major, out string product))
+					else if (_majorVersionToProduct.TryGetValue(major, out string? product))
 					{
 						string display = isArm ? product + " (ARM64)" : product;
 						names.Add(display);
@@ -220,7 +220,7 @@ namespace VsixGallery
 		/// all known VS major versions that fall within the range.
 		/// See https://devblogs.microsoft.com/visualstudio/visual-studio-extensions-and-version-ranges-demystified/
 		/// </summary>
-		private static IEnumerable<int> ParseMajorVersions(string versionRange)
+		private static IEnumerable<int> ParseMajorVersions(string? versionRange)
 		{
 			if (string.IsNullOrWhiteSpace(versionRange))
 			{
@@ -232,7 +232,7 @@ namespace VsixGallery
 			// Handle simple version string without brackets (legacy format, e.g. "16.0")
 			if (!trimmed.StartsWith('[') && !trimmed.StartsWith('('))
 			{
-				if (System.Version.TryParse(trimmed, out Version simple))
+				if (System.Version.TryParse(trimmed, out Version? simple))
 				{
 					yield return simple.Major;
 				}
@@ -246,14 +246,14 @@ namespace VsixGallery
 			string[] parts = inner.Split(',');
 
 			// Parse the from-version
-			Version fromVersion = null;
+			Version? fromVersion = null;
 			if (parts.Length >= 1 && !string.IsNullOrWhiteSpace(parts[0]))
 			{
 				System.Version.TryParse(parts[0].Trim(), out fromVersion);
 			}
 
 			// Parse the to-version (may be empty for open-ended ranges like [17.0,))
-			Version toVersion = null;
+			Version? toVersion = null;
 			if (parts.Length >= 2 && !string.IsNullOrWhiteSpace(parts[1]))
 			{
 				System.Version.TryParse(parts[1].Trim(), out toVersion);
@@ -302,7 +302,7 @@ namespace VsixGallery
 
 		public override string ToString()
 		{
-			return Name;
+			return Name ?? string.Empty;
 		}
 	}
 }

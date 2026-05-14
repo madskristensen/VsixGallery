@@ -168,7 +168,7 @@ namespace VsixGallery
 			package.ID = ParseNode(doc, "Identity", true, "Id");
 			package.Name = ParseNode(doc, "DisplayName", true);
 			package.Description = ParseNode(doc, "Description", true);
-			package.Version = new Version(ParseNode(doc, "Identity", true, "Version")).ToString();
+			package.Version = new Version(ParseNode(doc, "Identity", true, "Version")!).ToString();
 			package.Author = ParseNode(doc, "Identity", true, "Publisher");
 			package.Icon = ParseNode(doc, "Icon", false);
 			package.Tags = ParseNode(doc, "Tags", false);
@@ -185,7 +185,7 @@ namespace VsixGallery
 			package.ID = ParseNode(doc, "Identifier", true, "Id");
 			package.Name = ParseNode(doc, "Name", true);
 			package.Description = ParseNode(doc, "Description", true);
-			package.Version = new Version(ParseNode(doc, "Version", true)).ToString();
+			package.Version = new Version(ParseNode(doc, "Version", true)!).ToString();
 			package.Author = ParseNode(doc, "Author", true);
 			package.Icon = ParseNode(doc, "Icon", false);
 			package.DatePublished = DateTime.UtcNow;
@@ -209,7 +209,7 @@ namespace VsixGallery
 
 			foreach (XmlNode node in list)
 			{
-				string raw = node.Attributes["Version"].Value.Trim('[', '(', ']', ')');
+				string raw = node.Attributes["Version"]!.Value.Trim('[', '(', ']', ')');
 				string[] entries = raw.Split(',');
 
 				foreach (string entry in entries)
@@ -237,15 +237,15 @@ namespace VsixGallery
 
 			foreach (XmlNode node in list)
 			{
-				string identifier = node.Attributes?["Id"]?.Value;
-				string versionRange = node.Attributes?["Version"]?.Value;
+				string? identifier = node.Attributes?["Id"]?.Value;
+				string? versionRange = node.Attributes?["Version"]?.Value;
 
 				if (string.IsNullOrEmpty(identifier) || string.IsNullOrEmpty(versionRange))
 				{
 					continue;
 				}
 
-				string architecture = node["ProductArchitecture"]?.InnerText;
+				string? architecture = node["ProductArchitecture"]?.InnerText;
 				targets.Add(new InstallationTarget(identifier, versionRange, architecture));
 			}
 
@@ -257,7 +257,7 @@ namespace VsixGallery
 		// backslash is a valid filename character, so Path.Combine produces a
 		// literal path that doesn't match what ZipFile.ExtractToDirectory wrote
 		// to disk. Normalize to the host's separator before combining.
-		static internal string NormalizeRelativePath(string path)
+		static internal string? NormalizeRelativePath(string? path)
 		{
 			return string.IsNullOrEmpty(path) ? path : path.Replace('\\', Path.DirectorySeparatorChar);
 		}
@@ -307,7 +307,7 @@ namespace VsixGallery
 			return File.Exists(current) ? current : null;
 		}
 
-		private static string ParseNode(XmlDocument doc, string name, bool required, string attribute = "")
+		private static string? ParseNode(XmlDocument doc, string name, bool required, string attribute = "")
 		{
 			XmlNodeList list = doc.GetElementsByTagName(name);
 

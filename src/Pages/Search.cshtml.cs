@@ -13,8 +13,8 @@ namespace VsixGallery.Pages
 		private const int _pageSize = 25;
 		private readonly PackageHelper _helper;
 
-		public IEnumerable<Package> Packages { get; private set; }
-		public string Term { get; set; }
+		public IEnumerable<Package> Packages { get; private set; } = [];
+		public string Term { get; set; } = string.Empty;
 		public int Pages { get; private set; }
 		public int CurrentPage { get; private set; }
 
@@ -65,11 +65,11 @@ namespace VsixGallery.Pages
 					{
 						points += 5;
 					}
-					if ((package.Description ?? "").Contains(token, StringComparison.OrdinalIgnoreCase))
+					if (package.Description?.Contains(token, StringComparison.OrdinalIgnoreCase) == true)
 					{
 						points += 3;
 					}
-					if ((package.Tags ?? "").Contains(token, StringComparison.OrdinalIgnoreCase))
+					if (package.Tags?.Contains(token, StringComparison.OrdinalIgnoreCase) == true)
 					{
 						points += 1;
 					}

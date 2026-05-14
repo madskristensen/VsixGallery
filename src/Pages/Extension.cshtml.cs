@@ -8,7 +8,7 @@ namespace VsixGallery.Pages
 	{
 		private readonly PackageHelper _helper;
 
-		public Package Package { get; private set; }
+		public Package? Package { get; private set; }
 
 		public ExtensionModel(PackageHelper helper)
 		{

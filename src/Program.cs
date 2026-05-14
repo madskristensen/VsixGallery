@@ -65,6 +65,7 @@ builder.Services.Configure<FormOptions>(options =>
 // PackageHelper caches packages, so we need to register it as a singleton.
 builder.Services.AddSingleton<PackageHelper>();
 builder.Services.AddSingleton<SocialCardRenderer>();
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.Configure<ExtensionsOptions>(builder.Configuration.GetSection("Extensions"));
 builder.Services.Configure<DisplayOptions>(builder.Configuration.GetSection("Display"));
@@ -123,15 +124,27 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRewriter(rewriteOptions);
 
-app.UseStaticFiles();
-
-app.UseStaticFilesWithCache();
+app.UseStaticFiles(new StaticFileOptions
+{
+	OnPrepareResponse = static ctx =>
+	{
+		// Extension files can be re-uploaded; leave caching to the browser's
+		// default ETag-based validation. All other project assets get a
+		// long-lived cache, paired with content-hash fingerprinting via
+		// asp-append-version tag helpers in the layout.
+		if (!ctx.Context.Request.Path.StartsWithSegments("/extensions"))
+		{
+			ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000";
+		}
+	}
+});
 
 app.UseWebMarkupMin();
 
 app.UseAuthorization();
 
-app.MapRazorPages();
+app.MapRazorPages().WithStaticAssets();
 app.MapControllers();
+app.MapStaticAssets();
 
 app.Run();

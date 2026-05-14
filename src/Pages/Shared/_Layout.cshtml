@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>@ViewData["Title"]</title>
     <meta name="description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
 
-    <link rel="apple-touch-icon" href="~/img/icon-180x180.png?v=1" />
-    <link rel="icon" type="image/png" sizes="32x32" href="~/img/icon-32x32.png?v=1" />
-    <link rel="icon" type="image/png" sizes="16x16" href="~/img/icon-16x16.png?v=1" />
+    <link rel="apple-touch-icon" href="~/img/icon-180x180.png" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/img/icon-32x32.png" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/img/icon-16x16.png" asp-append-version="true" />
     <link rel="manifest" href="/site.webmanifest?v=1" />
 
     @{
@@ -133,6 +133,6 @@
         </div>
     </footer>
 
-    <script src="~/js/site.js" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 </body>
 </html>

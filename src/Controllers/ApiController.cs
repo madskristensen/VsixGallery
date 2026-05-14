@@ -31,7 +31,12 @@ namespace VsixGallery.Controllers
 				return packages;
 			}
 
-			Package package = helper.GetPackage(id);
+			Package? package = helper.GetPackage(id);
+
+				if (package is null)
+				{
+					return NotFound();
+				}
 
 			if (this.IsConditionalGet(package))
 			{

@@ -14,7 +14,7 @@ namespace VsixGallery.Controllers
 			return controller.IsConditionalGet(package);
 		}
 
-		public static bool IsConditionalGet(this Controller controller, Package package)
+		public static bool IsConditionalGet(this Controller controller, Package? package)
 		{
 			if (package == null)
 				return false;

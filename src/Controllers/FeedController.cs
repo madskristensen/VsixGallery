@@ -40,7 +40,12 @@ namespace VsixGallery.Controllers
 
 			if (!string.IsNullOrEmpty(id))
 			{
-				Package package = _helper.GetPackage(id);
+				Package? package = _helper.GetPackage(id);
+
+				if (package is null)
+				{
+					return NotFound();
+				}
 
 				if (this.IsConditionalGet(package))
 				{

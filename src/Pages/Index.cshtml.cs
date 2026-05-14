@@ -16,7 +16,7 @@ namespace VsixGallery.Pages
 		private const int _pageSize = 25;
 
 		private readonly PackageHelper _helper;
-		public IEnumerable<Package> Packages { get; private set; }
+		public IEnumerable<Package> Packages { get; private set; } = [];
 		public int Pages { get; private set; }
 		public int CurrentPage { get; private set; }
 

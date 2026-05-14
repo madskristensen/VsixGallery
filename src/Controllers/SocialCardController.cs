@@ -36,13 +36,13 @@ namespace VsixGallery.Controllers
 				return NotFound();
 			}
 
-			Package package = _helper.GetPackage(id);
+			Package? package = _helper.GetPackage(id);
 			if (package == null)
 			{
 				return NotFound();
 			}
 
-			string folder = _helper.GetExtensionFolder(id);
+			string? folder = _helper.GetExtensionFolder(id);
 			if (folder == null)
 			{
 				return NotFound();
@@ -55,7 +55,7 @@ namespace VsixGallery.Controllers
 			{
 				try
 				{
-					string iconPath = _helper.GetIconDiskPath(package);
+					string? iconPath = _helper.GetIconDiskPath(package);
 					byte[] bytes = _renderer.RenderExtensionCard(package, iconPath, _display.SiteName, _logoPath);
 					System.IO.File.WriteAllBytes(cardPath, bytes);
 				}

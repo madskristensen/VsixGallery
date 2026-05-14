@@ -78,7 +78,7 @@ namespace VsixGallery
 				if (File.Exists(json))
 				{
 					string content = File.ReadAllText(json);
-					Package package = JsonSerializer.Deserialize<Package>(content);
+					Package? package = JsonSerializer.Deserialize(content, PackageJsonContext.Default.Package);
 					if (package is null)
 					{
 						continue;
@@ -101,7 +101,7 @@ namespace VsixGallery
 			}
 			else
 			{
-				package.Icon = $"/extensions/{package.ID}/{Uri.EscapeDataString(package.Icon)}";
+				package.Icon = $"/extensions/{package.ID}/{Uri.EscapeDataString(package.Icon ?? string.Empty)}";
 			}
 
 			if (!string.IsNullOrWhiteSpace(package.Repo) && !package.Repo.Contains("://"))
@@ -170,12 +170,17 @@ namespace VsixGallery
 			}
 		}
 
-		public Package GetPackage(string id)
+		public Package? GetPackage(string? id)
 		{
+			if (string.IsNullOrEmpty(id))
+			{
+				return null;
+			}
+
 			lock (_cacheLock)
 			{
-				Package cached = _cache.FirstOrDefault(p => p.ID == id);
-				if (cached != null)
+				Package? cached = _cache.FirstOrDefault(p => p.ID == id);
+				if (cached is not null)
 				{
 					return cached;
 				}
@@ -183,12 +188,15 @@ namespace VsixGallery
 
 			string folder = Path.Combine(_extensionRoot, id);
 
-			Package package = DeserializePackage(folder);
-			SetFileSize(package, folder);
+			Package? package = DeserializePackage(folder);
+			if (package is not null)
+			{
+				SetFileSize(package, folder);
+			}
 			return package;
 		}
 
-		public string GetIconDiskPath(Package package)
+		public string? GetIconDiskPath(Package? package)
 		{
 			if (package == null || string.IsNullOrEmpty(package.Icon))
 			{
@@ -214,7 +222,7 @@ namespace VsixGallery
 			return File.Exists(path) ? path : null;
 		}
 
-		public string GetExtensionFolder(string id)
+		public string? GetExtensionFolder(string? id)
 		{
 			if (string.IsNullOrEmpty(id))
 			{
@@ -225,10 +233,16 @@ namespace VsixGallery
 			return Directory.Exists(folder) ? folder : null;
 		}
 
-		private static Package DeserializePackage(string version)
+		private static Package? DeserializePackage(string folder)
 		{
-			string content = File.ReadAllText(Path.Combine(version, "extension.json"));
-			return JsonSerializer.Deserialize<Package>(content);
+			string jsonPath = Path.Combine(folder, "extension.json");
+			if (!File.Exists(jsonPath))
+			{
+				return null;
+			}
+
+			string content = File.ReadAllText(jsonPath);
+			return JsonSerializer.Deserialize(content, PackageJsonContext.Default.Package);
 		}
 
 		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker, string readmeUrl)
@@ -348,7 +362,7 @@ namespace VsixGallery
 				package.Icon = "icon-" + package.Version + ".png";
 			}
 
-			string json = JsonSerializer.Serialize(package);
+			string json = JsonSerializer.Serialize(package, PackageJsonContext.Default.Package);
 
 			File.WriteAllText(Path.Combine(vsixFolder, "extension.json"), json, Encoding.UTF8);
 

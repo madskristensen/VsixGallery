@@ -22,7 +22,7 @@ namespace VsixGallery
 
 		private readonly object _renderLock = new();
 
-		public byte[] RenderExtensionCard(Package package, string iconPath, string siteName, string logoPath)
+		public byte[] RenderExtensionCard(Package? package, string? iconPath, string? siteName, string? logoPath)
 		{
 			if (package == null)
 			{
@@ -31,13 +31,13 @@ namespace VsixGallery
 
 			string title = package.Name ?? string.Empty;
 			string description = package.Description ?? string.Empty;
-			string author = string.IsNullOrWhiteSpace(package.Author) ? null : $"by {package.Author}";
-			string version = string.IsNullOrWhiteSpace(package.Version) ? null : $"v{package.Version}";
+			string? author = string.IsNullOrWhiteSpace(package.Author) ? null : $"by {package.Author}";
+			string? version = string.IsNullOrWhiteSpace(package.Version) ? null : $"v{package.Version}";
 
 			return Render(title, description, author, version, iconPath, siteName, logoPath);
 		}
 
-		public byte[] RenderDefaultCard(string siteName, string tagline, string logoPath)
+		public byte[] RenderDefaultCard(string? siteName, string? tagline, string? logoPath)
 		{
 			return Render(
 				siteName ?? "Open VSIX Gallery",
@@ -49,7 +49,7 @@ namespace VsixGallery
 				logoPath);
 		}
 
-		private byte[] Render(string title, string description, string author, string version, string iconPath, string siteName, string logoPath)
+		private byte[] Render(string title, string description, string? author, string? version, string? iconPath, string? siteName, string? logoPath)
 		{
 			lock (_renderLock)
 			{
@@ -143,7 +143,7 @@ namespace VsixGallery
 			canvas.DrawRoundRect(new SKRect(x, y, x + size, y + size), 24, 24, paint);
 		}
 
-		private static void DrawWrappedText(SKCanvas canvas, string text, SKTypeface typeface, float fontSize, SKColor color, int x, int y, int maxWidth, int maxLines, out int finalBottom)
+		private static void DrawWrappedText(SKCanvas canvas, string text, SKTypeface? typeface, float fontSize, SKColor color, int x, int y, int maxWidth, int maxLines, out int finalBottom)
 		{
 			finalBottom = y;
 			if (string.IsNullOrEmpty(text))
@@ -214,7 +214,7 @@ namespace VsixGallery
 			finalBottom = (int)(currentY - lineHeight * 0.2f);
 		}
 
-		private static void DrawFooter(SKCanvas canvas, SKTypeface regular, SKTypeface bold, string author, string version, string siteName, int padding, string logoPath)
+		private static void DrawFooter(SKCanvas canvas, SKTypeface regular, SKTypeface bold, string? author, string? version, string? siteName, int padding, string? logoPath)
 		{
 			int footerY = Height - padding;
 
@@ -265,7 +265,7 @@ namespace VsixGallery
 			}
 		}
 
-		private static SKTypeface GetTypeface(SKFontStyle style)
+		private static SKTypeface? GetTypeface(SKFontStyle style)
 		{
 			// Try a series of common family names. SkiaSharp.NativeAssets.Linux
 			// uses fontconfig to pick a real font; Windows has plenty. As a last
@@ -282,7 +282,7 @@ namespace VsixGallery
 				tf?.Dispose();
 			}
 
-			return SKTypeface.Default;
+			return SKTypeface.Default!;
 		}
 	}
 }

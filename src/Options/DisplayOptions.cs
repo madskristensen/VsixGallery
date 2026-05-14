@@ -2,7 +2,7 @@
 {
 	public class DisplayOptions
 	{
-		public string SiteName { get; set; }
+		public string? SiteName { get; set; }
 
 		public bool HideSetupLink { get; set; }
 

@@ -10,8 +10,8 @@ namespace VsixGallery.Pages
 	public class AuthorModel : PageModel
 	{
 		private readonly PackageHelper _helper;
-		public IEnumerable<Package> Packages { get; private set; }
-		public string Author { get; set; }
+		public IEnumerable<Package> Packages { get; private set; } = [];
+		public string Author { get; set; } = string.Empty;
 
 		public AuthorModel(PackageHelper helper)
 		{
