@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <!-- Uniform 2x2 grid: slot=111px, padding=10, gap=14 -->
   <!-- Top-left square -->
-  <rect x="10"  y="10"  width="111" height="111" rx="20" fill="#0090FF"/>
+  <rect x="10"  y="10"  width="111" height="111" rx="8" fill="#0090FF"/>
   <!-- Bottom-left square -->
-  <rect x="10"  y="135" width="111" height="111" rx="20" fill="#0090FF"/>
+  <rect x="10"  y="135" width="111" height="111" rx="8" fill="#0090FF"/>
   <!-- Bottom-right square -->
-  <rect x="135" y="135" width="111" height="111" rx="20" fill="#0090FF"/>
+  <rect x="135" y="135" width="111" height="111" rx="8" fill="#0090FF"/>
   <!-- Top-right diamond: full 111×111 square rotated 45°, corners break out of the quadrant -->
-  <rect x="135" y="10" width="111" height="111" rx="20" fill="#A8D4FF" transform="rotate(45 190.5 65.5)"/>
+  <rect x="135" y="10" width="111" height="111" rx="8" fill="#A8D4FF" transform="rotate(45 190.5 65.5)"/>
 </svg>
