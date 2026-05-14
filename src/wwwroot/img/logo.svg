@@ -1,6 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect x="1"  y="1"  width="13" height="13" rx="2.5" fill="#4f6bed"/>
-  <rect x="18" y="1"  width="13" height="13" rx="2.5" fill="#4f6bed"/>
-  <rect x="1"  y="18" width="13" height="13" rx="2.5" fill="#4f6bed"/>
-  <rect x="18" y="18" width="13" height="13" rx="2.5" fill="#4f6bed"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Top-left square (larger) -->
+  <rect x="8"   y="8"   width="124" height="124" rx="22" fill="#0090FF"/>
+  <!-- Bottom-left square -->
+  <rect x="8"   y="144" width="108" height="108" rx="18" fill="#0090FF"/>
+  <!-- Bottom-right square -->
+  <rect x="140" y="144" width="108" height="108" rx="18" fill="#0090FF"/>
+  <!-- Top-right diamond (square rotated 45°, lighter blue) -->
+  <rect x="152" y="18"  width="78"  height="78"  rx="14" fill="#A8D4FF" transform="rotate(45 191 57)"/>
 </svg>
