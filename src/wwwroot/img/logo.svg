@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <!-- Top-left square (larger) -->
-  <rect x="8"   y="8"   width="124" height="124" rx="22" fill="#0090FF"/>
+  <!-- Uniform 2x2 grid: slot=111px, padding=10, gap=14 -->
+  <!-- Top-left square -->
+  <rect x="10"  y="10"  width="111" height="111" rx="20" fill="#0090FF"/>
   <!-- Bottom-left square -->
-  <rect x="8"   y="144" width="108" height="108" rx="18" fill="#0090FF"/>
+  <rect x="10"  y="135" width="111" height="111" rx="20" fill="#0090FF"/>
   <!-- Bottom-right square -->
-  <rect x="140" y="144" width="108" height="108" rx="18" fill="#0090FF"/>
-  <!-- Top-right diamond (square rotated 45°, lighter blue) -->
-  <rect x="152" y="18"  width="78"  height="78"  rx="14" fill="#A8D4FF" transform="rotate(45 191 57)"/>
+  <rect x="135" y="135" width="111" height="111" rx="20" fill="#0090FF"/>
+  <!-- Top-right diamond: pre-rotation square = 111/√2 ≈ 78.5, centered at (190, 65) -->
+  <rect x="151" y="26" width="79" height="79" rx="14" fill="#A8D4FF" transform="rotate(45 190.5 65.5)"/>
 </svg>
