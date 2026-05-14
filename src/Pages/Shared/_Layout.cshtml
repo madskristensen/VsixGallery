@@ -6,12 +6,16 @@
     <title>@ViewData["Title"]</title>
     <meta name="description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
     <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
 
     <link rel="apple-touch-icon" href="~/img/icon-180x180.png" asp-append-version="true" />
     <link rel="icon" type="image/png" sizes="32x32" href="~/img/icon-32x32.png" asp-append-version="true" />
     <link rel="icon" type="image/png" sizes="16x16" href="~/img/icon-16x16.png" asp-append-version="true" />
     <link rel="manifest" href="/site.webmanifest?v=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
 
     @{
         string feedUrl = ViewData["FeedUrl"] as string ?? "/feed/";
@@ -134,5 +138,6 @@
     </footer>
 
     <script src="~/js/site.js" asp-append-version="true" defer></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

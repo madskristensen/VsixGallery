@@ -1,19 +1,28 @@
 @model IEnumerable<Package>
 
 <div class="extgrid">
+    @{
+        int _imgIdx = 0;
+    }
     @foreach (var package in Model)
     {
+        bool _eager = _imgIdx < 4;
+        bool _isFirst = _imgIdx == 0;
+        _imgIdx++;
         <figure class="shadow @(package.HasValidatorErrors ? "invalid" : null)">
             <a href="@package.DetailsLink" class="ext-link">
-                <img class="icon" src="@package.Icon" asp-append-version="true" loading="lazy" alt="@package.Name"
-                    width="@(package.IconWidth > 0 ? package.IconWidth.ToString() : null)"
-                    height="@(package.IconHeight > 0 ? package.IconHeight.ToString() : null)" />
+                <img class="icon" src="@package.Icon" asp-append-version="true"
+                    loading="@(_eager ? "eager" : "lazy")"
+                    fetchpriority="@(_isFirst ? "high" : null)"
+                    alt="@package.Name"
+                    width="@(package.IconWidth > 0 ? package.IconWidth.ToString() : "90")"
+                    height="@(package.IconHeight > 0 ? package.IconHeight.ToString() : "90")" />
                 <figcaption>@package.Name</figcaption>
             </a>
             <p class="version">
                 @("v")@package.Version
                 <a href="@package.DownloadLink"
-                   aria-label="Download @package.Name v@package.Version"
+                   aria-label="Download @package.Name v@(package.Version)"
                    title="Download @("v" + package.Version)">⬇</a>
             </p>
 
