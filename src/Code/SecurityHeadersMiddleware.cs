@@ -60,7 +60,7 @@ string styleHashPart = styleHashes.Count > 0
 					? " " + string.Join(" ", styleHashes.ConvertAll(h => $"'sha256-{h}'"))
 					: string.Empty;
 
-headers["Content-Security-Policy"] = $"script-src 'self'{scriptHashPart}; style-src 'self'{styleHashPart}; {BaseCspPrefix}"  + BaseCspSuffix;
+headers["Content-Security-Policy"] = $"script-src 'self'{scriptHashPart}; style-src 'self' 'unsafe-inline'; {BaseCspPrefix}" + BaseCspSuffix;
 }
 
 headers["X-Content-Type-Options"] = "nosniff";
