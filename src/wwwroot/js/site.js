@@ -36,3 +36,27 @@
         a.addEventListener('click', function () { setOpen(false); });
     });
 })();
+
+(function () {
+    var badgeBtns = document.querySelectorAll('.copy-badge-btn');
+    badgeBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-extension-id');
+            var name = btn.getAttribute('data-extension-name');
+            var origin = window.location.origin;
+            var badgeUrl = origin + '/badge/' + encodeURIComponent(id) + '.svg';
+            var pageUrl = origin + '/extension/' + encodeURIComponent(id) + '/';
+            var markdown = '[![Install from VSIX Gallery](' + badgeUrl + ')](' + pageUrl + ')';
+
+            navigator.clipboard.writeText(markdown).then(function () {
+                var original = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () {
+                    btn.textContent = original;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+    });
+})();

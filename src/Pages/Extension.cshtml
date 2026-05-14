@@ -115,6 +115,16 @@
                 <li><a href="@Model.Package.Repo" rel="noopener noreferrer">✎ Source code</a></li>
                 <li><a href="@Model.Package.IssueTracker" rel="noopener noreferrer">✓ Issue tracker</a></li>
             }
+
+            <li>
+                <button type="button"
+                        class="copy-badge-btn"
+                        data-extension-id="@Model.Package.ID"
+                        data-extension-name="@Model.Package.Name"
+                        aria-label="Copy Markdown badge to clipboard">
+                    🏷 Copy badge
+                </button>
+            </li>
         </ul>
     </div>
 

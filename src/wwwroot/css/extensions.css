@@ -81,7 +81,8 @@ article .download:hover {
     overflow-x: auto;
 }
 
-#links li a {
+#links li a,
+.copy-badge-btn {
     display: inline-block;
     white-space: nowrap;
     padding: 6px 10px;
@@ -92,9 +93,19 @@ article .download:hover {
     font-size: .9em;
     font-weight: 500;
     transition: all var(--transition-fast);
+    cursor: pointer;
+    font-family: inherit;
+    line-height: normal;
 }
 
-#links li a:hover {
+#links li a:hover,
+.copy-badge-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
+}
+
+.copy-badge-btn.copied {
     background: var(--primary);
     color: white;
     border-color: var(--primary-dark);
