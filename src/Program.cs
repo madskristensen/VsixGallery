@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.FileProviders;
 
 using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text;
 
 using VsixGallery;
 
@@ -115,6 +117,19 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Pre-warm CSS/JS helpers and register their hashes globally.
+// This ensures the CSP header always contains the correct hashes even when
+// the response is served from a cache and Razor rendering is skipped.
+{
+	string cssContent = CssHelper.GetMinified(app.Environment, "css/site.css");
+	SecurityHeadersMiddleware.RegisterGlobalStyleHash(
+		Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(cssContent))));
+
+	string jsContent = JsHelper.GetMinified(app.Environment, "js/site.js");
+	SecurityHeadersMiddleware.RegisterGlobalScriptHash(
+		Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(jsContent))));
+}
 
 app.UseSecurityHeaders();
 

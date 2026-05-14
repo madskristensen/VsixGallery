@@ -10,6 +10,14 @@ public static class SecurityHeadersMiddleware
 public const string ScriptHashesKey = "CspScriptHashes";
 public const string StyleHashesKey = "CspStyleHashes";
 
+// Hashes registered once at startup (site-wide CSS/JS). These are always emitted
+// in the CSP even when Razor rendering is short-circuited by a cache.
+private static readonly List<string> _globalStyleHashes = [];
+private static readonly List<string> _globalScriptHashes = [];
+
+public static void RegisterGlobalStyleHash(string hash) => _globalStyleHashes.Add(hash);
+public static void RegisterGlobalScriptHash(string hash) => _globalScriptHashes.Add(hash);
+
 private const string BaseCspPrefix = "default-src 'self'; ";
 
 private const string BaseCspSuffix =
@@ -37,12 +45,17 @@ IHeaderDictionary headers = context.Response.Headers;
 
 if (!headers.ContainsKey("Content-Security-Policy"))
 {
-List<string> scriptHashes = context.Items[ScriptHashesKey] as List<string> ?? [];
+// Merge startup-registered global hashes with any per-request hashes (e.g. JSON-LD).
+List<string> scriptHashes = _globalScriptHashes
+					.Concat(context.Items[ScriptHashesKey] as List<string> ?? [])
+					.ToList();
 string scriptHashPart = scriptHashes.Count > 0
 					? " " + string.Join(" ", scriptHashes.ConvertAll(h => $"'sha256-{h}'"))
 					: string.Empty;
 
-List<string> styleHashes = context.Items[StyleHashesKey] as List<string> ?? [];
+List<string> styleHashes = _globalStyleHashes
+					.Concat(context.Items[StyleHashesKey] as List<string> ?? [])
+					.ToList();
 string styleHashPart = styleHashes.Count > 0
 					? " " + string.Join(" ", styleHashes.ConvertAll(h => $"'sha256-{h}'"))
 					: string.Empty;

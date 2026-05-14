@@ -8,7 +8,6 @@
     <meta name="description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
     @{
         string inlineCss = VsixGallery.CssHelper.GetMinified(_env, "css/site.css");
-        Context.AddInlineStyleHash(inlineCss);
     }
     <style>@Html.Raw(inlineCss)</style>
     @await RenderSectionAsync("Styles", required: false)
@@ -144,7 +143,6 @@
 
     @{
         string inlineJs = VsixGallery.JsHelper.GetMinified(_env, "js/site.js");
-        Context.AddInlineScriptHash(inlineJs);
     }
     <script>@Html.Raw(inlineJs)</script>
     @await RenderSectionAsync("Scripts", required: false)
