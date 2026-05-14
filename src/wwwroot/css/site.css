@@ -3,8 +3,8 @@
    ======================================== */
 :root {
     /* Color palette - based on logo colors */
-    --primary: #4f6bed;
-    --primary-dark: #3b5bdb;
+    --primary: #3b5bdb;
+    --primary-dark: #2f4abf;
     --primary-light: #748ffc;
     --accent: #ff6b35;
     --accent-dark: #e85a2a;
@@ -13,7 +13,7 @@
     --light-backdrop: #e5e7eb;
     --dark-backdrop: #4b5563;
     --text-primary: #1f2937;
-    --text-secondary: #6b7280;
+    --text-secondary: #4b5563;
     --background: #f9fafb;
     --surface: #ffffff;
 
@@ -37,8 +37,8 @@
     /* Accent with alpha for shadows */
     --accent-shadow: rgba(255, 107, 53, 0.3);
     --accent-shadow-hover: rgba(255, 107, 53, 0.4);
-    --primary-alpha: rgba(79, 107, 237, 0.08);
-    --primary-shadow: rgba(79, 107, 237, 0.1);
+    --primary-alpha: rgba(59, 91, 219, 0.08);
+    --primary-shadow: rgba(59, 91, 219, 0.1);
 }
 
 /* ========================================
