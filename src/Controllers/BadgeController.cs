@@ -18,7 +18,7 @@ namespace VsixGallery.Controllers
 		private const int FontSize = 11;
 
 		[HttpGet("{id}.svg")]
-		[ResponseCache(Duration = 3600, VaryByQueryKeys = ["*"])]
+		[ResponseCache(Duration = 3600)]
 		public IActionResult Badge(string id)
 		{
 			if (string.IsNullOrWhiteSpace(id))
