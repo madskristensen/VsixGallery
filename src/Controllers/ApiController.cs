@@ -62,9 +62,34 @@ namespace VsixGallery.Controllers
 					return Content("No .vsix file was included in the upload request.");
 				}
 
-				Package package = await helper.ProcessVsix(Request.Form.Files[0], repo, issuetracker, readmeUrl);
+				// Optional manage token supplied by the publisher. When omitted the
+				// server generates one and returns it embedded in the manage URL.
+				string? manageToken = null;
+				if (Request.Headers.TryGetValue("X-Manage-Token", out StringValues tokenValues) && tokenValues.Count == 1)
+				{
+					manageToken = tokenValues[0];
+				}
+
+				Package package = await helper.ProcessVsix(Request.Form.Files[0], repo, issuetracker, readmeUrl, manageToken);
+
+				// Surface the absolute manage URL so non-Actions publishers can
+				// see it directly in the upload response body.
+				if (!string.IsNullOrEmpty(package.ManageUrl))
+				{
+					string baseUrl = $"{Request.Scheme}://{Request.Host}";
+					if (package.ManageUrl.StartsWith('/'))
+					{
+						package.ManageUrl = baseUrl + package.ManageUrl;
+					}
+				}
 
 				return Json(package);
+			}
+			catch (UnauthorizedAccessException ex)
+			{
+				Response.StatusCode = 403;
+				Response.Headers["x-error"] = SanitizeHeaderValue(ex.Message);
+				return Content(ex.Message);
 			}
 			catch (Exception ex)
 			{
@@ -76,6 +101,33 @@ namespace VsixGallery.Controllers
 				Response.Headers["x-error"] = SanitizeHeaderValue(ex.Message);
 				return Content(ex.Message);
 			}
+		}
+
+		[HttpDelete("extension/{id}")]
+		public IActionResult Delete(string id)
+		{
+			if (string.IsNullOrWhiteSpace(id))
+			{
+				return BadRequest();
+			}
+
+			if (helper.GetPackage(id) is null)
+			{
+				return NotFound();
+			}
+
+			if (!Request.Headers.TryGetValue("X-Manage-Token", out StringValues tokenValues) || tokenValues.Count != 1)
+			{
+				return Unauthorized();
+			}
+
+			if (!helper.ValidateManageToken(id, tokenValues[0]))
+			{
+				return Unauthorized();
+			}
+
+			helper.SoftDelete(id);
+			return NoContent();
 		}
 
 		private static string SanitizeHeaderValue(string value)

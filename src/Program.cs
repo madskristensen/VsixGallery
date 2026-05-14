@@ -75,6 +75,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.Configure<ExtensionsOptions>(builder.Configuration.GetSection("Extensions"));
 builder.Services.Configure<DisplayOptions>(builder.Configuration.GetSection("Display"));
 builder.Services.Configure<UploadOptions>(builder.Configuration.GetSection("Upload"));
+builder.Services.Configure<AdminOptions>(builder.Configuration.GetSection("Admin"));
 
 // HTML minification (https://github.com/Taritsyn/WebMarkupMin)
 builder.Services

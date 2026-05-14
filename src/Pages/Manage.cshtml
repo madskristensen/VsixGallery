@@ -1,0 +1,85 @@
+@page "/extension/{id}/manage"
+@model VsixGallery.Pages.ManageModel
+@{
+    ViewData["Title"] = "Manage extension";
+    ViewData["HideUploadGuideLink"] = true;
+}
+
+<article>
+    <h1>Manage extension</h1>
+
+    @if (Model.Package is null)
+    {
+        <p>Extension not found.</p>
+    }
+    else
+    {
+        <p>
+            <strong>@Model.Package.Name</strong>
+            (<a href="@Model.Package.DetailsLink">view details</a>)
+        </p>
+
+        @if (!Model.HasManageToken)
+        {
+            <section>
+                <h2>This extension can&rsquo;t be managed</h2>
+                <p>
+                    No manage token was recorded for this extension when it was uploaded,
+                    so the publisher cannot delete it from this page.
+                </p>
+                <p>
+                    To enable self-service deletion next time, re-publish the extension and
+                    pass an <code>X-Manage-Token</code> header with your upload, or omit the
+                    header to let the server generate a token and return a manage link in
+                    the upload response.
+                </p>
+                <p>
+                    Need this extension removed? Open an issue at
+                    <a href="https://github.com/madskristensen/VsixGallery/issues" rel="noopener noreferrer">github.com/madskristensen/VsixGallery</a>.
+                </p>
+            </section>
+        }
+        else if (!Model.IsAuthenticated)
+        {
+            <section>
+                <h2>Enter your manage token</h2>
+                <p>
+                    The manage token was set when this extension was uploaded. It acts like
+                    a password and is the only way to delete the extension from this page.
+                </p>
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <p role="alert"><strong>@Model.ErrorMessage</strong></p>
+                }
+                <form method="post">
+                    <label for="token">Manage token</label>
+                    <input type="password" id="token" name="Token" autocomplete="off" required />
+                    <button type="submit">Continue</button>
+                </form>
+            </section>
+        }
+        else
+        {
+            <section>
+                <h2>Delete extension</h2>
+                <p>
+                    Deleting moves the extension into a trash bin. It will be hidden from
+                    the gallery immediately and permanently removed after the retention
+                    period unless an admin restores it.
+                </p>
+                <form method="post" asp-page-handler="Delete">
+                    <input type="hidden" name="Token" value="@Model.Token" />
+                    <button type="submit" class="cta-button" data-confirm="Delete this extension?">Delete extension</button>
+                </form>
+            </section>
+        }
+
+        @if (Model.Deleted)
+        {
+            <section>
+                <h2>Extension deleted</h2>
+                <p>The extension has been moved to the trash and is no longer listed.</p>
+            </section>
+        }
+    }
+</article>

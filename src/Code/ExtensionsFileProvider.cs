@@ -30,6 +30,18 @@ namespace VsixGallery
 
 			subpath = subpath.TrimStart(_pathSeparators);
 
+			// Never serve anything from the trash bin or any other dot-folder
+			// (these are internal to PackageHelper and not part of the gallery).
+			foreach (char separator in _pathSeparators)
+			{
+				string trashSegment = PackageHelper.TrashFolderName + separator;
+				if (subpath.StartsWith(trashSegment, StringComparison.Ordinal) ||
+					subpath.StartsWith(PackageHelper.DefaultExtensionsPath + separator + trashSegment, StringComparison.Ordinal))
+				{
+					return new NotFoundFileInfo(subpath);
+				}
+			}
+
 			// If the sub-path starts with the default extensions path,
 			// then trim that segment from the path and pass the
 			// remainder down to the underlying file system provider.

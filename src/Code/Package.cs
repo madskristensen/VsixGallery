@@ -57,6 +57,21 @@ namespace VsixGallery
 		public string? ReadmeUrl { get; set; }
 		public ExtensionList? ExtensionList { get; set; }
 
+			/// <summary>
+			/// Transient management URL returned only in the upload response.
+			/// Never serialized to <c>extension.json</c>.
+			/// </summary>
+			[JsonIgnore]
+			public string? ManageUrl { get; set; }
+
+			/// <summary>
+			/// Transient flag indicating whether the manage URL embeds the token
+			/// (true when the server auto-generated the token) or just points at
+			/// the manage page (false when the publisher supplied the token).
+			/// </summary>
+			[JsonIgnore]
+			public bool ManageTokenIncludedInUrl { get; set; }
+
 			[JsonIgnore]
 			public IEnumerable<string>? Errors { get; set; }
 
@@ -157,6 +172,9 @@ namespace VsixGallery
 
 		public string DetailsLink =>
 			$"/extension/{ID}";
+
+		public string ManagePageLink =>
+			$"/extension/{ID}/manage";
 
 		public string FeedLink =>
 			$"/feed/extension/{ID}";
