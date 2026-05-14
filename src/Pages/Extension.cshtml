@@ -42,7 +42,9 @@
             ["priceCurrency"] = "USD",
         },
     };
-    if (!string.IsNullOrWhiteSpace(Model.Package.License))
+    // schema.org license expects a URL, not the full license text.
+    if (!string.IsNullOrWhiteSpace(Model.Package.License) &&
+        Model.Package.License.StartsWith("http", StringComparison.OrdinalIgnoreCase))
     {
         jsonLd["license"] = Model.Package.License;
     }

@@ -372,7 +372,7 @@ img {
     position: absolute;
     right: .7em;
     padding: 8px 12px 8px 36px;
-    background: url("/img/icon-16x16.png") var(--surface) no-repeat 12px center;
+    background: url("/img/logo.svg") var(--surface) no-repeat 12px center / 16px 16px;
     font-size: .9rem;
     font-weight: 500;
     border-radius: var(--radius-md);
