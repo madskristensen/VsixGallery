@@ -128,13 +128,14 @@ app.UseStaticFiles(new StaticFileOptions
 {
 	OnPrepareResponse = static ctx =>
 	{
-		// Extension files can be re-uploaded; leave caching to the browser's
-		// default ETag-based validation. All other project assets get a
-		// long-lived cache, paired with content-hash fingerprinting via
-		// asp-append-version tag helpers in the layout.
-		if (!ctx.Context.Request.Path.StartsWithSegments("/extensions"))
+		// All assets with a ?v= content-hash query (fingerprinted by asp-append-version)
+		// are immutable: the URL changes whenever the file changes, so they can be
+		// cached indefinitely. This covers both project assets (CSS/JS/icons) and
+		// extension icon images. Un-fingerprinted paths like .vsix downloads are
+		// intentionally left without a Cache-Control header so the browser revalidates.
+		if (ctx.Context.Request.Query.ContainsKey("v"))
 		{
-			ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000";
+			ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
 		}
 	}
 });
