@@ -143,9 +143,9 @@ namespace VsixGallery
 						package.IconWidth = width;
 						package.IconHeight = height;
 
-						if (width < 90 || height < 90 || width > 128 || height > 128)
+						if (width < 90 || height < 90 || width > 200 || height > 200)
 						{
-							errors.Add($"The icon is {width}x{height}px. It must be 90x90px for best rendering on Marketplace and in Visual Studio");
+							errors.Add($"The icon is {width}x{height}px. It must be between 90x90 and 200x200 pixels");
 						}
 					}
 				}
@@ -385,8 +385,9 @@ namespace VsixGallery
 			}
 		}
 
-		// Resizes the icon to 90x90 and encodes it as lossless WebP to reduce
-		// file size while preserving quality at display dimensions.
+		// Resizes the icon to 135x135 (1.5× the 90px display size) and encodes it as
+		// lossless WebP so the image is sharp on 1.5× DPR screens without excessive
+		// overhead on 1× screens.
 		private static string? ProcessAndSaveIcon(string sourceIconPath, string vsixFolder, string version)
 		{
 			try
@@ -394,7 +395,7 @@ namespace VsixGallery
 				using SKBitmap source = SKBitmap.Decode(sourceIconPath);
 				if (source == null) return null;
 
-				const int IconSize = 90;
+				const int IconSize = 135;
 				SKImageInfo targetInfo = new(IconSize, IconSize, SKColorType.Rgba8888, SKAlphaType.Premul);
 				using SKBitmap resized = source.Resize(targetInfo, new SKSamplingOptions(SKCubicResampler.Mitchell));
 				if (resized == null) return null;
