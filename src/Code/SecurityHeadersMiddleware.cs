@@ -8,10 +8,11 @@ namespace VsixGallery;
 public static class SecurityHeadersMiddleware
 {
 public const string ScriptHashesKey = "CspScriptHashes";
+public const string StyleHashesKey = "CspStyleHashes";
 
-private const string BaseCsp =
-"default-src 'self'; " +
-"style-src 'self'; " +
+private const string BaseCspPrefix = "default-src 'self'; ";
+
+private const string BaseCspSuffix =
 "img-src 'self' data: https:; " +
 "font-src 'self'; " +
 "connect-src 'self' https://markdownservice.azurewebsites.net; " +
@@ -28,6 +29,7 @@ public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder ap
 return app.Use(async (context, next) =>
 {
 context.Items[ScriptHashesKey] = new List<string>();
+			context.Items[StyleHashesKey] = new List<string>();
 
 context.Response.OnStarting(() =>
 {
@@ -35,12 +37,17 @@ IHeaderDictionary headers = context.Response.Headers;
 
 if (!headers.ContainsKey("Content-Security-Policy"))
 {
-List<string> hashes = context.Items[ScriptHashesKey] as List<string> ?? new();
-string hashPart = hashes.Count > 0
-? " " + string.Join(" ", hashes.ConvertAll(h => $"'sha256-{h}'"))
-: string.Empty;
+List<string> scriptHashes = context.Items[ScriptHashesKey] as List<string> ?? [];
+string scriptHashPart = scriptHashes.Count > 0
+					? " " + string.Join(" ", scriptHashes.ConvertAll(h => $"'sha256-{h}'"))
+					: string.Empty;
 
-headers["Content-Security-Policy"] = $"script-src 'self'{hashPart}; {BaseCsp}";
+List<string> styleHashes = context.Items[StyleHashesKey] as List<string> ?? [];
+string styleHashPart = styleHashes.Count > 0
+					? " " + string.Join(" ", styleHashes.ConvertAll(h => $"'sha256-{h}'"))
+					: string.Empty;
+
+headers["Content-Security-Policy"] = $"script-src 'self'{scriptHashPart}; style-src 'self'{styleHashPart}; {BaseCspPrefix}"  + BaseCspSuffix;
 }
 
 headers["X-Content-Type-Options"] = "nosniff";
@@ -63,16 +70,34 @@ await next();
 /// for the current response, so that the script will be permitted by the Content-Security-Policy header.
 /// Call this from a Razor page BEFORE the inline script is rendered.
 /// </summary>
-public static string AddInlineScriptHash(this HttpContext context, string scriptContent)
-{
-if (context.Items[ScriptHashesKey] is not List<string> hashes)
-{
-return string.Empty;
-}
+	public static string AddInlineScriptHash(this HttpContext context, string scriptContent)
+	{
+		if (context.Items[ScriptHashesKey] is not List<string> hashes)
+		{
+			return string.Empty;
+		}
 
-byte[] bytes = Encoding.UTF8.GetBytes(scriptContent);
-string hash = Convert.ToBase64String(SHA256.HashData(bytes));
-hashes.Add(hash);
-return hash;
-}
+		byte[] bytes = Encoding.UTF8.GetBytes(scriptContent);
+		string hash = Convert.ToBase64String(SHA256.HashData(bytes));
+		hashes.Add(hash);
+		return hash;
+	}
+
+	/// <summary>
+	/// Computes the SHA-256 hash of an inline style body and adds it to the CSP allow-list
+	/// for the current response, so that the style will be permitted by the Content-Security-Policy header.
+	/// Call this from a Razor page BEFORE the inline style is rendered.
+	/// </summary>
+	public static string AddInlineStyleHash(this HttpContext context, string styleContent)
+	{
+		if (context.Items[StyleHashesKey] is not List<string> hashes)
+		{
+			return string.Empty;
+		}
+
+		byte[] bytes = Encoding.UTF8.GetBytes(styleContent);
+		string hash = Convert.ToBase64String(SHA256.HashData(bytes));
+		hashes.Add(hash);
+		return hash;
+	}
 }

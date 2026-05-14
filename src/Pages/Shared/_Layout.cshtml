@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>@ViewData["Title"]</title>
     <meta name="description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @{
+        string inlineCss = VsixGallery.CssHelper.GetMinified(_env, "css/site.css");
+        Context.AddInlineStyleHash(inlineCss);
+    }
+    <style>@Html.Raw(inlineCss)</style>
     @await RenderSectionAsync("Styles", required: false)
     <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
 
@@ -138,7 +142,11 @@
         </div>
     </footer>
 
-    <script>@Html.Raw(System.IO.File.ReadAllText(System.IO.Path.Combine(_env.WebRootPath, "js", "site.js")))</script>
+    @{
+        string inlineJs = VsixGallery.JsHelper.GetMinified(_env, "js/site.js");
+        Context.AddInlineScriptHash(inlineJs);
+    }
+    <script>@Html.Raw(inlineJs)</script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
