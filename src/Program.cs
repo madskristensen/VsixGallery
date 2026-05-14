@@ -86,6 +86,11 @@ options =>
 {
 	options.MinificationSettings.RemoveOptionalEndTags = false;
 	options.MinificationSettings.WhitespaceMinificationMode = WhitespaceMinificationMode.Aggressive;
+	// CssHelper and JsHelper already minify inline CSS/JS and compute CSP hashes before
+	// WebMarkupMin runs. Re-minifying here would produce different content, causing a
+	// mismatch between the CSP hash and the bytes the browser actually receives.
+	options.MinificationSettings.MinifyEmbeddedCssCode = false;
+	options.MinificationSettings.MinifyEmbeddedJsCode = false;
 });
 
 WebApplication app = builder.Build();
