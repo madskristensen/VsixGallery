@@ -32,7 +32,9 @@ mvcBuilder.AddRazorRuntimeCompilation();
 builder.Services.AddControllers();
 builder.Services.AddHsts(options =>
 {
-	options.MaxAge = TimeSpan.FromDays(126);
+	options.MaxAge = TimeSpan.FromDays(730);
+	options.IncludeSubDomains = true;
+	options.Preload = true;
 });
 
 builder.Services.AddOutputCaching();

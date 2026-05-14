@@ -6,6 +6,14 @@
 
     var SERVICE = 'https://markdownservice.azurewebsites.net/markdown.ashx?url=';
 
+    var policy = window.trustedTypes
+        ? trustedTypes.createPolicy('markdown-html', { createHTML: function (s) { return s; } })
+        : null;
+
+    function setHtml(target, html) {
+        target.innerHTML = policy ? policy.createHTML(html) : html;
+    }
+
     function fetchReadme(readmeUrl) {
         return fetch(SERVICE + readmeUrl).then(function (response) {
             return response.text().then(function (text) {
@@ -35,7 +43,7 @@
 
     fetchReadme(el.dataset.url).then(function (result) {
         if (isValid(result)) {
-            el.innerHTML = result.text;
+            setHtml(el, result.text);
             return;
         }
         var altUrl = getAlternateUrl(el.dataset.url);
@@ -45,7 +53,7 @@
         }
         fetchReadme(altUrl).then(function (alt) {
             if (isValid(alt)) {
-                el.innerHTML = alt.text;
+                setHtml(el, alt.text);
             } else {
                 el.remove();
             }

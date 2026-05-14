@@ -19,6 +19,8 @@ private const string BaseCsp =
 "base-uri 'self'; " +
 "form-action 'self'; " +
 "object-src 'none'; " +
+"require-trusted-types-for 'script'; " +
+"trusted-types markdown-html; " +
 "upgrade-insecure-requests";
 
 public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
@@ -42,9 +44,10 @@ headers["Content-Security-Policy"] = $"script-src 'self'{hashPart}; {BaseCsp}";
 }
 
 headers["X-Content-Type-Options"] = "nosniff";
-headers["X-Frame-Options"] = "DENY";
-headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), interest-cohort=()";
+				headers["X-Frame-Options"] = "DENY";
+				headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+				headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), interest-cohort=()";
+				headers["Cross-Origin-Opener-Policy"] = "same-origin";
 // Replaces the Arr-Disable-Session-Affinity custom header from web.config.
 headers["Arr-Disable-Session-Affinity"] = "true";
 
