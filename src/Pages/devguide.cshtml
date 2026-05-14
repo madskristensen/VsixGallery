@@ -27,10 +27,8 @@
         Create a file at <code>.github/workflows/build.yaml</code> in your repository with the following content:
     </p>
 
-<pre># yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-
+<pre># yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 name: "Build"
-
 permissions:
   actions: write
   contents: write
@@ -51,36 +49,54 @@ jobs:
     env:
       Configuration: Release
       DeployExtension: False
+      Solution: MyExtension.sln
+      TestProject: tests\MyExtension.Tests\MyExtension.Tests.csproj
       VsixManifestPath: src\source.extension.vsixmanifest
       VsixManifestSourcePath: src\source.extension.cs
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
+    - uses: actions/checkout@v6
 
-    - name: Setup .NET build dependencies
-      uses: timheuer/bootstrap-dotnet@v1
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v3
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v5
       with:
-        nuget: 'false'
-        sdk: 'false'
-        msbuild: 'true'
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.slnx', '**/*.sln', '**/*.csproj', '**/packages.config', '**/packages.lock.json', '**/nuget.config') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
 
     - name: Increment VSIX version
       id: vsix_version
-      uses: timheuer/vsix-version-stamp@v2
+      uses: madskristensen/vsix-version-stamp@v1.1
       with:
         manifest-file: ${{ env.VsixManifestPath }}
         vsix-token-source-file: ${{ env.VsixManifestSourcePath }}
 
+    - name: Restore NuGet packages
+      run: msbuild ${{ env.Solution }} /v:m -restore /t:Restore
+
     - name: Build
-      run: msbuild /v:m -restore /m /p:OutDir=\_built
+      run: msbuild ${{ env.Solution }} /v:m /m /p:Configuration=${{ env.Configuration }} /p:DeployExtension=${{ env.DeployExtension }}
+
+    - name: Run tests
+      run: dotnet test ${{ env.TestProject }} --configuration ${{ env.Configuration }} --no-build --no-restore --verbosity normal --logger:"trx;LogFileName=test-results.trx"
+
+    - name: Report test results
+      uses: dorny/test-reporter@v3
+      if: ${{ always() &amp;&amp; (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+      with:
+        name: Test Results
+        path: '**/test-results.trx'
+        reporter: dotnet-trx
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ github.event.repository.name }}.vsix
-        path: /_built/**/*.vsix
+        path: src\bin\${{ env.Configuration }}\net48\MyExtension.vsix
 
   publish:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
@@ -88,33 +104,49 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
 
-    - name: Download Package artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ github.event.repository.name }}.vsix
+      - name: Download Package artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ github.event.repository.name }}.vsix
 
-    - name: Upload to Open VSIX
-      uses: timheuer/openvsixpublish@v1
-      with:
-        vsix-file: ${{ github.event.repository.name }}.vsix
+      - name: Upload to Open VSIX
+        uses: madskristensen/publish-vsixgallery@v1
+        with:
+          vsix-file: ${{ github.event.repository.name }}.vsix
+          manage-token: ${{ secrets.VS_PUBLISHER_ACCESS_TOKEN }}
 
-    - name: Publish extension to Marketplace
-      if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[release]') }}
-      uses: cezarypiatek/VsixPublisherAction@1.0
-      with:
-        extension-file: '${{ github.event.repository.name }}.vsix'
-        publish-manifest-file: 'vs-publish.json'
-        personal-access-code: ${{ secrets.VS_PUBLISHER_ACCESS_TOKEN }}
+      - name: Publish extension to Marketplace
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[release]') }}
+        uses: madskristensen/publish-marketplace@v1.16
+        with:
+          extension-file: '${{ github.event.repository.name }}.vsix'
+          publish-manifest-file: 'vs-publish.json'
+          personal-access-code: ${{ secrets.VS_PUBLISHER_ACCESS_TOKEN }}
+
+      - name: Tag and release
+        if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[release]') }}
+        id: tag_release
+        uses: softprops/action-gh-release@v3
+        with:
+          body: release ${{ needs.build.outputs.version }}
+          generate_release_notes: true
+          tag_name: ${{ needs.build.outputs.version }}
+          files: |
+            **/*.vsix
 </pre>
 
     <h3>Key GitHub Actions</h3>
     <ul>
-        <li><a href="https://github.com/timheuer/bootstrap-dotnet">timheuer/bootstrap-dotnet</a> - Sets up MSBuild and .NET dependencies</li>
-        <li><a href="https://github.com/timheuer/vsix-version-stamp">timheuer/vsix-version-stamp</a> - Auto-increments VSIX version number</li>
-        <li><a href="https://github.com/timheuer/openvsixpublish">timheuer/openvsixpublish</a> - Publishes to Open VSIX Gallery</li>
-        <li><a href="https://github.com/cezarypiatek/VsixPublisherAction">cezarypiatek/VsixPublisherAction</a> - Publishes to VS Marketplace</li>
+        <li><a href="https://github.com/microsoft/setup-msbuild">microsoft/setup-msbuild</a> - Adds MSBuild to the runner's PATH</li>
+        <li><a href="https://github.com/madskristensen/vsix-version-stamp">madskristensen/vsix-version-stamp</a> - Auto-increments the VSIX version number and stamps it into the manifest</li>
+        <li><a href="https://github.com/dorny/test-reporter">dorny/test-reporter</a> - Renders test results in the workflow run summary</li>
+        <li><a href="https://github.com/madskristensen/publish-vsixgallery">madskristensen/publish-vsixgallery</a> - Publishes to Open VSIX Gallery (writes a run summary with the extension link, badge, and a self-service manage link for deleting the extension)</li>
+        <li><a href="https://github.com/madskristensen/publish-marketplace">madskristensen/publish-marketplace</a> - Publishes to the Visual Studio Marketplace</li>
+        <li><a href="https://github.com/softprops/action-gh-release">softprops/action-gh-release</a> - Creates a GitHub release and attaches the .vsix as an asset</li>
     </ul>
 
     <p>Real-world examples using GitHub Actions:</p>
@@ -219,4 +251,44 @@ after_test:
     <p>Here's what it could look like:</p>
 
     <pre>&lt;Tags&gt;foo, bar, unlisted&lt;/Tags&gt;</pre>
+</section>
+
+<section id="manage">
+    <h2>Managing your extension</h2>
+
+    <p>
+        Every extension has a manage page at
+        <code>https://www.vsixgallery.com/extension/&lt;id&gt;/manage</code>
+        where you can delete it. Access is gated by a per-extension
+        <strong>manage token</strong> that acts as a password.
+    </p>
+
+    <h3>If you publish with the GitHub Action</h3>
+    <ul>
+        <li>
+            On the <strong>first upload</strong> (when you don&rsquo;t pass
+            <code>manage-token</code>), the gallery auto-generates a token
+            and embeds it in the manage URL printed in the workflow run summary.
+            That URL is shown only once &mdash; save it somewhere safe.
+        </li>
+        <li>
+            On <strong>subsequent uploads</strong>, the manage URL no longer contains
+            the token. Visit the manage page and paste your saved token to delete
+            the extension.
+        </li>
+        <li>
+            You can pass <code>manage-token: ${{ secrets.VSIXGALLERY_MANAGE_TOKEN }}</code>
+            to the action on any upload. Whatever value you pass becomes the new
+            manage token for the extension &mdash; so if you lost the previous one,
+            just republish with a fresh token of your choice.
+        </li>
+    </ul>
+
+    <h3>If you uploaded before tokens existed</h3>
+    <p>
+        Older extensions don&rsquo;t have a manage token on file. Re-publish the
+        extension (with or without <code>manage-token</code>) and the next upload
+        will set one. Until then, open the manage page and use the linked
+        deletion-request issue template &mdash; an admin will handle it.
+    </p>
 </section>

@@ -85,12 +85,6 @@ namespace VsixGallery.Controllers
 
 				return Json(package);
 			}
-			catch (UnauthorizedAccessException ex)
-			{
-				Response.StatusCode = 403;
-				Response.Headers["x-error"] = SanitizeHeaderValue(ex.Message);
-				return Content(ex.Message);
-			}
 			catch (Exception ex)
 			{
 				Response.StatusCode = 500;
