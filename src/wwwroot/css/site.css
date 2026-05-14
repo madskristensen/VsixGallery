@@ -17,9 +17,6 @@
     --background: #f9fafb;
     --surface: #ffffff;
 
-    /* Link color */
-    --link-color: #4f6bed;
-
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -62,9 +59,7 @@
         --background: #111827;
         --surface: #1f2937;
 
-        --link-color: #748ffc;
-
-        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        --shadow-sm:
         --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
         --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
         --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
@@ -79,7 +74,7 @@
 /* ========================================
    Base Styles
    ======================================== */
-*, *::before {
+*, *::before, *::after {
     box-sizing: border-box;
     margin-top: 0;
 }
@@ -339,7 +334,7 @@ main {
 }
 
 a {
-    color: var(--link-color);
+    color: var(--primary);
     text-decoration: none;
     transition: color var(--transition-fast);
 }
@@ -390,7 +385,6 @@ dt {
    Pagination
    ======================================== */
 #paging {
-    text-align: center;
     margin: 2em 0;
     display: flex;
     justify-content: center;
@@ -450,7 +444,14 @@ footer #copyright {
 /* ========================================
    Hamburger Menu (hidden by default, mobile only)
    ======================================== */
-.hamburger-btn,
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: 0;
+    color: inherit;
+    font: inherit;
+}
+
 .mobile-menu,
 .mobile-menu-overlay {
     display: none;
@@ -479,11 +480,8 @@ footer #copyright {
     }
 
     .hamburger-btn {
-        display: -webkit-flex;
         display: flex;
-        -webkit-flex-direction: column;
         flex-direction: column;
-        -webkit-justify-content: center;
         justify-content: center;
         gap: 5px;
         cursor: pointer;
@@ -499,12 +497,10 @@ footer #copyright {
         height: 2px;
         background: var(--text-primary);
         border-radius: 2px;
-        -webkit-transition: all 0.15s ease;
         transition: all 0.15s ease;
     }
 
     header.is-open .hamburger-btn span:nth-child(1) {
-        -webkit-transform: rotate(45deg) translate(5px, 5px);
         transform: rotate(45deg) translate(5px, 5px);
     }
 
@@ -513,7 +509,6 @@ footer #copyright {
     }
 
     header.is-open .hamburger-btn span:nth-child(3) {
-        -webkit-transform: rotate(-45deg) translate(5px, -5px);
         transform: rotate(-45deg) translate(5px, -5px);
     }
 
@@ -524,27 +519,20 @@ footer #copyright {
         right: 0;
         background: var(--surface);
         border-bottom: 3px solid var(--primary);
-        -webkit-box-shadow: var(--shadow-lg);
         box-shadow: var(--shadow-lg);
         padding: 1rem;
-        -webkit-flex-direction: column;
         flex-direction: column;
-        -webkit-align-items: center;
         align-items: center;
         gap: 0.5rem;
         z-index: 150;
     }
 
     header.is-open .mobile-menu {
-        display: -webkit-flex;
         display: flex;
     }
 
     .mobile-menu .mobile-search {
-        display: block;
         width: 250px;
-        max-width: 250px;
-        min-width: 250px;
     }
 
     .mobile-menu .mobile-search label {
@@ -554,9 +542,7 @@ footer #copyright {
 
     .mobile-menu .mobile-search input[type=search] {
         display: block;
-        width: 250px !important;
-        max-width: 250px !important;
-        min-width: 0;
+        width: 100%;
         padding: 10px 16px;
         border: 1px solid var(--light-backdrop);
         border-radius: var(--radius-full);
@@ -566,19 +552,12 @@ footer #copyright {
         font-size: 16px;
         -webkit-appearance: none;
         appearance: none;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
     }
 
     .mobile-menu .mobile-search input[type=search]:focus {
         border-color: var(--primary);
         background: var(--surface);
-        -webkit-box-shadow: 0 0 0 3px var(--primary-shadow);
         box-shadow: 0 0 0 3px var(--primary-shadow);
-    }
-
-    .mobile-menu .mobile-search input[type=search]::-webkit-input-placeholder {
-        color: var(--text-secondary);
     }
 
     .mobile-menu .mobile-search input[type=search]::placeholder {
@@ -590,9 +569,7 @@ footer #copyright {
     }
 
     .mobile-menu nav {
-        display: -webkit-flex;
         display: flex;
-        -webkit-flex-direction: column;
         flex-direction: column;
         gap: 0;
     }
@@ -671,10 +648,4 @@ footer #copyright {
     outline: none;
 }
 
-/* Reset native <button> defaults on the hamburger trigger. */
-.hamburger-btn {
-    background: none;
-    border: 0;
-    color: inherit;
-    font: inherit;
-}
+

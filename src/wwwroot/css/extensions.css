@@ -81,10 +81,6 @@ article .download:hover {
     overflow-x: auto;
 }
 
-#links li {
-    display: inline-block;
-}
-
 #links li a {
     display: inline-block;
     white-space: nowrap;
@@ -203,7 +199,6 @@ article .download:hover {
 
 #readme table {
     border-collapse: collapse;
-    border-spacing: 0;
     margin: 1em 0;
     width: auto;
     max-width: 100%;
