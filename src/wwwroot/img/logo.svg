@@ -6,6 +6,6 @@
   <rect x="10"  y="135" width="111" height="111" rx="20" fill="#0090FF"/>
   <!-- Bottom-right square -->
   <rect x="135" y="135" width="111" height="111" rx="20" fill="#0090FF"/>
-  <!-- Top-right diamond: pre-rotation square = 111/√2 ≈ 78.5, centered at (190, 65) -->
-  <rect x="151" y="26" width="79" height="79" rx="14" fill="#A8D4FF" transform="rotate(45 190.5 65.5)"/>
+  <!-- Top-right diamond: pre-rotation square = 90px → bounding box ≈ 127px, fills the slot visually -->
+  <rect x="145.5" y="20.5" width="90" height="90" rx="16" fill="#A8D4FF" transform="rotate(45 190.5 65.5)"/>
 </svg>
