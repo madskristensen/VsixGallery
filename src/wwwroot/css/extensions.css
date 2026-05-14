@@ -156,6 +156,11 @@ article .download:hover {
     border-radius: var(--radius-lg);
 }
 
+#readme a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
 #readme img {
     max-width: 100%;
     border-radius: var(--radius-sm);

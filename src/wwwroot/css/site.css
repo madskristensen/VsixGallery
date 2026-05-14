@@ -46,9 +46,9 @@
    ======================================== */
 @media (prefers-color-scheme: dark) {
     :root {
-        --primary: #748ffc;
-        --primary-dark: #5c7cfa;
-        --primary-light: #91a7ff;
+        --primary: #91a7ff;
+        --primary-dark: #748ffc;
+        --primary-light: #bac8ff;
         --accent: #ff8c5a;
         --accent-dark: #ff6b35;
 
@@ -66,8 +66,8 @@
 
         --accent-shadow: rgba(255, 140, 90, 0.3);
         --accent-shadow-hover: rgba(255, 140, 90, 0.4);
-        --primary-alpha: rgba(116, 143, 252, 0.15);
-        --primary-shadow: rgba(116, 143, 252, 0.2);
+        --primary-alpha: rgba(145, 167, 255, 0.15);
+        --primary-shadow: rgba(145, 167, 255, 0.2);
     }
 }
 
