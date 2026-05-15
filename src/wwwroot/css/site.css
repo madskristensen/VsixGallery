@@ -378,7 +378,6 @@ details.example > pre {
 }
 
 .extgrid .version {
-    margin-bottom: .75em;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -386,6 +385,8 @@ details.example > pre {
     color: var(--text-secondary);
     text-decoration: none;
     transition: color var(--transition-fast);
+    padding: 14px 16px;
+    margin: -14px -16px calc(.75em - 14px);
 }
 
 .extgrid .version::before {
