@@ -462,7 +462,7 @@ namespace VsixGallery
 				if (resized == null) return null;
 
 				using SKImage image = SKImage.FromBitmap(resized);
-				using SKData data = image.Encode(SKEncodedImageFormat.Webp, 90); // lossy q90 — visually lossless for icons
+				using SKData data = image.Encode(SKEncodedImageFormat.Webp, 80); // lossy q80 — smaller files, still visually good for icons
 				if (data == null) return null;
 
 				string fileName = $"icon-{version}.webp";
