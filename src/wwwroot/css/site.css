@@ -557,7 +557,7 @@ footer #copyright {
 /* ========================================
    Responsive - Tablet/Mobile
    ======================================== */
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 750px) {
     header.is-open .mobile-menu-overlay {
         display: block;
         position: fixed;

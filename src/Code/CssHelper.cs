@@ -9,6 +9,14 @@ namespace VsixGallery
 
 		public static string GetMinified(IWebHostEnvironment env, string relativePath)
 		{
+			// In Development, always read from disk so CSS edits show up on F5
+			// without restarting the app.
+			if (env.IsDevelopment())
+			{
+				string devPath = Path.Combine(env.WebRootPath, relativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+				return File.ReadAllText(devPath);
+			}
+
 			if (_cache.TryGetValue(relativePath, out string? cached))
 			{
 				return cached;

@@ -70,11 +70,8 @@
                 @if (ViewData["HideSetupLink"] is not true) {
                     <a href="~/feedguide">Setup Feed</a>
                 }
-                @if (ViewData["HideCreateExtensionLink"] is not true) {
-                    <a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Learn</a>
-                }
-                @if (ViewData["HideContributeLink"] is not true) {
-                    <a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">GitHub</a>
+                @if (ViewData["HideUploadGuideLink"] is not true) {
+                    <a href="~/devguide">Add Extension</a>
                 }
             </nav>
 
@@ -84,10 +81,6 @@
                     <input type="search" id="search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required />
                     <button type="submit">Search</button>
                 </form>
-
-                @if (ViewData["HideUploadGuideLink"] is not true) {
-                    <a href="~/devguide" class="cta-button">+ Add Extension</a>
-                }
             </div>
 
             <button type="button"
@@ -110,14 +103,8 @@
                     @if (ViewData["HideSetupLink"] is not true) {
                         <a href="~/feedguide">Setup Feed</a>
                     }
-                    @if (ViewData["HideCreateExtensionLink"] is not true) {
-                        <a href="https://devblogs.microsoft.com/visualstudio/getting-started-writing-visual-studio-extensions/" rel="noopener noreferrer">Learn</a>
-                    }
-                    @if (ViewData["HideContributeLink"] is not true) {
-                        <a href="https://github.com/madskristensen/VsixGallery/" rel="noopener noreferrer">GitHub</a>
-                    }
                     @if (ViewData["HideUploadGuideLink"] is not true) {
-                        <a href="~/devguide">+ Add Extension</a>
+                        <a href="~/devguide">Add Extension</a>
                     }
                 </nav>
             </div>
