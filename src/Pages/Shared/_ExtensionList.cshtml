@@ -4,7 +4,7 @@
     @foreach (var package in Model)
     {
         <figure class="shadow @(package.HasValidatorErrors ? "invalid" : null)">
-            <a href="@package.DetailsLink" class="ext-link" aria-label="@package.Name v@(package.Version)">
+            <a href="@package.DetailsLink" aria-label="@package.Name v@(package.Version)">
                 <img class="icon" src="@package.Icon" asp-append-version="true"
                     alt=""
                     loading="lazy"
@@ -12,12 +12,10 @@
                     height="@(package.IconHeight > 0 ? package.IconHeight.ToString() : "90")" />
                 <figcaption>@package.Name</figcaption>
             </a>
-            <p class="version">
-                @("v")@package.Version
-                <a href="@package.DownloadLink"
-                   aria-label="Download @package.Name v@(package.Version)"
-                   title="Download @("v" + package.Version)"></a>
-            </p>
+            <a class="version" href="@package.DownloadLink"
+               data-version="@package.Version"
+               aria-label="Download @package.Name v@(package.Version)"
+               title="Download @("v" + package.Version)"></a>
 
             <p class="description">@package.TruncatedDescription()</p>
 
