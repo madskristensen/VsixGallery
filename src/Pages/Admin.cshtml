@@ -7,12 +7,12 @@
     ViewData["HideCreateExtensionLink"] = true;
 }
 
-<article>
+<article class="admin-page">
     <h1>Admin &mdash; trash bin</h1>
 
     @if (!Model.IsConfigured)
     {
-        <section>
+        <section class="admin-alert">
             <h2>Admin password not configured</h2>
             <p>
                 Set the <code>Admin:Password</code> configuration value (e.g. via
@@ -23,11 +23,11 @@
     }
     else if (!Model.IsAuthenticated)
     {
-        <section>
+        <section class="admin-signin">
             <h2>Sign in</h2>
             @if (!string.IsNullOrEmpty(Model.ErrorMessage))
             {
-                <p role="alert"><strong>@Model.ErrorMessage</strong></p>
+                <p class="admin-alert" role="alert"><strong>@Model.ErrorMessage</strong></p>
             }
             <form method="post" asp-page-handler="SignIn">
                 <label for="password">Admin password</label>
@@ -45,16 +45,16 @@
 
         @if (!string.IsNullOrEmpty(Model.StatusMessage))
         {
-            <p role="status"><strong>@Model.StatusMessage</strong></p>
+            <p class="admin-status" role="status"><strong>@Model.StatusMessage</strong></p>
         }
 
         @if (Model.Trash.Count == 0)
         {
-            <p><em>The trash bin is empty.</em></p>
+            <p class="admin-empty"><em>The trash bin is empty.</em></p>
         }
         else
         {
-            <table>
+            <table class="admin-table">
                 <thead>
                     <tr>
                         <th scope="col">Extension</th>
@@ -67,26 +67,27 @@
                 @foreach (var entry in Model.Trash)
                 {
                     <tr>
-                        <td>
-                            <strong>@(entry.Package.Name ?? entry.Package.ID)</strong>
-                            <br />
+                        <td data-label="Extension">
+                            <span class="ext-name">@(entry.Package.Name ?? entry.Package.ID)</span>
                             <code>@entry.Package.ID</code>
                         </td>
-                        <td>@entry.Package.Author</td>
-                        <td>
+                        <td data-label="Author">@entry.Package.Author</td>
+                        <td data-label="Deleted">
                             @(entry.DeletedAt.HasValue
                                 ? entry.DeletedAt.Value.ToString("u")
                                 : "unknown")
                         </td>
-                        <td>
-                            <form method="post" asp-page-handler="Restore" style="display:inline">
-                                <input type="hidden" name="TrashFolder" value="@entry.TrashFolder" />
-                                <button type="submit">Restore</button>
-                            </form>
-                            <form method="post" asp-page-handler="HardDelete" style="display:inline">
-                                <input type="hidden" name="TrashFolder" value="@entry.TrashFolder" />
-                                <button type="submit" data-confirm="Permanently delete this extension?">Delete forever</button>
-                            </form>
+                        <td data-label="Actions" class="actions">
+                            <div class="admin-actions">
+                                <form method="post" asp-page-handler="Restore">
+                                    <input type="hidden" name="TrashFolder" value="@entry.TrashFolder" />
+                                    <button type="submit">Restore</button>
+                                </form>
+                                <form method="post" asp-page-handler="HardDelete">
+                                    <input type="hidden" name="TrashFolder" value="@entry.TrashFolder" />
+                                    <button type="submit" class="btn-danger" data-confirm="Permanently delete this extension?">Delete forever</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -94,10 +95,8 @@
             </table>
         }
 
-        <p>
-            <form method="post" asp-page-handler="SignOut">
-                <button type="submit">Sign out</button>
-            </form>
-        </p>
+        <form class="admin-signout" method="post" asp-page-handler="SignOut">
+            <button type="submit" class="btn-secondary">Sign out</button>
+        </form>
     }
 </article>

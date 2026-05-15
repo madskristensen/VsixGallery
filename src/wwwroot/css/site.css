@@ -826,4 +826,235 @@ footer #copyright {
     margin: 1rem 0;
 }
 
+/* ========================================
+   Admin page
+   ======================================== */
+.admin-page h1 {
+    margin-bottom: 0.5rem;
+}
+
+.admin-page > p {
+    color: var(--text-secondary);
+    margin: 0.5rem 0 1.5rem;
+}
+
+.admin-page .admin-status {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    background: var(--primary-alpha);
+    color: var(--text-primary);
+    border-left: 4px solid var(--primary);
+    margin: 1rem 0;
+}
+
+.admin-page .admin-alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    background: var(--accent-shadow);
+    color: var(--text-primary);
+    border-left: 4px solid var(--accent);
+    margin: 1rem 0;
+}
+
+.admin-page .admin-empty {
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px dashed var(--light-backdrop);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text-secondary);
+    margin: 1rem 0;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1rem 0 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--light-backdrop);
+}
+
+.admin-table thead th {
+    background: var(--primary-alpha);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+    background: var(--primary-alpha);
+}
+
+.admin-table .ext-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.admin-table code {
+    font-size: 0.8em;
+    word-break: break-all;
+}
+
+.admin-table .actions {
+    white-space: nowrap;
+}
+
+.admin-actions {
+    display: inline-flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-actions form {
+    margin: 0;
+}
+
+.admin-page .btn,
+.admin-page button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px var(--primary-shadow);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.admin-page .btn:hover,
+.admin-page button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--primary-shadow);
+    color: #fff;
+}
+
+.admin-page button.btn-danger {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    box-shadow: 0 2px 8px var(--accent-shadow);
+}
+
+.admin-page button.btn-danger:hover {
+    box-shadow: 0 4px 12px var(--accent-shadow-hover);
+}
+
+.admin-page button.btn-secondary {
+    background: var(--light-backdrop);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+.admin-page button.btn-secondary:hover {
+    background: var(--dark-backdrop);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-signin {
+    max-width: 420px;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin: 1rem 0;
+}
+
+.admin-signin h2 {
+    margin-top: 0;
+}
+
+.admin-signin label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text-primary);
+}
+
+.admin-signin input[type=password] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    outline: none;
+    margin-bottom: 1rem;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.admin-signin input[type=password]:focus {
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px var(--primary-shadow);
+}
+
+.admin-signout {
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .admin-table thead {
+        display: none;
+    }
+
+    .admin-table,
+    .admin-table tbody,
+    .admin-table tr,
+    .admin-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-table tr {
+        border-bottom: 1px solid var(--light-backdrop);
+        padding: 0.5rem 0;
+    }
+
+    .admin-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .admin-table td {
+        border: none;
+        padding: 0.4rem 1rem;
+    }
+
+    .admin-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--text-secondary);
+        margin-bottom: 0.2rem;
+    }
+}
 
