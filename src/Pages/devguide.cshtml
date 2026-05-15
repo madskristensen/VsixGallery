@@ -6,27 +6,113 @@
 <h1>Add your extension</h1>
 
 <p>
-    You can add your extension to this gallery as part of your build automation using one of these methods:
+    Open VSIX Gallery is a simple HTTP API. You can publish a <code>.vsix</code> file
+    by uploading it from a script, a manual <code>curl</code> command, or a CI system
+    like GitHub Actions or AppVeyor. Pick whichever fits your project.
 </p>
 
 <ol>
-    <li><a href="#github-actions">GitHub Actions</a> (recommended)</li>
-    <li><a href="#powershell">PowerShell</a></li>
-    <li><a href="#appveyor">AppVeyor</a></li>
+    <li><a href="#how-it-works">How publishing works</a></li>
+    <li><a href="#manual">Upload manually with curl</a></li>
+    <li><a href="#powershell">Use PowerShell</a></li>
+    <li><a href="#github-actions">Automate with GitHub Actions</a> (recommended)</li>
+    <li><a href="#appveyor">Use AppVeyor</a></li>
+    <li><a href="#manage">Managing your extension</a></li>
+    <li><a href="#unlisted">Unlisted extensions</a></li>
 </ol>
 
+<section id="how-it-works">
+    <h2>How publishing works</h2>
+
+    <p>
+        Publishing is a single <code>POST</code> to
+        <code>https://www.vsixgallery.com/api/upload</code> with the <code>.vsix</code>
+        file as the request body. The server reads the manifest, stores the package,
+        and returns a JSON response with the extension URL and a manage URL.
+    </p>
+
+    <p>Optional headers and query-string parameters:</p>
+
+    <ul>
+        <li>
+            <code>X-Manage-Token</code> &mdash; a value of your choice that becomes
+            the &ldquo;password&rdquo; for the extension&rsquo;s manage page. If you
+            omit it on the first upload, the server generates one and embeds it in
+            the manage URL it returns. See <a href="#manage">Managing your extension</a>.
+        </li>
+        <li>
+            <code>?repo=&lt;url&gt;</code> &mdash; the source repository URL.
+        </li>
+        <li>
+            <code>?issuetracker=&lt;url&gt;</code> &mdash; the issue tracker URL.
+        </li>
+        <li>
+            <code>?readmeUrl=&lt;url&gt;</code> &mdash; a URL to a <code>README.md</code>
+            that should be rendered on the extension details page.
+        </li>
+    </ul>
+
+    <p>
+        Once that one HTTP call works, automating it with PowerShell, GitHub Actions,
+        or AppVeyor is just glue around the same call.
+    </p>
+</section>
+
+<section id="manual">
+    <h2>Upload manually with curl</h2>
+
+    <p>
+        Useful for one-off uploads or for trying the API before wiring it into a build.
+    </p>
+
+<pre>curl -X POST "https://www.vsixgallery.com/api/upload?repo=https://github.com/me/MyExtension" \
+     -H "X-Manage-Token: my-secret-token" \
+     --data-binary @@MyExtension.vsix</pre>
+
+    <p>
+        The response is JSON containing the extension page URL and the manage URL.
+        On the very first upload of a new extension ID, if you didn&rsquo;t supply
+        <code>X-Manage-Token</code>, the manage URL will contain a one-time token
+        as a query string &mdash; save the URL.
+    </p>
+</section>
+
+<section id="powershell">
+    <h2>Use PowerShell</h2>
+
+    <p>First you must execute the VSIX script:</p>
+
+<pre>(new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex</pre>
+
+    <p>That allows you to call methods to upload the .vsix extension file to the gallery:</p>
+
+<pre>Vsix-PublishToGallery</pre>
+
+    <p>
+        That will find all .vsix files in the working directory recursively and upload them.
+        To specify the path, simply pass it in as the first parameter:
+    </p>
+
+<pre>Vsix-PublishToGallery .\src\WebCompilerVsix\**\*.vsix</pre>
+</section>
+
 <section id="github-actions">
-    <h2>Use GitHub Actions</h2>
+    <h2>Automate with GitHub Actions</h2>
 
     <p>
-        GitHub Actions is the recommended way to build and publish your Visual Studio 2026 extension.
-        It provides free CI/CD directly in your GitHub repository.
+        GitHub Actions is the recommended way to build and publish your Visual Studio extension.
+        It provides free CI/CD directly in your GitHub repository, and the
+        <a href="https://github.com/madskristensen/publish-vsixgallery">publish-vsixgallery</a>
+        action wraps the <code>POST /api/upload</code> call described above.
     </p>
 
     <p>
-        Create a file at <code>.github/workflows/build.yaml</code> in your repository with the following content:
+        Create a file at <code>.github/workflows/build.yaml</code> in your repository
+        with the following content:
     </p>
 
+    <details class="example">
+        <summary>Full workflow example (build, test, publish, release)</summary>
 <pre># yaml-language-server: $schema=https://www.schemastore.org/github-workflow.json
 name: "Build"
 permissions:
@@ -138,15 +224,16 @@ jobs:
           files: |
             **/*.vsix
 </pre>
+    </details>
 
     <h3>Key GitHub Actions</h3>
     <ul>
-        <li><a href="https://github.com/microsoft/setup-msbuild">microsoft/setup-msbuild</a> - Adds MSBuild to the runner's PATH</li>
-        <li><a href="https://github.com/madskristensen/vsix-version-stamp">madskristensen/vsix-version-stamp</a> - Auto-increments the VSIX version number and stamps it into the manifest</li>
-        <li><a href="https://github.com/dorny/test-reporter">dorny/test-reporter</a> - Renders test results in the workflow run summary</li>
-        <li><a href="https://github.com/madskristensen/publish-vsixgallery">madskristensen/publish-vsixgallery</a> - Publishes to Open VSIX Gallery (writes a run summary with the extension link, badge, and a self-service manage link for deleting the extension)</li>
-        <li><a href="https://github.com/madskristensen/publish-marketplace">madskristensen/publish-marketplace</a> - Publishes to the Visual Studio Marketplace</li>
-        <li><a href="https://github.com/softprops/action-gh-release">softprops/action-gh-release</a> - Creates a GitHub release and attaches the .vsix as an asset</li>
+        <li><a href="https://github.com/microsoft/setup-msbuild">microsoft/setup-msbuild</a> &mdash; adds MSBuild to the runner&rsquo;s PATH</li>
+        <li><a href="https://github.com/madskristensen/vsix-version-stamp">madskristensen/vsix-version-stamp</a> &mdash; auto-increments the VSIX version number and stamps it into the manifest</li>
+        <li><a href="https://github.com/dorny/test-reporter">dorny/test-reporter</a> &mdash; renders test results in the workflow run summary</li>
+        <li><a href="https://github.com/madskristensen/publish-vsixgallery">madskristensen/publish-vsixgallery</a> &mdash; publishes to Open VSIX Gallery (writes a run summary with the extension link, badge, and a self-service manage link for deleting the extension)</li>
+        <li><a href="https://github.com/madskristensen/publish-marketplace">madskristensen/publish-marketplace</a> &mdash; publishes to the Visual Studio Marketplace</li>
+        <li><a href="https://github.com/softprops/action-gh-release">softprops/action-gh-release</a> &mdash; creates a GitHub release and attaches the .vsix as an asset</li>
     </ul>
 
     <p>Real-world examples using GitHub Actions:</p>
@@ -157,32 +244,13 @@ jobs:
     </ul>
 </section>
 
-<section id="powershell">
-    <h2>Use PowerShell</h2>
-
-    <p>First you must execute the VSIX script</p>
-
-    <pre>(new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex</pre>
-
-    <p>That allows you to call methods upload the .vsix extension file to the gallery.</p>
-
-    <pre>Vsix-PublishToGallery</pre>
-
-    <p>
-        That will find all .vsix files in the working directory recursively and upload them.
-        To specify the path, simply pass it in as the first parameter:
-    </p>
-
-    <pre>Vsix-PublishToGallery .\src\WebCompilerVsix\**\*.vsix</pre>
-</section>
-
 <section id="appveyor">
     <h2>Use AppVeyor</h2>
 
-    <p>AppVeyor is a build server hosted in the cloud and it's free.</p>
+    <p>AppVeyor is a build server hosted in the cloud and it&rsquo;s free.</p>
 
     <p>
-        After you've created an account, you can start doing automated builds. A really nice thing
+        After you&rsquo;ve created an account, you can start doing automated builds. A really nice thing
         is that AppVeyor can automatically kick off a new build when you commit code to either
         GitHub, VSO or other code repositories.
     </p>
@@ -193,6 +261,8 @@ jobs:
         your repository. The content of the file should look like this:
     </p>
 
+    <details class="example">
+        <summary>appveyor.yml example</summary>
 <pre>version: 1.0.{build}
 
 install:
@@ -207,6 +277,7 @@ build_script:
 after_test:
   - ps: Vsix-PushArtifacts | Vsix-PublishToGallery
 </pre>
+    </details>
 
     <p>You might want to check out these real-world uses:</p>
 
@@ -214,14 +285,62 @@ after_test:
         <li><a href="https://github.com/madskristensen/WebEssentials2019/blob/master/appveyor.yml">Web Essentials 2019</a></li>
         <li><a href="https://github.com/jaredpar/VsVim/blob/master/appveyor.yml">VsVim</a></li>
     </ul>
-
 </section>
 
-<section>
+<section id="manage">
+    <h2>Managing your extension</h2>
+
+    <p>
+        Every extension has a manage page at
+        <code>https://www.vsixgallery.com/extension/&lt;id&gt;/manage</code>
+        where you (the publisher) can delete it. Access is gated by a per-extension
+        <strong>manage token</strong> that acts as a password. The token is a soft
+        &ldquo;don&rsquo;t let randos delete my listing&rdquo; speed bump &mdash;
+        not strong authentication.
+    </p>
+
+    <p>How the token gets set depends on what you do at upload time. This applies
+       to <em>any</em> upload method &mdash; manual <code>curl</code>, PowerShell,
+       GitHub Actions, AppVeyor, etc.</p>
+
+    <ul>
+        <li>
+            <strong>First upload, no token supplied</strong> &mdash; the gallery
+            auto-generates a token and embeds it in the manage URL it returns
+            (printed by the GitHub Action&rsquo;s run summary, or visible in the
+            JSON response for manual uploads). That URL is shown only once,
+            so save it somewhere safe.
+        </li>
+        <li>
+            <strong>First upload, token supplied</strong> &mdash; the gallery
+            stores the value you supply (typically a CI secret). The manage URL
+            won&rsquo;t contain it.
+        </li>
+        <li>
+            <strong>Republish, no token supplied</strong> &mdash; the existing
+            token stays in place. The manage URL won&rsquo;t contain it.
+        </li>
+        <li>
+            <strong>Republish, token supplied</strong> &mdash; whatever value you
+            pass becomes the new manage token, replacing whatever was on file.
+            Lost your old token? Just republish with a fresh one and the new
+            value takes over.
+        </li>
+    </ul>
+
+    <p>
+        With the GitHub Action, the token is supplied via the
+        <code>manage-token</code> input. With <code>curl</code> it&rsquo;s the
+        <code>X-Manage-Token</code> request header. Same value either way.
+    </p>
+
+    </section>
+
+<section id="unlisted">
     <h2>Unlisted extensions</h2>
 
     <p>
-        An unlisted extension is one that you need to know the direct link to, otherwise it won't show up anywhere.
+        An unlisted extension is one that you need to know the direct link to, otherwise it won&rsquo;t show up anywhere.
         The only places it will show up are:
     </p>
 
@@ -232,9 +351,7 @@ after_test:
         <li>Extension gallery feed</li>
     </ul>
 
-    <p>
-        That means it won't show up in the usual places on this website such as:
-    </p>
+    <p>That means it won&rsquo;t show up in the usual places on this website such as:</p>
 
     <ul>
         <li>Front page</li>
@@ -243,52 +360,12 @@ after_test:
     </ul>
 
     <p>
-        To unlist an extension, simply add the tag "unlisted" in the .vsixmanifest file. 
+        To unlist an extension, simply add the tag &ldquo;unlisted&rdquo; in the .vsixmanifest file.
         The tags specified in the .vsixmanifest are not shown on either the Open VSIX Gallery nor inside Visual Studio,
-        so it won't be visible to anyone. 
+        so it won&rsquo;t be visible to anyone.
     </p>
 
-    <p>Here's what it could look like:</p>
+    <p>Here&rsquo;s what it could look like:</p>
 
     <pre>&lt;Tags&gt;foo, bar, unlisted&lt;/Tags&gt;</pre>
-</section>
-
-<section id="manage">
-    <h2>Managing your extension</h2>
-
-    <p>
-        Every extension has a manage page at
-        <code>https://www.vsixgallery.com/extension/&lt;id&gt;/manage</code>
-        where you can delete it. Access is gated by a per-extension
-        <strong>manage token</strong> that acts as a password.
-    </p>
-
-    <h3>If you publish with the GitHub Action</h3>
-    <ul>
-        <li>
-            On the <strong>first upload</strong> (when you don&rsquo;t pass
-            <code>manage-token</code>), the gallery auto-generates a token
-            and embeds it in the manage URL printed in the workflow run summary.
-            That URL is shown only once &mdash; save it somewhere safe.
-        </li>
-        <li>
-            On <strong>subsequent uploads</strong>, the manage URL no longer contains
-            the token. Visit the manage page and paste your saved token to delete
-            the extension.
-        </li>
-        <li>
-            You can pass <code>manage-token: ${{ secrets.VSIXGALLERY_MANAGE_TOKEN }}</code>
-            to the action on any upload. Whatever value you pass becomes the new
-            manage token for the extension &mdash; so if you lost the previous one,
-            just republish with a fresh token of your choice.
-        </li>
-    </ul>
-
-    <h3>If you uploaded before tokens existed</h3>
-    <p>
-        Older extensions don&rsquo;t have a manage token on file. Re-publish the
-        extension (with or without <code>manage-token</code>) and the next upload
-        will set one. Until then, open the manage page and use the linked
-        deletion-request issue template &mdash; an admin will handle it.
-    </p>
 </section>

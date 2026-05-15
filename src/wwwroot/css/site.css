@@ -236,6 +236,83 @@ main {
 }
 
 /* ========================================
+   Code blocks
+   ======================================== */
+code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.9em;
+    background: var(--light-backdrop);
+    color: var(--text-primary);
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius-sm);
+}
+
+pre {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    max-width: 100%;
+    box-shadow: var(--shadow-sm);
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+    color: inherit;
+}
+
+/* Collapsible code/example blocks (used on devguide). */
+details.example {
+    margin: 1rem 0;
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+}
+
+details.example > summary {
+    cursor: pointer;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    list-style: none;
+}
+
+details.example > summary::-webkit-details-marker {
+    display: none;
+}
+
+details.example > summary::before {
+    content: "\25B8";
+    display: inline-block;
+    width: 1em;
+    margin-right: 0.25em;
+    color: var(--text-secondary);
+    transition: transform var(--transition-fast);
+}
+
+details.example[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+details.example > pre {
+    margin: 0;
+    border: none;
+    border-top: 1px solid var(--light-backdrop);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    box-shadow: none;
+}
+
+/* ========================================
    Extension Grid
    ======================================== */
 .extgrid {
