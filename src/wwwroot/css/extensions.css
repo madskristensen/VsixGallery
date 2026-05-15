@@ -75,10 +75,9 @@ article .download:hover {
     list-style: none;
     padding: 0;
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: .5em;
     margin-top: 1.5em;
-    overflow-x: auto;
 }
 
 #links li a,
@@ -109,6 +108,92 @@ article .download:hover {
     background: var(--primary);
     color: white;
     border-color: var(--primary-dark);
+}
+
+/* Actions dropdown (Copy badge, Manage, Report) */
+.actions-menu-item {
+    position: relative;
+}
+
+.actions-menu > summary {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 6px 10px;
+    background: var(--primary-alpha);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+    color: var(--primary);
+    font-size: .9em;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    list-style: none;
+    line-height: normal;
+}
+
+.actions-menu > summary::-webkit-details-marker {
+    display: none;
+}
+
+.actions-menu > summary:hover,
+.actions-menu[open] > summary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
+}
+
+.actions-menu-list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    z-index: 10;
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    min-width: 180px;
+    background: var(--surface);
+    border: 1px solid var(--light-backdrop);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md, 0 4px 16px rgba(0, 0, 0, .25));
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.actions-menu-list li {
+    width: 100%;
+}
+
+.actions-menu-list li > a,
+#links .actions-menu-list li > a,
+.actions-menu-list li > .copy-badge-btn {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: .9em;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.actions-menu-list li > a:hover,
+#links .actions-menu-list li > a:hover,
+.actions-menu-list li > .copy-badge-btn:hover {
+    background: var(--primary-alpha);
+    color: var(--primary);
+    border: none;
+}
+
+.actions-menu-list li > .copy-badge-btn.copied {
+    background: var(--primary-alpha);
+    color: var(--primary);
+    border: none;
 }
 
 #validation {
