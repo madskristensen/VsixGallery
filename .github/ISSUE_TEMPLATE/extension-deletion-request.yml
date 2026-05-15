@@ -1,5 +1,5 @@
 name: 🗑️ Request extension deletion
-you can't manage
+description: Ask the gallery admin to delete an extension. Use this if you can't manage it yourself, or to report an abusive or malicious upload.
 title: "[delete] <extension id>"
 labels: ["deletion-request"]
 body:
@@ -7,11 +7,11 @@ body:
     attributes:
       value: |
         Use this form to request deletion of an extension you cannot delete from the
-        gallery's own manage page
+        gallery's own manage page, or to report an upload that is malicious, abusive,
         or otherwise needs admin attention.
 
-        If you're the publisher
-        &mdash; it's instant.
+        If you're the publisher and have the manage token, delete it yourself at
+        `https://www.vsixgallery.com/extension/<id>/manage` &mdash; it's instant.
 
         Put the extension ID in the issue title above (e.g. `[delete] Author.ExtensionName`).
 
