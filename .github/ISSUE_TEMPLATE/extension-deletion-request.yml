@@ -1,23 +1,19 @@
 name: 🗑️ Request extension deletion
-description: Ask the gallery admin to delete an extension you can't manage yourself (e.g. uploaded before the manage-token feature shipped, or token lost).
+you can't manage
 title: "[delete] <extension id>"
 labels: ["deletion-request"]
 body:
   - type: markdown
     attributes:
       value: |
-        Use this form **only** to request deletion of an extension you cannot delete from the
-        gallery's own manage page. If you have the manage token, delete it yourself at
-        `https://www.vsixgallery.com/extension/<id>/manage` &mdash; it's instant.
+        Use this form to request deletion of an extension you cannot delete from the
+        gallery's own manage page
+        or otherwise needs admin attention.
 
-  - type: input
-    id: extension-id
-    attributes:
-      label: Extension ID
-      description: The ID shown in the URL, e.g. `MadsKristensen.FileIcons`.
-      placeholder: Author.ExtensionName
-    validations:
-      required: true
+        If you're the publisher
+        &mdash; it's instant.
+
+        Put the extension ID in the issue title above (e.g. `[delete] Author.ExtensionName`).
 
   - type: input
     id: extension-url
@@ -29,28 +25,15 @@ body:
       required: true
 
   - type: textarea
-    id: ownership
-    attributes:
-      label: Proof of ownership
-      description: |
-        How can we confirm you're the publisher? Examples:
-          - Link to the source repository under your GitHub account.
-          - Comment on this issue from the repository that publishes the extension.
-          - Mention the GitHub Action / CI job that uploaded it.
-      placeholder: |
-        I'm the owner of github.com/<me>/<repo> which publishes this extension.
-    validations:
-      required: true
-
-  - type: textarea
     id: reason
     attributes:
       label: Reason for deletion
-      description: Optional. Helps us prioritize and decide whether a soft-delete + retention period is enough or a hard-delete is warranted.
+      description: Why should this extension be removed? Helps us prioritize and decide whether a soft-delete is enough or a hard-delete is warranted.
       placeholder: |
-        e.g. "Project is discontinued", "Replaced by <new-id>", "Accidental upload", ...
+        e.g. "Project is discontinued", "Replaced by <new-id>", "Accidental upload",
+             "Contains malware", "Abusive content", "Trademark / copyright violation", ...
     validations:
-      required: false
+      required: true
 
   - type: checkboxes
     id: confirmation
