@@ -170,7 +170,7 @@ namespace VsixGallery
 			package.ID = ParseNode(doc, "Identity", true, "Id");
 			package.Name = ParseNode(doc, "DisplayName", true);
 			package.Description = ParseNode(doc, "Description", true);
-			package.Version = new Version(ParseNode(doc, "Identity", true, "Version")!).ToString();
+			package.Version = ParseNode(doc, "Identity", true, "Version");
 			package.Author = ParseNode(doc, "Identity", true, "Publisher");
 			package.Icon = ParseNode(doc, "Icon", false);
 			package.Tags = ParseNode(doc, "Tags", false);
@@ -187,7 +187,7 @@ namespace VsixGallery
 			package.ID = ParseNode(doc, "Identifier", true, "Id");
 			package.Name = ParseNode(doc, "Name", true);
 			package.Description = ParseNode(doc, "Description", true);
-			package.Version = new Version(ParseNode(doc, "Version", true)!).ToString();
+			package.Version = ParseNode(doc, "Version", true);
 			package.Author = ParseNode(doc, "Author", true);
 			package.Icon = ParseNode(doc, "Icon", false);
 			package.DatePublished = DateTime.UtcNow;
