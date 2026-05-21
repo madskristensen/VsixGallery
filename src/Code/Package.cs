@@ -24,14 +24,6 @@ namespace VsixGallery
 			{ 18, "VS 2026" },
 		};
 
-		private readonly static Dictionary<string, string> _identifierToProduct = new(StringComparer.OrdinalIgnoreCase)
-		{
-			{ "Microsoft.VisualStudio.Community", "Visual Studio" },
-			{ "Microsoft.VisualStudio.Pro", "Visual Studio" },
-			{ "Microsoft.VisualStudio.Enterprise", "Visual Studio" },
-			{ "Microsoft.VisualStudio.IntegratedShell", "Visual Studio" },
-			{ "Microsoft.VisualStudio.Ssms", "SSMS" },
-		};
 		public string? ID { get; set; }
 		public string? Name { get; set; }
 		public string? Description { get => field?.Trim(); set; }
@@ -211,7 +203,7 @@ namespace VsixGallery
 				bool isSsms = target.Identifier.Contains("SSMS", StringComparison.OrdinalIgnoreCase) ||
 							  target.Identifier.Contains("SQL", StringComparison.OrdinalIgnoreCase);
 
-				foreach (int major in ParseMajorVersions(target.VersionRange))
+				foreach (int major in ParseMajorVersions(target.VersionRange, isSsms))
 				{
 					if (isSsms)
 					{
@@ -238,7 +230,7 @@ namespace VsixGallery
 		/// all known VS major versions that fall within the range.
 		/// See https://devblogs.microsoft.com/visualstudio/visual-studio-extensions-and-version-ranges-demystified/
 		/// </summary>
-		private static IEnumerable<int> ParseMajorVersions(string? versionRange)
+		private static IEnumerable<int> ParseMajorVersions(string? versionRange, bool isSsms = false)
 		{
 			if (string.IsNullOrWhiteSpace(versionRange))
 			{
@@ -289,8 +281,8 @@ namespace VsixGallery
 			int maxMajor;
 			if (toVersion == null)
 			{
-				// Open-ended range: include all known versions
-				maxMajor = _majorVersionToProduct.Keys.Max();
+				// Open-ended range: for SSMS, use the from version; for VS, include all known versions
+				maxMajor = isSsms ? fromVersion.Major : _majorVersionToProduct.Keys.Max();
 			}
 			else
 			{
@@ -309,11 +301,23 @@ namespace VsixGallery
 				}
 			}
 
-			foreach (int major in _majorVersionToProduct.Keys)
+			if (isSsms)
 			{
-				if (major >= minMajor && major <= maxMajor)
+				// For SSMS, yield the specific major version(s) in the range
+				for (int major = minMajor; major <= maxMajor; major++)
 				{
 					yield return major;
+				}
+			}
+			else
+			{
+				// For VS, only yield known versions from the dictionary
+				foreach (int major in _majorVersionToProduct.Keys)
+				{
+					if (major >= minMajor && major <= maxMajor)
+					{
+						yield return major;
+					}
 				}
 			}
 		}
