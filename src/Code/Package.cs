@@ -35,6 +35,7 @@ namespace VsixGallery
 			{ "Microsoft.VisualStudio.Enterprise.Arm64", "Visual Studio (ARM64)" },
 			{ "SSMS.Microsoft.SQL", "SSMS" },
 			{ "Microsoft.SSMS", "SSMS" },
+			{ "Microsoft.VisualStudio.Ssms", "SSMS" },
 		};
 		public string? ID { get; set; }
 		public string? Name { get; set; }
