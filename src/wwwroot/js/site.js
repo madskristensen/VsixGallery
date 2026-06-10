@@ -43,8 +43,9 @@
         btn.addEventListener('click', function () {
             var id = btn.getAttribute('data-extension-id');
             var name = btn.getAttribute('data-extension-name');
+            var format = btn.getAttribute('data-badge-format') === 'png' ? 'png' : 'svg';
             var origin = window.location.origin;
-            var badgeUrl = origin + '/badge/' + encodeURIComponent(id) + '.svg';
+            var badgeUrl = origin + '/badge/' + encodeURIComponent(id) + '.' + format;
             var pageUrl = origin + '/extension/' + encodeURIComponent(id) + '/';
             var markdown = '[![Install from VSIX Gallery](' + badgeUrl + ')](' + pageUrl + ')';
 

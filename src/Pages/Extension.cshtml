@@ -125,8 +125,19 @@
                                     class="copy-badge-btn"
                                     data-extension-id="@Model.Package.ID"
                                     data-extension-name="@Model.Package.Name"
-                                    aria-label="Copy Markdown badge to clipboard">
-                                📋 Copy badge
+                                    data-badge-format="svg"
+                                    aria-label="Copy Markdown badge (SVG) to clipboard">
+                                📋 Copy badge (SVG)
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button"
+                                    class="copy-badge-btn"
+                                    data-extension-id="@Model.Package.ID"
+                                    data-extension-name="@Model.Package.Name"
+                                    data-badge-format="png"
+                                    aria-label="Copy Markdown badge (PNG) to clipboard">
+                                📋 Copy badge (PNG)
                             </button>
                         </li>
                         <li><a href="@(Model.Package.DetailsLink)/manage">🔧 Manage</a></li>

@@ -19,6 +19,7 @@
     <li><a href="#appveyor">Use AppVeyor</a></li>
     <li><a href="#manage">Managing your extension</a></li>
     <li><a href="#unlisted">Unlisted extensions</a></li>
+    <li><a href="#badges">Show a version badge</a></li>
 </ol>
 
 <section id="how-it-works">
@@ -369,3 +370,45 @@ after_test:
 
     <pre>&lt;Tags&gt;foo, bar, unlisted&lt;/Tags&gt;</pre>
 </section>
+
+<section id="badges">
+    <h2>Show a version badge</h2>
+
+    <p>
+        Every extension exposes a live badge that always reflects the latest
+        published version. Drop it in your <code>README</code> to show visitors
+        the current version at a glance and link straight to the gallery page.
+    </p>
+
+    <p>Two formats are available &mdash; just change the file extension:</p>
+
+    <ul>
+        <li>
+            <code>https://www.vsixgallery.com/badge/&lt;id&gt;.svg</code> &mdash;
+            scalable vector, stays crisp at any size (recommended).
+        </li>
+        <li>
+            <code>https://www.vsixgallery.com/badge/&lt;id&gt;.png</code> &mdash;
+            rasterized image for places that don&rsquo;t render SVG. Notably, the
+            Visual Studio Marketplace only allows SVG badges from a short list of
+            approved sources, so use the PNG variant there (and in other places
+            that block third-party SVGs, such as some chat clients or release notes).
+        </li>
+    </ul>
+
+    <p>To embed the badge as a clickable link in Markdown:</p>
+
+    <pre>[![Install from VSIX Gallery](https://www.vsixgallery.com/badge/&lt;id&gt;.svg)](https://www.vsixgallery.com/extension/&lt;id&gt;/)</pre>
+
+    <p>Or with the PNG variant:</p>
+
+    <pre>[![Install from VSIX Gallery](https://www.vsixgallery.com/badge/&lt;id&gt;.png)](https://www.vsixgallery.com/extension/&lt;id&gt;/)</pre>
+
+    <p>
+        Replace <code>&lt;id&gt;</code> with your extension&rsquo;s ID. The easiest
+        way to grab the ready-made Markdown is the <strong>⚙️ Actions</strong> menu
+        on any extension page &mdash; pick <strong>Copy badge (SVG)</strong> or
+        <strong>Copy badge (PNG)</strong> and it&rsquo;s on your clipboard.
+    </p>
+</section>
+
