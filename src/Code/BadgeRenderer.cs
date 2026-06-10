@@ -11,7 +11,7 @@ namespace VsixGallery
 	/// </summary>
 	public static class BadgeRenderer
 	{
-		private const int LabelWidth = 64;
+		private const int LabelWidth = 66;
 		private const int BadgeHeight = 20;
 		private const int Padding = 6;
 		private const int LogoX = 6;
