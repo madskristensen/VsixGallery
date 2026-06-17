@@ -160,21 +160,27 @@ namespace VsixGallery
 
 		private static void DrawText(SKCanvas canvas, string text, float x, SKTextAlign align)
 		{
+			// Pixel-grid hinting plus whole-pixel positioning keeps the small 11px
+			// text sharp at 1x. Grayscale antialiasing avoids the colored fringing
+			// that subpixel/LCD antialiasing produces on a transparent background.
 			using var font = new SKFont(_typeface, FontSize)
 			{
-				Subpixel = true,
-				Edging = SKFontEdging.SubpixelAntialias,
+				Subpixel = false,
+				Hinting = SKFontHinting.Full,
+				Edging = SKFontEdging.Antialias,
 			};
+
+			float snappedX = align == SKTextAlign.Left ? MathF.Round(x) : x;
 
 			// Drop shadow first (#010101 @ 30%), then the white text on top.
 			using (var shadow = new SKPaint { Color = new SKColor(0x01, 0x01, 0x01, 77), IsAntialias = true })
 			{
-				canvas.DrawText(text, x, 15, align, font, shadow);
+				canvas.DrawText(text, snappedX, 15, align, font, shadow);
 			}
 
 			using (var fill = new SKPaint { Color = SKColor.Parse(TextColor), IsAntialias = true })
 			{
-				canvas.DrawText(text, x, 14, align, font, fill);
+				canvas.DrawText(text, snappedX, 14, align, font, fill);
 			}
 		}
 	}
