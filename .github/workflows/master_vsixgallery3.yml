@@ -23,9 +23,6 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
-
       - name: dotnet publish
         run: dotnet publish ./src/VsixGallery.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
