@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 
 using System.IO.Compression;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -42,7 +43,25 @@ builder.Services.AddHsts(options =>
 	options.Preload = true;
 });
 
-builder.Services.AddOutputCaching();
+builder.Services.AddSingleton<GalleryCacheVersion>();
+builder.Services.AddOutputCache(options =>
+{
+	options.AddPolicy(
+		"Gallery",
+		policy => policy
+			.Expire(TimeSpan.FromDays(7))
+			.SetVaryByQuery("page")
+			.VaryByValue(context =>
+			{
+				long version = context.RequestServices
+					.GetRequiredService<GalleryCacheVersion>()
+					.Value;
+				return new KeyValuePair<string, string>(
+					"generation",
+					version.ToString(CultureInfo.InvariantCulture));
+			})
+			.Tag(PackageHelper.GalleryCacheTag));
+});
 builder.Services
 	.AddHealthChecks()
 	.AddCheck<ExtensionStorageHealthCheck>("extension_storage", tags: ["ready"]);
@@ -158,7 +177,7 @@ RewriteOptions rewriteOptions = new RewriteOptions()
 if (!app.Environment.IsDevelopment())
 {
 	rewriteOptions.AddRedirectToWwwPermanent();
-	app.UseOutputCaching();
+	app.UseOutputCache();
 }
 
 app.UseRewriter(rewriteOptions);

@@ -67,6 +67,11 @@
     <meta property="og:image:height" content="@socialImageHeight" />
 </head>
 <body>
+    @{
+        string searchTerm = Context.Request.Path.StartsWithSegments("/search")
+            ? Context.Request.Query["q"].ToString()
+            : string.Empty;
+    }
     <a class="skip-link" href="#main-content">Skip to main content</a>
 
     <header>
@@ -88,7 +93,7 @@
             <div class="header-actions">
                 <form action="~/search/" method="get" role="search">
                     <label for="search">Search</label>
-                    <input type="search" id="search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required />
+                    <input type="search" id="search" value="@searchTerm" name="q" placeholder="Search extensions..." required />
                     <button type="submit">Search</button>
                 </form>
             </div>
@@ -106,7 +111,7 @@
             <div id="mobile-menu" class="mobile-menu" hidden>
                 <form action="~/search/" method="get" class="mobile-search" role="search">
                     <label for="mobile-search">Search</label>
-                    <input type="search" id="mobile-search" value="@Context.Request.Query["q"]" name="q" placeholder="Search extensions..." required size="20" />
+                    <input type="search" id="mobile-search" value="@searchTerm" name="q" placeholder="Search extensions..." required size="20" />
                     <button type="submit">Search</button>
                 </form>
                 <nav aria-label="Mobile">

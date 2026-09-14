@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="Azure.ImageOptimizer" Version="1.1.0.39" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
+    <PackageVersion Include="HtmlSanitizer" Version="9.2.1039" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.12" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.0" />
+    <PackageVersion Include="SkiaSharp" Version="4.151.2" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="4.151.2" />
+    <PackageVersion Include="WebMarkupMin.AspNetCoreLatest" Version="2.22.3" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
+  </ItemGroup>
+</Project>

@@ -8,19 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.ImageOptimizer" Version="1.1.0.39">
+    <PackageReference Include="Azure.ImageOptimizer">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="HtmlSanitizer" Version="9.2.1039" />
-    <PackageReference Include="SkiaSharp" Version="3.119.2" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.2" />
-    <PackageReference Include="WebEssentials.AspNetCore.OutputCaching" Version="1.0.43" />
-    <PackageReference Include="WebMarkupMin.AspNetCoreLatest" Version="2.21.0" />
+    <PackageReference Include="HtmlSanitizer" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+    <PackageReference Include="WebMarkupMin.AspNetCoreLatest" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" />
   </ItemGroup>
 
   <ItemGroup>
