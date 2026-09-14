@@ -4,7 +4,7 @@ This plan tracks implementation of the September 2026 website audit. Each work i
 
 ## Scope
 
-- [ ] 1. Establish automated test coverage for critical existing behavior.
+- [x] 1. Establish automated test coverage for critical existing behavior.
 - [ ] 2. Harden upload processing: filesystem containment, strict extension IDs, bounded archive extraction, cancellation, safe error responses, URL validation, XML safety, and SVG escaping.
 - [ ] 3. Improve package-storage reliability with atomic replacement and safer lifecycle cleanup.
 - [ ] 4. Correct HTTP and application behavior: conditional requests, feed timestamps, pagination, unlisted API output, author feeds, optional links, sitemap generation, canonical URLs, and error responses.
@@ -28,7 +28,7 @@ Security fixes that do not alter those authentication or ownership models remain
 | Work item | Status | Commit |
 | --- | --- | --- |
 | Implementation plan | Complete | `docs: add audit implementation plan` |
-| Test foundation | Pending | Pending |
+| Test foundation | Complete | `test: establish automated test foundation` |
 | Upload safety | Pending | Pending |
 | Storage reliability | Pending | Pending |
 | HTTP correctness | Pending | Pending |

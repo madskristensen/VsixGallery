@@ -5,6 +5,10 @@ VisualStudioVersion = 18.5.11506.17 main
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VsixGallery", "src\VsixGallery.csproj", "{5D4F210C-AF28-4B75-89FB-24E1126C9A88}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VsixGallery.Tests", "tests\VsixGallery.Tests\VsixGallery.Tests.csproj", "{5000EFAF-E266-4E55-843C-7ADDB63D5522}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +19,16 @@ Global
 		{5D4F210C-AF28-4B75-89FB-24E1126C9A88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D4F210C-AF28-4B75-89FB-24E1126C9A88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D4F210C-AF28-4B75-89FB-24E1126C9A88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5000EFAF-E266-4E55-843C-7ADDB63D5522}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5000EFAF-E266-4E55-843C-7ADDB63D5522}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5000EFAF-E266-4E55-843C-7ADDB63D5522}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5000EFAF-E266-4E55-843C-7ADDB63D5522}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5000EFAF-E266-4E55-843C-7ADDB63D5522} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {49056D8D-124C-499F-87F3-809071E69D93}
