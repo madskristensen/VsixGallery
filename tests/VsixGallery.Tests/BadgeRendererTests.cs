@@ -18,4 +18,13 @@ public class BadgeRendererTests
 
 		Assert.Equal([0x89, 0x50, 0x4E, 0x47], png[..4]);
 	}
+
+	[Fact]
+	public void RenderSvg_EncodesUntrustedVersionText()
+	{
+		string svg = BadgeRenderer.RenderSvg("\"><script>alert(1)</script>");
+
+		Assert.DoesNotContain("<script>", svg);
+		Assert.Contains("&lt;script&gt;", svg);
+	}
 }

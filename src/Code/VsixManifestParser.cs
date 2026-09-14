@@ -7,13 +7,26 @@ namespace VsixGallery
 {
 	public class VsixManifestParser
 	{
+		private const long MaxManifestBytes = 2_000_000;
+		private const long MaxMetadataFileBytes = 2_000_000;
+
 		public Package CreateFromManifest(string tempFolder, string repo, string issuetracker, string readmeUrl)
 		{
-			string xml = File.ReadAllText(Path.Combine(tempFolder, "extension.vsixmanifest"));
+			string manifestPath = Path.Combine(tempFolder, "extension.vsixmanifest");
+			EnsureFileSize(manifestPath, MaxManifestBytes, "The VSIX manifest is too large.");
+			string xml = File.ReadAllText(manifestPath);
 			xml = Regex.Replace(xml, "( xmlns(:\\w+)?)=\"([^\"]+)\"", string.Empty);
 
-			XmlDocument doc = new();
-			doc.LoadXml(xml);
+			XmlReaderSettings settings = new()
+			{
+				DtdProcessing = DtdProcessing.Prohibit,
+				XmlResolver = null,
+				MaxCharactersInDocument = 2_000_000,
+			};
+			using StringReader textReader = new(xml);
+			using XmlReader reader = XmlReader.Create(textReader, settings);
+			XmlDocument doc = new() { XmlResolver = null };
+			doc.Load(reader);
 
 			Package package = new()
 			{
@@ -45,6 +58,7 @@ namespace VsixGallery
 				string? path = ResolveRelativeFile(tempFolder, license);
 				if (path != null)
 				{
+					EnsureFileSize(path, MaxMetadataFileBytes, "The VSIX license is too large.");
 					package.License = File.ReadAllText(path);
 				}
 			}
@@ -74,6 +88,15 @@ namespace VsixGallery
 				}
 			}
 
+			if (!string.IsNullOrWhiteSpace(package.Repo) && !package.Repo.Contains("://", StringComparison.Ordinal))
+			{
+				package.Repo = "https://" + package.Repo;
+			}
+			package.Repo = NormalizeExternalUrl(package.Repo);
+			package.MoreInfoUrl = NormalizeExternalUrl(package.MoreInfoUrl);
+			package.ReleaseNotesUrl = NormalizeExternalUrl(package.ReleaseNotesUrl);
+			package.GettingStartedUrl = NormalizeExternalUrl(package.GettingStartedUrl);
+
 			// Resolve a relative issue tracker (e.g. "issues/") against the
 			// repo so it renders as a usable absolute URL.
 			if (!string.IsNullOrWhiteSpace(package.IssueTracker)
@@ -82,6 +105,7 @@ namespace VsixGallery
 			{
 				package.IssueTracker = package.Repo.TrimEnd('/') + "/" + package.IssueTracker.TrimStart('/');
 			}
+			package.IssueTracker = NormalizeExternalUrl(package.IssueTracker);
 
 			// Backfill a missing ReadmeUrl for legacy cached packages whose
 			// stored JSON was written before the fallback existed.
@@ -126,7 +150,7 @@ namespace VsixGallery
 			// as is; otherwise, assume it's a GitHub URL.
 			if (Regex.IsMatch(readmeUrl, "^https?://"))
 			{
-				return readmeUrl;
+				return NormalizeExternalUrl(readmeUrl) ?? string.Empty;
 			}
 
 			if (string.IsNullOrEmpty(repo))
@@ -143,7 +167,21 @@ namespace VsixGallery
 				path = "refs/heads/" + path;
 			}
 
-			return baseUrl + "/" + path;
+			return NormalizeExternalUrl(baseUrl + "/" + path) ?? string.Empty;
+		}
+
+		private static string? NormalizeExternalUrl(string? value)
+		{
+			if (string.IsNullOrWhiteSpace(value) ||
+				value.Length > 2_048 ||
+				!Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) ||
+				(uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp) ||
+				!string.IsNullOrEmpty(uri.UserInfo))
+			{
+				return null;
+			}
+
+			return uri.AbsoluteUri;
 		}
 
 		private static void AddExtensionList(Package package, string tempFolder)
@@ -152,6 +190,7 @@ namespace VsixGallery
 
 			if (!string.IsNullOrEmpty(vsext))
 			{
+				EnsureFileSize(vsext, MaxMetadataFileBytes, "The extension list metadata is too large.");
 				string json = File.ReadAllText(vsext);
 
 				using (MemoryStream ms = new(Encoding.UTF8.GetBytes(json)))
@@ -162,6 +201,16 @@ namespace VsixGallery
 						package.ExtensionList = list;
 					}
 				}
+
+			}
+		}
+
+		private static void EnsureFileSize(string path, long maximumBytes, string message)
+		{
+			FileInfo file = new(path);
+			if (!file.Exists || file.Length > maximumBytes)
+			{
+				throw new InvalidDataException(message);
 			}
 		}
 
@@ -281,13 +330,25 @@ namespace VsixGallery
 			}
 
 			string? normalized = NormalizeRelativePath(relativePath);
-			string direct = Path.Combine(root, normalized!);
+			string direct;
+			try
+			{
+				direct = PackagePath.GetContainedPath(root, normalized!);
+			}
+			catch (InvalidDataException)
+			{
+				return null;
+			}
 			if (File.Exists(direct))
 			{
 				return direct;
 			}
 
 			string[] segments = normalized!.Split([Path.DirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+			if (segments.Any(segment => segment is "." or ".."))
+			{
+				return null;
+			}
 			string current = root;
 			foreach (string segment in segments)
 			{

@@ -1,5 +1,6 @@
 using SkiaSharp;
 
+using System.Security;
 using System.Text;
 
 namespace VsixGallery
@@ -47,11 +48,12 @@ namespace VsixGallery
 		public static string RenderSvg(string version)
 		{
 			(int totalWidth, int valueWidth) = Measure(version);
+			string encodedVersion = SecurityElement.Escape(version) ?? string.Empty;
 
 			var sb = new StringBuilder();
 			sb.Append($"""
-				<svg xmlns="http://www.w3.org/2000/svg" width="{totalWidth}" height="{BadgeHeight}" role="img" aria-label="version: {version}">
-				  <title>version: {version}</title>
+				<svg xmlns="http://www.w3.org/2000/svg" width="{totalWidth}" height="{BadgeHeight}" role="img" aria-label="version: {encodedVersion}">
+				  <title>version: {encodedVersion}</title>
 				  <linearGradient id="s" x2="0" y2="100%">
 					<stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
 					<stop offset="1" stop-opacity=".1"/>
@@ -73,8 +75,8 @@ namespace VsixGallery
 				  <g fill="{TextColor}" font-family="{FontFamily}" font-size="{FontSize}">
 					<text x="{LabelTextX}" y="15" fill="#010101" fill-opacity=".3">version</text>
 					<text x="{LabelTextX}" y="14">version</text>
-					<text x="{LabelWidth + valueWidth / 2}" y="15" fill="#010101" fill-opacity=".3" text-anchor="middle">{version}</text>
-					<text x="{LabelWidth + valueWidth / 2}" y="14" text-anchor="middle">{version}</text>
+					<text x="{LabelWidth + valueWidth / 2}" y="15" fill="#010101" fill-opacity=".3" text-anchor="middle">{encodedVersion}</text>
+					<text x="{LabelWidth + valueWidth / 2}" y="14" text-anchor="middle">{encodedVersion}</text>
 				  </g>
 				</svg>
 				""");

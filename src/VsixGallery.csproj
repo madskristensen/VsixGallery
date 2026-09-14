@@ -26,5 +26,8 @@
     <None Update="Fonts\DejaVuSans.ttf" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-</Project>
+  <ItemGroup>
+    <InternalsVisibleTo Include="VsixGallery.Tests" />
+  </ItemGroup>
 
+</Project>

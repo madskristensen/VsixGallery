@@ -186,7 +186,7 @@ namespace VsixGallery
 
 		public Package? GetPackage(string? id)
 		{
-			if (string.IsNullOrEmpty(id))
+			if (!PackagePath.IsValidExtensionId(id))
 			{
 				return null;
 			}
@@ -200,7 +200,7 @@ namespace VsixGallery
 				}
 			}
 
-			string folder = Path.Combine(_extensionRoot, id);
+			string folder = PackagePath.GetContainedPath(_extensionRoot, id);
 
 			Package? package = DeserializePackage(folder);
 			if (package is not null)
@@ -238,12 +238,12 @@ namespace VsixGallery
 
 		public string? GetExtensionFolder(string? id)
 		{
-			if (string.IsNullOrEmpty(id))
+			if (!PackagePath.IsValidExtensionId(id))
 			{
 				return null;
 			}
 
-			string folder = Path.Combine(_extensionRoot, id);
+			string folder = PackagePath.GetContainedPath(_extensionRoot, id);
 			return Directory.Exists(folder) ? folder : null;
 		}
 
@@ -259,16 +259,22 @@ namespace VsixGallery
 			return JsonSerializer.Deserialize(content, PackageJsonContext.Default.Package);
 		}
 
-		public async Task<Package> ProcessVsix(IFormFile file, string repo, string issuetracker, string readmeUrl, string? manageToken = null)
+		public async Task<Package> ProcessVsix(
+			IFormFile file,
+			string repo,
+			string issuetracker,
+			string readmeUrl,
+			string? manageToken = null,
+			CancellationToken cancellationToken = default)
 		{
 			if (file == null || file.Length == 0)
 			{
-				throw new InvalidOperationException("No .vsix file was included in the upload request.");
+				throw new InvalidDataException("No .vsix file was included in the upload request.");
 			}
 
 			string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
-			await _uploadLock.WaitAsync();
+			await _uploadLock.WaitAsync(cancellationToken);
 			try
 			{
 				string tempVsix = Path.Combine(tempFolder, "extension.vsix");
@@ -278,17 +284,21 @@ namespace VsixGallery
 					Directory.CreateDirectory(tempFolder);
 				}
 
-				using (FileStream fileStream = new(tempVsix, FileMode.CreateNew))
+				await using (FileStream fileStream = new(tempVsix, FileMode.CreateNew))
 				{
-					await file.CopyToAsync(fileStream);
+					await file.CopyToAsync(fileStream, cancellationToken);
 				}
 
-				ZipFile.ExtractToDirectory(tempVsix, tempFolder);
+				await SafeArchiveExtractor.ExtractAsync(tempVsix, tempFolder, cancellationToken);
 
 				VsixManifestParser parser = new();
 				Package package = parser.CreateFromManifest(tempFolder, repo, issuetracker, readmeUrl);
+				if (!PackagePath.IsValidExtensionId(package.ID))
+				{
+					throw new InvalidDataException("The extension ID contains unsupported characters.");
+				}
 
-				string vsixFolder = Path.Combine(_extensionRoot, package.ID!);
+				string vsixFolder = PackagePath.GetContainedPath(_extensionRoot, package.ID!);
 
 				// Determine which manage token to use:
 				//   - Publisher supplied a token: store its hash. This (re)sets the
@@ -393,7 +403,12 @@ namespace VsixGallery
 			{
 				try
 				{
-					string vsixFolder = Path.Combine(_extensionRoot, package.ID!);
+					if (!PackagePath.IsValidExtensionId(package.ID))
+					{
+						continue;
+					}
+
+					string vsixFolder = PackagePath.GetContainedPath(_extensionRoot, package.ID!);
 					if (Directory.Exists(vsixFolder))
 					{
 						Directory.Delete(vsixFolder, true);
@@ -453,8 +468,28 @@ namespace VsixGallery
 		{
 			try
 			{
-				using SKBitmap source = SKBitmap.Decode(sourceIconPath);
-				if (source == null) return null;
+				const int MaxIconFileBytes = 10_000_000;
+				const int MaxIconDimension = 4_096;
+				if (new FileInfo(sourceIconPath).Length > MaxIconFileBytes)
+				{
+					return null;
+				}
+
+				using SKCodec codec = SKCodec.Create(sourceIconPath);
+				if (codec == null ||
+					codec.Info.Width <= 0 ||
+					codec.Info.Height <= 0 ||
+					codec.Info.Width > MaxIconDimension ||
+					codec.Info.Height > MaxIconDimension)
+				{
+					return null;
+				}
+
+				using SKBitmap source = SKBitmap.Decode(codec);
+				if (source == null)
+				{
+					return null;
+				}
 
 				const int IconSize = 135;
 				SKImageInfo targetInfo = new(IconSize, IconSize, SKColorType.Rgba8888, SKAlphaType.Premul);
@@ -542,12 +577,12 @@ namespace VsixGallery
 		/// </summary>
 		public bool ValidateManageToken(string id, string? token)
 		{
-			if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(token))
+			if (!PackagePath.IsValidExtensionId(id) || string.IsNullOrWhiteSpace(token))
 			{
 				return false;
 			}
 
-			string folder = Path.Combine(_extensionRoot, id);
+			string folder = PackagePath.GetContainedPath(_extensionRoot, id);
 			ManageInfo? info = LoadManageInfo(folder);
 			return info?.TokenHash is not null && TokenMatches(token, info.TokenHash);
 		}
@@ -558,12 +593,12 @@ namespace VsixGallery
 		/// </summary>
 		public bool HasManageToken(string id)
 		{
-			if (string.IsNullOrWhiteSpace(id))
+			if (!PackagePath.IsValidExtensionId(id))
 			{
 				return false;
 			}
 
-			string folder = Path.Combine(_extensionRoot, id);
+			string folder = PackagePath.GetContainedPath(_extensionRoot, id);
 			return LoadManageInfo(folder)?.TokenHash is not null;
 		}
 
@@ -574,12 +609,12 @@ namespace VsixGallery
 		/// </summary>
 		public void SoftDelete(string id)
 		{
-			if (string.IsNullOrWhiteSpace(id))
+			if (!PackagePath.IsValidExtensionId(id))
 			{
 				return;
 			}
 
-			string source = Path.Combine(_extensionRoot, id);
+			string source = PackagePath.GetContainedPath(_extensionRoot, id);
 			if (!Directory.Exists(source))
 			{
 				return;

@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 namespace VsixGallery.Controllers
 {
 	[Route("api")]
-	public class ApiController(PackageHelper helper, IOptions<UploadOptions> uploadOptions) : Controller
+	public class ApiController(
+		PackageHelper helper,
+		IOptions<UploadOptions> uploadOptions,
+		ILogger<ApiController> logger) : Controller
 	{
 		private const string AuthorizationPrefix = "Bearer ";
 		private readonly string? _secretKey = uploadOptions.Value.SecretKey;
@@ -46,8 +49,12 @@ namespace VsixGallery.Controllers
 			return package;
 		}
 
-		[HttpPost("upload"), DisableRequestSizeLimit]
-		public async Task<IActionResult> Upload([FromQuery] string repo, string issuetracker, string readmeUrl)
+		[HttpPost("upload"), RequestSizeLimit(500_000_000)]
+		public async Task<IActionResult> Upload(
+			[FromQuery] string? repo,
+			string? issuetracker,
+			string? readmeUrl,
+			CancellationToken cancellationToken)
 		{
 			if (!IsAuthorized())
 			{
@@ -56,10 +63,13 @@ namespace VsixGallery.Controllers
 
 			try
 			{
-				if (Request.Form.Files.Count == 0)
+				IFormCollection form = await Request.ReadFormAsync(cancellationToken);
+				if (form.Files.Count == 0)
 				{
-					Response.StatusCode = 400;
-					return Content("No .vsix file was included in the upload request.");
+					return Problem(
+						statusCode: StatusCodes.Status400BadRequest,
+						title: "Invalid upload",
+						detail: "No .vsix file was included in the upload request.");
 				}
 
 				// Optional manage token supplied by the publisher. When omitted the
@@ -70,7 +80,13 @@ namespace VsixGallery.Controllers
 					manageToken = tokenValues[0];
 				}
 
-				Package package = await helper.ProcessVsix(Request.Form.Files[0], repo, issuetracker, readmeUrl, manageToken);
+				Package package = await helper.ProcessVsix(
+					form.Files[0],
+					repo ?? string.Empty,
+					issuetracker ?? string.Empty,
+					readmeUrl ?? string.Empty,
+					manageToken,
+					cancellationToken);
 
 				// Surface the absolute manage URL so non-Actions publishers can
 				// see it directly in the upload response body.
@@ -85,15 +101,25 @@ namespace VsixGallery.Controllers
 
 				return Json(package);
 			}
+			catch (InvalidDataException ex)
+			{
+				logger.LogWarning(ex, "Rejected invalid VSIX upload.");
+				return Problem(
+					statusCode: StatusCodes.Status400BadRequest,
+					title: "Invalid VSIX",
+					detail: "The uploaded file is not a valid or safely extractable VSIX package.");
+			}
+			catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+			{
+				throw;
+			}
 			catch (Exception ex)
 			{
-				Response.StatusCode = 500;
-				// HTTP headers cannot contain CR/LF. Exception messages from
-				// ZipFile, IO, etc. frequently do, and attempting to set an
-				// invalid header value would abort the response and surface as
-				// a connection reset to the CI client.
-				Response.Headers["x-error"] = SanitizeHeaderValue(ex.Message);
-				return Content(ex.Message);
+				logger.LogError(ex, "VSIX upload failed.");
+				return Problem(
+					statusCode: StatusCodes.Status500InternalServerError,
+					title: "Upload failed",
+					detail: $"The upload could not be processed. Trace ID: {HttpContext.TraceIdentifier}");
 			}
 		}
 
@@ -122,18 +148,6 @@ namespace VsixGallery.Controllers
 
 			helper.SoftDelete(id);
 			return NoContent();
-		}
-
-		private static string SanitizeHeaderValue(string value)
-		{
-			if (string.IsNullOrEmpty(value))
-			{
-				return string.Empty;
-			}
-
-			return value
-				.Replace("\r", " ")
-				.Replace("\n", " ");
 		}
 
 		private bool IsAuthorized()
