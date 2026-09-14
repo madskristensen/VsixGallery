@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 
 using SkiaSharp;
 
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -58,11 +59,16 @@ namespace VsixGallery
 			RecoverInterruptedChanges();
 			FileProvider = new PhysicalFileProvider(_extensionRoot);
 			_cache = GetAllPackages();
+			_logger.LogInformation(
+				"Extension storage initialized with {PackageCount} package(s). Package mutations require a single application instance.",
+				_cache.Count);
 		}
 
 		public bool IsCustomExtensionPath { get; }
 
 		public IFileProvider FileProvider { get; }
+
+		internal string ExtensionRoot => _extensionRoot;
 
 		public IReadOnlyList<Package> PackageCache
 		{
@@ -281,6 +287,8 @@ namespace VsixGallery
 
 			string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 			string? stagingFolder = null;
+			long startedAt = Stopwatch.GetTimestamp();
+			_logger.LogInformation("VSIX upload processing started for a {UploadBytes}-byte package.", file.Length);
 
 			await _uploadLock.WaitAsync(cancellationToken);
 			try
@@ -381,6 +389,12 @@ namespace VsixGallery
 					package.ManageTokenIncludedInUrl = false;
 				}
 
+				_logger.LogInformation(
+					"Published extension {ExtensionId} version {Version} ({UploadBytes} bytes) in {ElapsedMilliseconds} ms.",
+					package.ID,
+					package.Version,
+					file.Length,
+					Stopwatch.GetElapsedTime(startedAt).TotalMilliseconds);
 				return package;
 			}
 			finally
@@ -731,6 +745,7 @@ namespace VsixGallery
 			{
 				_cache.RemoveAll(p => p.ID == id);
 			}
+			_logger.LogInformation("Moved extension {ExtensionId} to trash.", id);
 		}
 
 		// ---- Admin: trash inspection, restore, hard-delete, purge ----
@@ -830,6 +845,7 @@ namespace VsixGallery
 				_uploadLock.Release();
 			}
 
+			_logger.LogInformation("Restored extension {ExtensionId} from trash.", id);
 			return true;
 		}
 
@@ -860,6 +876,7 @@ namespace VsixGallery
 				_uploadLock.Release();
 			}
 
+			_logger.LogInformation("Permanently deleted trash entry {TrashEntry}.", trashFolderName);
 			return true;
 		}
 
