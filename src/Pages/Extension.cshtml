@@ -87,9 +87,6 @@
             <dt>Updated</dt>
             <dd title="@Model.Package.DatePublished.ToUniversalTime()">@Model.Package.TimeAgo()</dd>
 
-            <dt>Provenance</dt>
-            <dd>Publisher-provided package</dd>
-
             @if (!string.IsNullOrWhiteSpace(Model.Package.Sha256))
             {
                 <dt>SHA-256</dt>
