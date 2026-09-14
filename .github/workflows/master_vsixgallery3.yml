@@ -41,6 +41,7 @@ jobs:
         run: |
           python - <<'PY'
           import glob
+          import os
           import xml.etree.ElementTree as ET
 
           reports = glob.glob("TestResults/**/coverage.cobertura.xml", recursive=True)
@@ -51,6 +52,16 @@ jobs:
           line = float(coverage.attrib["line-rate"]) * 100
           branch = float(coverage.attrib["branch-rate"]) * 100
           print(f"Coverage: {line:.1f}% lines, {branch:.1f}% branches")
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write(
+                  "## Test coverage\n\n"
+                  "| Metric | Coverage | Required |\n"
+                  "| --- | ---: | ---: |\n"
+                  f"| Lines | {line:.1f}% | 50.0% |\n"
+                  f"| Branches | {branch:.1f}% | 30.0% |\n"
+              )
+
           if line < 50 or branch < 30:
               raise SystemExit("Coverage fell below the 50% line / 30% branch floor")
           PY
