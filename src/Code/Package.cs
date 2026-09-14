@@ -43,6 +43,7 @@ namespace VsixGallery
 		public string? Repo { get; set; }
 		public string? IssueTracker { get; set; }
 		public string? ReadmeUrl { get; set; }
+		public string? Sha256 { get; set; }
 		public ExtensionList? ExtensionList { get; set; }
 
 			/// <summary>
