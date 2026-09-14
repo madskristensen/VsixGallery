@@ -9,6 +9,7 @@ namespace VsixGallery.Pages
 		public void OnGet()
 		{
 			Response.StatusCode = 404;
+			Response.Headers.CacheControl = "no-store";
 		}
 	}
 }

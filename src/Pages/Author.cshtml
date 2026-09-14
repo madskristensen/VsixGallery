@@ -1,13 +1,14 @@
 ﻿@page "{author?}"
 @model AuthorModel
 @using System.Text.Json
+@inject VsixGallery.PublicUrl _publicUrl
 @{
     ViewData["Title"] = "Extensions by " + Model.Author;
     ViewData["FeedUrl"] = $"/feed/author/{Uri.EscapeDataString(Model.Author ?? string.Empty)}";
     ViewData["FeedTitle"] = $"Extensions by {Model.Author}";
 
     var request = ViewContext.HttpContext.Request;
-    string baseUrl = $"{request.Scheme}://{request.Host}";
+    string baseUrl = _publicUrl.GetOrigin(request);
     var jsonLd = new Dictionary<string, object>
     {
         ["@context"] = "https://schema.org",
@@ -28,7 +29,7 @@
 
 <h1>
     Extensions by @Model.Author
-    <a href="~/feed/" class="feed shadow" title="ATOM feed for extensions by @Model.Author">Gallery feed (author)</a>
+    <a href="@ViewData["FeedUrl"]" class="feed shadow" title="ATOM feed for extensions by @Model.Author">Gallery feed (author)</a>
 </h1>
 
 @await Html.PartialAsync("_ExtensionList", Model.Packages)

@@ -70,6 +70,7 @@ builder.Services.Configure<FormOptions>(options =>
 // PackageHelper caches packages, so we need to register it as a singleton.
 builder.Services.AddSingleton<PackageHelper>();
 builder.Services.AddSingleton<SocialCardRenderer>();
+builder.Services.AddSingleton<PublicUrl>();
 builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.Configure<ExtensionsOptions>(builder.Configuration.GetSection("Extensions"));

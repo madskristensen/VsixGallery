@@ -2,6 +2,7 @@
 @model ExtensionModel
 @using System.Text.Json;
 @using VsixGallery;
+@inject VsixGallery.PublicUrl _publicUrl
 
 @{
     ViewData["Title"] = Model.Package!.Name;
@@ -15,7 +16,7 @@
     ViewData["FeedTitle"] = $"{Model.Package.Name} – extension feed";
 
     var request = ViewContext.HttpContext.Request;
-    string baseUrl = $"{request.Scheme}://{request.Host}";
+    string baseUrl = _publicUrl.GetOrigin(request);
     var jsonLd = new Dictionary<string, object>
     {
         ["@context"] = "https://schema.org",
@@ -113,6 +114,9 @@
             @if (!string.IsNullOrWhiteSpace(Model.Package.Repo))
             {
                 <li><a href="@Model.Package.Repo" rel="noopener noreferrer">✎ Source code</a></li>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Package.IssueTracker))
+            {
                 <li><a href="@Model.Package.IssueTracker" rel="noopener noreferrer">✓ Issue tracker</a></li>
             }
 
@@ -175,4 +179,3 @@
         <script src="~/js/readme.js" defer></script>
     }
 </article>
-

@@ -12,6 +12,7 @@ namespace VsixGallery.Controllers
 	public class ApiController(
 		PackageHelper helper,
 		IOptions<UploadOptions> uploadOptions,
+		PublicUrl publicUrl,
 		ILogger<ApiController> logger) : Controller
 	{
 		private const string AuthorizationPrefix = "Bearer ";
@@ -24,7 +25,9 @@ namespace VsixGallery.Controllers
 
 			if (string.IsNullOrWhiteSpace(id))
 			{
-				IOrderedEnumerable<Package> packages = helper.PackageCache.OrderByDescending(p => p.DatePublished);
+				IOrderedEnumerable<Package> packages = helper.PackageCache
+					.Where(p => !p.Unlisted)
+					.OrderByDescending(p => p.DatePublished);
 
 				if (this.IsConditionalGet(packages))
 				{
@@ -92,14 +95,14 @@ namespace VsixGallery.Controllers
 				// see it directly in the upload response body.
 				if (!string.IsNullOrEmpty(package.ManageUrl))
 				{
-					string baseUrl = $"{Request.Scheme}://{Request.Host}";
+					string baseUrl = publicUrl.GetOrigin(Request);
 					if (package.ManageUrl.StartsWith('/'))
 					{
 						package.ManageUrl = baseUrl + package.ManageUrl;
 					}
 				}
 
-				return Json(package);
+				return Created(package.DetailsLink, package);
 			}
 			catch (InvalidDataException ex)
 			{

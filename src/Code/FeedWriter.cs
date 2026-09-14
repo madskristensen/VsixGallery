@@ -13,16 +13,21 @@ namespace VsixGallery
 			StringBuilder sb = new();
 			XmlWriterSettings settings = new()
 			{
-				Indent = true
+				Indent = true,
+				Encoding = Encoding.UTF8,
 			};
 
-			using (XmlWriter writer = XmlWriter.Create(sb, settings))
+			using (StringWriter textWriter = new Utf8StringWriter(sb))
+			using (XmlWriter writer = XmlWriter.Create(textWriter, settings))
 			{
 				writer.WriteStartElement("feed", "http://www.w3.org/2005/Atom");
 
 				writer.WriteElementString("title", "VSIX Gallery");
 				writer.WriteElementString("id", "5a7c2525-ddd8-4c44-b2e3-f57ba01a0d81");
-				writer.WriteElementString("updated", DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+				DateTime updated = packages.Length == 0
+					? DateTime.UnixEpoch
+					: packages.Max(p => p.DatePublished).ToUniversalTime();
+				writer.WriteElementString("updated", updated.ToString("yyyy-MM-ddTHH:mm:ssZ"));
 				writer.WriteElementString("subtitle", "Add this feed to Visual Studio's extension manager from Tools -> Options -> Environment -> Extensions and Updates");
 
 				writer.WriteStartElement("link");
@@ -38,7 +43,7 @@ namespace VsixGallery
 				writer.WriteEndElement(); // feed
 			}
 
-			return sb.ToString().Replace("utf-16", "utf-8");
+			return sb.ToString();
 		}
 
 		private static void AddEntry(XmlWriter writer, Package package, string baseUrl)
@@ -62,8 +67,9 @@ namespace VsixGallery
 			writer.WriteValue(package.Description);
 			writer.WriteEndElement(); // summary
 
-			writer.WriteElementString("published", package.DatePublished.ToString("yyyy-MM-ddTHH:mm:ssZ"));
-			writer.WriteElementString("updated", package.DatePublished.ToString("yyyy-MM-ddTHH:mm:ssZ"));
+			string published = package.DatePublished.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+			writer.WriteElementString("published", published);
+			writer.WriteElementString("updated", published);
 
 			writer.WriteStartElement("author");
 			writer.WriteElementString("name", package.Author);
@@ -111,6 +117,11 @@ namespace VsixGallery
 
 			writer.WriteRaw("</Vsix>");// Vsix
 			writer.WriteEndElement(); // entry
+		}
+
+		private sealed class Utf8StringWriter(StringBuilder builder) : StringWriter(builder)
+		{
+			public override Encoding Encoding => Encoding.UTF8;
 		}
 	}
 }

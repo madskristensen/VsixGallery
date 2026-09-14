@@ -27,6 +27,7 @@ namespace VsixGallery.Pages
 		public void OnGet()
 		{
 			RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+			Response.Headers.CacheControl = "no-store";
 		}
 	}
 }

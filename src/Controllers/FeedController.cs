@@ -9,17 +9,19 @@ namespace VsixGallery.Controllers
 	{
 		private readonly PackageHelper _helper;
 		private readonly FeedWriter _feed;
+		private readonly PublicUrl _publicUrl;
 
-		public FeedController(PackageHelper helper)
+		public FeedController(PackageHelper helper, PublicUrl publicUrl)
 		{
 			_helper = helper;
+			_publicUrl = publicUrl;
 			_feed = new FeedWriter();
 		}
 
 		[HttpGet("")]
 		public IActionResult Index()
 		{
-			Response.ContentType = "text/xml";
+			Response.ContentType = "application/atom+xml; charset=utf-8";
 			Package[] packages = [.. _helper.PackageCache
 				.Where(p => !p.Unlisted)
 				.OrderByDescending(p => p.DatePublished)];
@@ -29,14 +31,14 @@ namespace VsixGallery.Controllers
 				return new EmptyResult();
 			}
 
-			string baseUrl = Request.Scheme + "://" + Request.Host;
+			string baseUrl = _publicUrl.GetOrigin(Request);
 			return Content(_feed.GetFeed(baseUrl, packages));
 		}
 
 		[HttpGet("extension/{id}")]
 		public IActionResult Extension(string id)
 		{
-			Response.ContentType = "text/xml";
+			Response.ContentType = "application/atom+xml; charset=utf-8";
 
 			if (!string.IsNullOrEmpty(id))
 			{
@@ -52,7 +54,7 @@ namespace VsixGallery.Controllers
 					return new EmptyResult();
 				}
 
-				string baseUrl = Request.Scheme + "://" + Request.Host;
+				string baseUrl = _publicUrl.GetOrigin(Request);
 				return Content(_feed.GetFeed(baseUrl, package));
 			}
 
@@ -62,8 +64,8 @@ namespace VsixGallery.Controllers
 		[HttpGet("author/{id}")]
 		public IActionResult Author(string id)
 		{
-			Response.ContentType = "text/xml";
-			string baseUrl = Request.Scheme + "://" + Request.Host;
+			Response.ContentType = "application/atom+xml; charset=utf-8";
+			string baseUrl = _publicUrl.GetOrigin(Request);
 
 			if (!string.IsNullOrEmpty(id))
 			{

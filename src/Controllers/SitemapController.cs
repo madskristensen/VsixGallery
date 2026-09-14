@@ -1,39 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
 
 using System.Text;
+using System.Xml;
 
 namespace VsixGallery.Controllers
 {
 	[Route("sitemap.xml")]
-	public class SitemapController(PackageHelper helper) : Controller
+	public class SitemapController(PackageHelper helper, PublicUrl publicUrl) : Controller
 	{
 		private static readonly string[] _staticPaths = ["/", "/devguide", "/feedguide"];
 
 		[HttpGet]
 		public IActionResult Index()
 		{
-			string baseUrl = $"{Request.Scheme}://{Request.Host}";
-
-			StringBuilder sb = new();
-			sb.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-			sb.Append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
-
-			foreach (string path in _staticPaths)
+			string baseUrl = publicUrl.GetOrigin(Request);
+			StringBuilder output = new();
+			XmlWriterSettings settings = new()
 			{
-				sb.Append("<url><loc>").Append(baseUrl).Append(path).Append("</loc></url>");
+				Encoding = Encoding.UTF8,
+				OmitXmlDeclaration = false,
+			};
+
+			using (StringWriter textWriter = new Utf8StringWriter(output))
+			using (XmlWriter writer = XmlWriter.Create(textWriter, settings))
+			{
+				writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+				foreach (string path in _staticPaths)
+				{
+					WriteUrl(writer, baseUrl + path, null);
+				}
+
+				foreach (Package package in helper.PackageCache.Where(p => !p.Unlisted))
+				{
+					WriteUrl(writer, baseUrl + package.DetailsLink, package.DatePublished);
+				}
+
+				writer.WriteEndElement();
 			}
 
-			foreach (Package package in helper.PackageCache.Where(p => !p.Unlisted))
+			return Content(output.ToString(), "application/xml", Encoding.UTF8);
+		}
+
+		private static void WriteUrl(XmlWriter writer, string location, DateTime? lastModified)
+		{
+			writer.WriteStartElement("url");
+			writer.WriteElementString("loc", location);
+			if (lastModified.HasValue)
 			{
-				sb.Append("<url>");
-				sb.Append("<loc>").Append(baseUrl).Append(package.DetailsLink).Append("</loc>");
-				sb.Append("<lastmod>").Append(package.DatePublished.ToUniversalTime().ToString("yyyy-MM-dd")).Append("</lastmod>");
-				sb.Append("</url>");
+				writer.WriteElementString("lastmod", lastModified.Value.ToUniversalTime().ToString("yyyy-MM-dd"));
 			}
+			writer.WriteEndElement();
+		}
 
-			sb.Append("</urlset>");
-
-			return Content(sb.ToString(), "application/xml", Encoding.UTF8);
+		private sealed class Utf8StringWriter(StringBuilder builder) : StringWriter(builder)
+		{
+			public override Encoding Encoding => Encoding.UTF8;
 		}
 	}
 }

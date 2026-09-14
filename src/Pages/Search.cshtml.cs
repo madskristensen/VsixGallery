@@ -44,7 +44,7 @@ namespace VsixGallery.Pages
 				.Take(_pageSize);
 		}
 
-		private static IEnumerable<Package> Lookup(string q, IEnumerable<Package> packages)
+		internal static IEnumerable<Package> Lookup(string q, IEnumerable<Package> packages)
 		{
 			// Split into tokens so "git lens" matches packages containing both words.
 			string[] tokens = q.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -53,6 +53,7 @@ namespace VsixGallery.Pages
 			foreach (Package package in packages)
 			{
 				int total = 0;
+				bool allTokensMatched = true;
 				foreach (string token in tokens)
 				{
 					int points = 0;
@@ -74,10 +75,16 @@ namespace VsixGallery.Pages
 						points += 1;
 					}
 
+					if (points == 0)
+					{
+						allTokensMatched = false;
+						break;
+					}
+
 					total += points;
 				}
 
-				if (total > 0)
+				if (allTokensMatched && total > 0)
 				{
 					scores[package] = total;
 				}

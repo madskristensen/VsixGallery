@@ -4,6 +4,8 @@
 	{
 		public string? SiteName { get; set; }
 
+		public string? SiteUrl { get; set; }
+
 		public bool HideSetupLink { get; set; }
 
 		public bool HideUploadGuideLink { get; set; }

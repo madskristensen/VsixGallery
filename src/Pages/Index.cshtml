@@ -1,6 +1,7 @@
 ﻿@page
 @model IndexModel
 @using System.Text.Json
+@inject VsixGallery.PublicUrl _publicUrl
 @{
     ViewData["Title"] = ViewData["SiteName"];
     ViewData["Description"] = "Browse all Visual Studio extensions published to this alternative VSIX gallery. Includes nightly builds and extensions not available on the official Marketplace.";
@@ -8,7 +9,7 @@
     ViewData["FeedTitle"] = $"{ViewData["SiteName"]} – all extensions";
 
     var request = ViewContext.HttpContext.Request;
-    string baseUrl = $"{request.Scheme}://{request.Host}";
+    string baseUrl = _publicUrl.GetOrigin(request);
     var jsonLd = new Dictionary<string, object>
     {
         ["@context"] = "https://schema.org",

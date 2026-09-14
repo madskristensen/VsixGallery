@@ -31,15 +31,14 @@ namespace VsixGallery.Pages
 			List<Package> packages = [.. _helper.PackageCache.Where(p => !p.Unlisted)];
 
 			int totalCount = packages.Count;
-			int skip = (page - 1) * _pageSize;
+			Pages = Math.Max(1, (totalCount + _pageSize - 1) / _pageSize);
+			CurrentPage = Math.Clamp(page, 1, Pages);
+			int skip = (CurrentPage - 1) * _pageSize;
 
 			Packages = packages.OrderByDescending(p => p.DatePublished)
 							  .Skip(skip)
 							  .Take(_pageSize);
 
-			// Calculate total pages, rounding up to include partial last page
-			Pages = (totalCount + _pageSize - 1) / _pageSize;
-			CurrentPage = page;
 		}
 	}
 }
