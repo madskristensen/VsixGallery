@@ -12,7 +12,7 @@ This plan tracks implementation of the September 2026 website audit. Each work i
 - [x] 6. Improve accessibility, SEO, performance, content quality, and broken-link handling.
 - [x] 7. Add operational safeguards: health checks, storage diagnostics, and useful telemetry/logging.
 - [x] 8. Harden dependencies and CI: reproducible restore, PR validation, dependency automation, deployment serialization, smoke checks, and safer action references.
-- [ ] 9. Run final build/tests and verify the commit history and clean working tree.
+- [x] 9. Run final build/tests and verify the commit history and clean working tree.
 
 ## Explicit exclusions
 
@@ -36,7 +36,7 @@ Security fixes that do not alter those authentication or ownership models remain
 | Web quality | Complete | `web: improve quality and content` |
 | Operations | Complete | `ops: add storage health and diagnostics` |
 | Dependencies and CI | Complete | `build: harden dependencies and delivery` |
-| Final validation | Pending | Pending |
+| Final validation | Complete | `chore: complete audit validation` |
 
 ## Validation
 
@@ -46,3 +46,4 @@ Each work item will receive the smallest relevant build/test pass before its com
 - Web quality: main project build and all 39 tests passed; local HTTP smoke tests verified fingerprinted CSS, strict CSP, search/404 robots directives, and current guide content.
 - Operations: main and test project builds succeeded; all 42 tests passed; HTTP smoke tests verified direct 200 liveness/readiness JSON with no-store caching and storage capacity data.
 - Dependencies and CI: locked restore, build, and all 43 tests passed; NuGet reported no known vulnerabilities or outdated packages; workflow YAML parsed successfully; production-mode smoke tests verified query-safe output caching.
+- Final validation: locked Release restore and build succeeded; all 43 tests passed; production-mode HTTP smoke tests verified readiness, homepage, search noindex, canonical metadata, strict CSP, and 404 behavior; commit history and clean working tree were confirmed before this final plan update.
