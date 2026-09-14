@@ -51,9 +51,6 @@ jobs:
     concurrency:
       group: vsixgallery-production
       cancel-in-progress: false
-    environment:
-      name: Production
-      url: https://www.vsixgallery.com
     permissions:
       id-token: write
       contents: read
