@@ -173,9 +173,14 @@
         </div>
     }
 
-    @if (!string.IsNullOrWhiteSpace(Model.Package.ReadmeUrl))
+    @if (!string.IsNullOrWhiteSpace(Model.ReadmeHtml))
     {
-        <p id="readme" data-url="@Model.Package.ReadmeUrl">Loading...</p>
-        <script src="~/js/readme.js" defer></script>
+        <section id="readme" aria-label="Extension README">
+            @Html.Raw(Model.ReadmeHtml)
+        </section>
+    }
+    else if (!string.IsNullOrWhiteSpace(Model.Package.ReadmeUrl))
+    {
+        <p class="readme-unavailable">The extension README is temporarily unavailable.</p>
     }
 </article>

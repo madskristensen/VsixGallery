@@ -41,6 +41,12 @@ builder.Services.AddHsts(options =>
 });
 
 builder.Services.AddOutputCaching();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<ReadmeService>(client =>
+{
+	client.BaseAddress = new Uri("https://markdownservice.azurewebsites.net/");
+	client.Timeout = TimeSpan.FromSeconds(15);
+});
 
 // Response compression replaces the IIS <httpCompression> section so it
 // works on both Kestrel (Linux) and IIS.

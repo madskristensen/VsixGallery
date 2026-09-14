@@ -7,18 +7,27 @@ namespace VsixGallery.Pages
 	public class ExtensionModel : PageModel
 	{
 		private readonly PackageHelper _helper;
+		private readonly ReadmeService _readmeService;
 
 		public Package? Package { get; private set; }
+		public string? ReadmeHtml { get; private set; }
 
-		public ExtensionModel(PackageHelper helper)
+		public ExtensionModel(PackageHelper helper, ReadmeService readmeService)
 		{
 			_helper = helper;
+			_readmeService = readmeService;
 		}
 
-		public IActionResult OnGet([FromRoute] string id)
+		public async Task<IActionResult> OnGetAsync([FromRoute] string id, CancellationToken cancellationToken)
 		{
 			Package = _helper.GetPackage(id);
-			return Package is null ? NotFound() : Page();
+			if (Package is null)
+			{
+				return NotFound();
+			}
+
+			ReadmeHtml = await _readmeService.GetSanitizedHtmlAsync(Package.ReadmeUrl, cancellationToken);
+			return Page();
 		}
 	}
 }

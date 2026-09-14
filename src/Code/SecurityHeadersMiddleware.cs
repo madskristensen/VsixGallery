@@ -23,13 +23,12 @@ private const string BaseCspPrefix = "default-src 'self'; ";
 private const string BaseCspSuffix =
 "img-src 'self' data: https:; " +
 "font-src 'self'; " +
-"connect-src 'self' https://markdownservice.azurewebsites.net; " +
+"connect-src 'self'; " +
 "frame-ancestors 'none'; " +
 "base-uri 'self'; " +
 "form-action 'self'; " +
 "object-src 'none'; " +
 "require-trusted-types-for 'script'; " +
-"trusted-types markdown-html; " +
 "upgrade-insecure-requests";
 
 public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
