@@ -30,7 +30,30 @@ jobs:
         run: dotnet restore ./VsixGallery.sln --locked-mode
 
       - name: Test
-        run: dotnet test ./VsixGallery.sln -c Release --no-restore
+        run: >-
+          dotnet test ./VsixGallery.sln -c Release --no-restore
+          --collect:"XPlat Code Coverage"
+          --settings ./tests/coverage.runsettings
+          --results-directory ./TestResults
+
+      - name: Enforce coverage floor
+        shell: bash
+        run: |
+          python - <<'PY'
+          import glob
+          import xml.etree.ElementTree as ET
+
+          reports = glob.glob("TestResults/**/coverage.cobertura.xml", recursive=True)
+          if len(reports) != 1:
+              raise SystemExit(f"Expected one coverage report, found {len(reports)}")
+
+          coverage = ET.parse(reports[0]).getroot()
+          line = float(coverage.attrib["line-rate"]) * 100
+          branch = float(coverage.attrib["branch-rate"]) * 100
+          print(f"Coverage: {line:.1f}% lines, {branch:.1f}% branches")
+          if line < 50 or branch < 30:
+              raise SystemExit("Coverage fell below the 50% line / 30% branch floor")
+          PY
 
       - name: Publish
         if: github.event_name != 'pull_request'

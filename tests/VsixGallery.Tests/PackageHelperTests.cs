@@ -5,9 +5,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-using System.IO.Compression;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace VsixGallery.Tests;
 
@@ -16,8 +14,9 @@ public class PackageHelperTests
 	[Fact]
 	public async Task ProcessVsix_PublishesPackageAndInvalidatesGalleryCache()
 	{
+		const string id = "Example.Extension";
 		using TemporaryGallery gallery = new();
-		byte[] vsix = CreateVsix("Example.Extension", "1.2.3");
+		byte[] vsix = TestVsix.Create(id, "1.2.3");
 		using MemoryStream stream = new(vsix);
 		FormFile file = new(stream, 0, stream.Length, "file", "example.vsix");
 
@@ -28,7 +27,7 @@ public class PackageHelperTests
 			string.Empty,
 			cancellationToken: CancellationToken.None);
 
-		Assert.Equal("Example.Extension", package.ID);
+		Assert.Equal(id, package.ID);
 		Assert.Equal("1.2.3", package.Version);
 		Assert.Equal(Convert.ToHexStringLower(SHA256.HashData(vsix)), package.Sha256);
 		Assert.True(package.ManageTokenIncludedInUrl);
@@ -43,7 +42,7 @@ public class PackageHelperTests
 		Assert.DoesNotContain("ManageTokenIncludedInUrl", metadata, StringComparison.Ordinal);
 
 		string token = Uri.UnescapeDataString(package.ManageUrl!.Split("?token=", 2)[1]);
-		Assert.True(gallery.Helper.ValidateManageToken(package.ID, token));
+		Assert.True(gallery.Helper.ValidateManageToken(id, token));
 	}
 
 	[Fact]
@@ -90,36 +89,6 @@ public class PackageHelperTests
 		Assert.Equal(4, gallery.CacheVersion.Value);
 	}
 
-	private static byte[] CreateVsix(string id, string version)
-	{
-		const string description = "A sufficiently detailed extension description for validation.";
-		string manifest =
-			$"""
-			<?xml version="1.0" encoding="utf-8"?>
-			<PackageManifest Version="2.0.0">
-			  <Metadata>
-			    <Identity Id="{id}" Version="{version}" Language="en-US" Publisher="Example Publisher" />
-			    <DisplayName>Example Extension</DisplayName>
-			    <Description>{description}</Description>
-			    <MoreInfo>https://github.com/example/project</MoreInfo>
-			  </Metadata>
-			  <Installation>
-			    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,19.0)" />
-			  </Installation>
-			</PackageManifest>
-			""";
-
-		using MemoryStream output = new();
-		using (ZipArchive archive = new(output, ZipArchiveMode.Create, leaveOpen: true))
-		{
-			ZipArchiveEntry entry = archive.CreateEntry("extension.vsixmanifest");
-			using StreamWriter writer = new(entry.Open(), Encoding.UTF8);
-			writer.Write(manifest);
-		}
-
-		return output.ToArray();
-	}
-
 	private sealed class TemporaryGallery : IDisposable
 	{
 		public TemporaryGallery()
@@ -148,7 +117,7 @@ public class PackageHelperTests
 
 		public async Task<Package> PublishAsync(string id, string version, string? manageToken)
 		{
-			byte[] vsix = CreateVsix(id, version);
+			byte[] vsix = TestVsix.Create(id, version);
 			using MemoryStream stream = new(vsix);
 			FormFile file = new(stream, 0, stream.Length, "file", $"{id}.vsix");
 			return await Helper.ProcessVsix(
@@ -177,7 +146,7 @@ public class PackageHelperTests
 		public ValueTask SetAsync(
 			string key,
 			byte[] value,
-			string[] tags,
+			string[]? tags,
 			TimeSpan validFor,
 			CancellationToken cancellationToken) =>
 			ValueTask.CompletedTask;
