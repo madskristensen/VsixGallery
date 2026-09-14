@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace VsixGallery;
 
 internal static class PackagePath
@@ -5,7 +7,7 @@ internal static class PackagePath
 	private static readonly StringComparison _pathComparison =
 		OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
-	public static bool IsValidExtensionId(string? id)
+	public static bool IsValidExtensionId([NotNullWhen(true)] string? id)
 	{
 		if (string.IsNullOrWhiteSpace(id) || id.Length > 200 || id is "." or "..")
 		{

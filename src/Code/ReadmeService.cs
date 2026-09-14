@@ -4,6 +4,8 @@ using AngleSharp.Dom;
 
 using Microsoft.Extensions.Caching.Memory;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace VsixGallery;
 
 public sealed class ReadmeService(
@@ -123,7 +125,7 @@ public sealed class ReadmeService(
 		return sanitizer;
 	}
 
-	private static bool IsSafeSource(string? value, out Uri? source)
+	private static bool IsSafeSource(string? value, [NotNullWhen(true)] out Uri? source)
 	{
 		source = null;
 		if (!Uri.TryCreate(value, UriKind.Absolute, out Uri? candidate) ||
