@@ -25,6 +25,26 @@ public class SafeArchiveExtractorTests
 			SafeArchiveExtractor.ExtractAsync(archive.Path, archive.Destination, CancellationToken.None));
 	}
 
+	[Fact]
+	public async Task ExtractAsync_RejectsUnsafeCompressionRatio()
+	{
+		using TemporaryArchive archive = TemporaryArchive.Create(("content.txt", new string('a', 100_000)));
+
+		await Assert.ThrowsAsync<InvalidDataException>(() =>
+			SafeArchiveExtractor.ExtractAsync(archive.Path, archive.Destination, CancellationToken.None));
+	}
+
+	[Fact]
+	public async Task ExtractAsync_ObservesCancellation()
+	{
+		using TemporaryArchive archive = TemporaryArchive.Create(("content.txt", "safe"));
+		using CancellationTokenSource cancellation = new();
+		cancellation.Cancel();
+
+		await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+			SafeArchiveExtractor.ExtractAsync(archive.Path, archive.Destination, cancellation.Token));
+	}
+
 	private sealed class TemporaryArchive : IDisposable
 	{
 		private readonly string _root;
