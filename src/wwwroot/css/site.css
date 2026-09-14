@@ -6,8 +6,11 @@
     --primary: #3b5bdb;
     --primary-dark: #2f4abf;
     --primary-light: #748ffc;
-    --accent: #ff6b35;
-    --accent-dark: #e85a2a;
+    --accent: #c2410c;
+    --accent-dark: #9a3412;
+    --cta-start: #c2410c;
+    --cta-end: #9a3412;
+    --focus-ring: #1d4ed8;
 
     /* Neutral colors */
     --light-backdrop: #e5e7eb;
@@ -51,6 +54,9 @@
         --primary-light: #bac8ff;
         --accent: #ff8c5a;
         --accent-dark: #ff6b35;
+        --cta-start: #c2410c;
+        --cta-end: #9a3412;
+        --focus-ring: #a5b4fc;
 
         --light-backdrop: #374151;
         --dark-backdrop: #1f2937;
@@ -175,7 +181,6 @@ header form input[type=search] {
     padding: 10px 16px;
     border: 1px solid var(--light-backdrop);
     border-radius: var(--radius-full);
-    outline: none;
     background: var(--background);
     color: var(--text-primary);
     font-size: 14px;
@@ -203,7 +208,7 @@ header .cta-button {
     display: inline-flex;
     align-items: center;
     padding: 10px 18px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    background: linear-gradient(135deg, var(--cta-start) 0%, var(--cta-end) 100%);
     color: white;
     font-size: 0.9rem;
     font-weight: 600;
@@ -437,6 +442,11 @@ a:focus {
     color: var(--primary-dark);
 }
 
+:where(a, button, input, summary):focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 3px;
+}
+
 img {
     max-width: 100%;
 }
@@ -625,7 +635,9 @@ footer #copyright {
     }
 
     .mobile-menu .mobile-search {
-        width: 250px;
+        display: flex;
+        width: min(100%, 320px);
+        gap: 0.5rem;
     }
 
     .mobile-menu .mobile-search label {
@@ -635,11 +647,11 @@ footer #copyright {
 
     .mobile-menu .mobile-search input[type=search] {
         display: block;
-        width: 100%;
+        flex: 1 1 auto;
+        min-width: 0;
         padding: 10px 16px;
         border: 1px solid var(--light-backdrop);
         border-radius: var(--radius-full);
-        outline: none;
         background: var(--background);
         color: var(--text-primary);
         font-size: 16px;
@@ -658,7 +670,17 @@ footer #copyright {
     }
 
     .mobile-menu .mobile-search button {
-        display: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 14px;
+        border: 0;
+        border-radius: var(--radius-full);
+        background: var(--primary);
+        color: var(--surface);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
     }
 
     .mobile-menu nav {
@@ -705,6 +727,17 @@ footer #copyright {
     .container {
         padding-left: max(.5em, env(safe-area-inset-left));
         padding-right: max(.5em, env(safe-area-inset-right));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
     }
 }
 
@@ -767,7 +800,6 @@ footer #copyright {
     background: var(--surface);
     color: var(--text-primary);
     font-size: 0.95rem;
-    outline: none;
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -804,7 +836,7 @@ footer #copyright {
 
 .manage-form .btn-danger,
 .manage-form button.cta-button {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    background: linear-gradient(135deg, var(--cta-start) 0%, var(--cta-end) 100%);
     box-shadow: 0 2px 8px var(--accent-shadow);
 }
 
@@ -951,7 +983,7 @@ footer #copyright {
 }
 
 .admin-page button.btn-danger {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    background: linear-gradient(135deg, var(--cta-start) 0%, var(--cta-end) 100%);
     box-shadow: 0 2px 8px var(--accent-shadow);
 }
 
@@ -1000,7 +1032,6 @@ footer #copyright {
     background: var(--background);
     color: var(--text-primary);
     font-size: 0.95rem;
-    outline: none;
     margin-bottom: 1rem;
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -1053,4 +1084,3 @@ footer #copyright {
         margin-bottom: 0.2rem;
     }
 }
-

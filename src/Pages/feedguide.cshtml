@@ -13,13 +13,13 @@
 <section>
     <h2>Get the Open VSIX Gallery extension</h2>
     <p>
-        To get automatic updates to any of your installed extensions that publishes their nightly builds to this website,
+        To get automatic updates to installed extensions that publish nightly builds to this website,
         simply install the
         <a href="https://marketplace.visualstudio.com/items?itemName=MadsKristensen.VSIXGallery-nightlybuilds">
             Open VSIX Gallery
         </a>
-        extension. The extension just registers the main feed into Visual Studio for you, so you don't have to do it 
-        manually. If you want to make any customizations instead, please continue reading. 
+        extension. It registers the main feed in Visual Studio for you. If you use Visual Studio Enterprise
+        and want to choose specific feeds instead, continue with the manual setup below.
     </p>
 </section>
 
@@ -37,42 +37,34 @@
 
         <dt>Feed per author</dt>
         <dd>
-            Each extension author has their own feed, so you can choose to subsribe to one or more
+            Each extension author has their own feed, so you can choose to subscribe to one or more
             authors' extensions.
         </dd>
 
         <dt>Feed for individual extension</dt>
         <dd>
-            If you're only interested in getting updates to specific extensions, then you can subsribe
-            to feeds for that one extension.
+            If you're only interested in updates to a specific extension, you can subscribe to its feed.
         </dd>
     </dl>
 </section>
 
 <section>
-    <h2>Setup</h2>
-    <p>In Visual Studio go to <strong>Tools -> Options -> Environment -> Extensions and Updates</strong>.</p>
-    <p><img src="/img/visual-studio-options-dialog.png?v=1" alt="Visual Studio options dialog" /></p>
-
-
-    <p>Click the <strong>Add</strong> button and fill in the name and URL fields.</p>
-    <p><strong>Name</strong>: Give it a name you like</p>
-    <p><strong>URL</strong>: Could be the main feed <a href="/feed/">https://www.vsixgallery.com/feed/</a></p>
-    <p>And finally click the <strong>Apply</strong> button.</p>
-
+    <h2>Set up a feed manually</h2>
     <p>
-        That's it. You've now added the nightly feed to Visual Studio and updates will start to show up in
-        <strong>Tools -> Extensions and Updates</strong> dialog
+        Additional extension galleries are a Visual Studio Enterprise feature. In Visual Studio 2022,
+        open <strong>Tools &gt; Options &gt; Environment &gt; Extensions</strong>. Under
+        <strong>Additional Extension Galleries</strong>, select <strong>Add</strong>.
     </p>
-
-    <br />
-
-    <h3>Extensions and Updates</h3>
+    <ol>
+        <li>Enter a descriptive name, such as <strong>Open VSIX Gallery</strong>.</li>
+        <li>Enter the feed URL. For the main feed, use <a href="/feed/">https://www.vsixgallery.com/feed/</a>.</li>
+        <li>Select <strong>OK</strong> to save the gallery.</li>
+    </ol>
     <p>
-        You can now see the updates coming in to the <strong>Tools -> Extensions and Updates</strong> dialog.
+        See Microsoft&rsquo;s
+        <a href="https://learn.microsoft.com/visualstudio/ide/configure-extension-update-options#add-private-extension-galleries"
+           rel="noopener noreferrer">extension gallery documentation</a>
+        for the current Visual Studio instructions.
     </p>
-
-    <p><img src="/img/visual-studio-extensions-updates.png?v=1" alt="Visual Studio Extensions and Updates" /></p>
 </section>
-
 

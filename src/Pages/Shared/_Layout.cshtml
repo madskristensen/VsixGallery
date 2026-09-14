@@ -8,11 +8,20 @@
     <title>@ViewData["Title"]</title>
     <meta name="description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
     @{
-        string inlineCss = VsixGallery.CssHelper.GetMinified(_env, "css/site.css");
+        string publicOrigin = _publicUrl.GetOrigin(Context.Request);
+        string canonicalPath = ViewData["CanonicalPath"] as string ?? Context.Request.Path;
+        string canonicalUrl = publicOrigin + canonicalPath;
     }
-    <style>@Html.Raw(inlineCss)</style>
+    <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
-    <link rel="canonical" href="@($"{_publicUrl.GetOrigin(Context.Request)}{Context.Request.Path}")" />
+    @if (ViewData["SuppressCanonical"] is not true)
+    {
+        <link rel="canonical" href="@canonicalUrl" />
+    }
+    @if (ViewData["Robots"] is string robots)
+    {
+        <meta name="robots" content="@robots" />
+    }
 
     <link rel="apple-touch-icon" href="~/img/icon-180x180.png" asp-append-version="true" />
     <link rel="icon" type="image/png" sizes="32x32" href="~/img/icon-32x32.png" asp-append-version="true" />
@@ -35,7 +44,6 @@
         string socialImagePath = ViewData["Image"] as string ?? "/social/default.png";
         int socialImageWidth = ViewData["ImageWidth"] is int w ? w : VsixGallery.SocialCardRenderer.Width;
         int socialImageHeight = ViewData["ImageHeight"] is int h ? h : VsixGallery.SocialCardRenderer.Height;
-        string publicOrigin = _publicUrl.GetOrigin(Context.Request);
         string absoluteImage = $"{publicOrigin}{socialImagePath}";
     }
     <link rel="alternate" type="application/atom+xml" title="@feedTitle" href="@feedUrl" />
@@ -52,7 +60,7 @@
     <meta property="og:site_name" content="@(ViewData["SiteName"] ?? "VSIX Gallery")" />
     <meta property="og:image:alt" content="@pageTitle" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="@($"{publicOrigin}{Context.Request.Path}")" />
+    <meta property="og:url" content="@canonicalUrl" />
     <meta property="og:image" content="@absoluteImage" />
     <meta property="og:image:secure_url" content="@absoluteImage" />
     <meta property="og:image:width" content="@socialImageWidth" />

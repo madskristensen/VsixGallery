@@ -3,6 +3,7 @@
     var menu = document.getElementById('mobile-menu');
     var header = document.querySelector('header');
     var overlay = document.querySelector('.mobile-menu-overlay');
+    var mobileSearch = menu ? menu.querySelector('input[type=search]') : null;
     if (!btn || !menu || !header) {
         return;
     }
@@ -12,6 +13,9 @@
         header.classList.toggle('is-open', open);
         if (open) {
             menu.removeAttribute('hidden');
+            if (mobileSearch) {
+                window.requestAnimationFrame(function () { mobileSearch.focus(); });
+            }
         } else {
             menu.setAttribute('hidden', '');
         }
@@ -49,6 +53,11 @@
             var pageUrl = origin + '/extension/' + encodeURIComponent(id) + '/';
             var markdown = '[![Install from VSIX Gallery](' + badgeUrl + ')](' + pageUrl + ')';
 
+            if (!navigator.clipboard) {
+                btn.textContent = 'Copy unavailable';
+                return;
+            }
+
             navigator.clipboard.writeText(markdown).then(function () {
                 var original = btn.textContent;
                 btn.textContent = '✓ Copied!';
@@ -57,6 +66,8 @@
                     btn.textContent = original;
                     btn.classList.remove('copied');
                 }, 2000);
+            }).catch(function () {
+                btn.textContent = 'Copy failed';
             });
         });
     });

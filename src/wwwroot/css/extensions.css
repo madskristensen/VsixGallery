@@ -11,7 +11,7 @@ article .icon {
 
 article .download {
     border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    background: linear-gradient(135deg, var(--cta-start) 0%, var(--cta-end) 100%);
     color: white;
     display: inline-block;
     margin: .5em 0;
@@ -69,6 +69,21 @@ article .download:hover {
     font-size: .85em;
     color: var(--text-primary);
     margin: 1px 2px;
+}
+
+.checksum {
+    word-break: break-all;
+}
+
+.provenance,
+.readme-unavailable {
+    color: var(--text-secondary);
+    font-size: .9rem;
+}
+
+.provenance {
+    clear: both;
+    margin-top: 1rem;
 }
 
 #links {
@@ -136,6 +151,7 @@ article .download:hover {
 }
 
 .actions-menu > summary:hover,
+.actions-menu > summary:focus-visible,
 .actions-menu[open] > summary {
     background: var(--primary);
     color: white;
@@ -183,7 +199,9 @@ article .download:hover {
 }
 
 .actions-menu-list li > a:hover,
+.actions-menu-list li > a:focus-visible,
 #links .actions-menu-list li > a:hover,
+#links .actions-menu-list li > a:focus-visible,
 .actions-menu-list li > .copy-badge-btn:hover {
     background: var(--primary-alpha);
     color: var(--primary);

@@ -7,6 +7,7 @@
     ViewData["Description"] = "Browse all Visual Studio extensions published to this alternative VSIX gallery. Includes nightly builds and extensions not available on the official Marketplace.";
     ViewData["FeedUrl"] = "/feed/";
     ViewData["FeedTitle"] = $"{ViewData["SiteName"]} – all extensions";
+    ViewData["CanonicalPath"] = Model.CurrentPage > 1 ? $"/?page={Model.CurrentPage}" : "/";
 
     var request = ViewContext.HttpContext.Request;
     string baseUrl = _publicUrl.GetOrigin(request);

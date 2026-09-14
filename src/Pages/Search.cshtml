@@ -8,6 +8,8 @@
     ViewData["Description"] = string.IsNullOrWhiteSpace(Model.Term)
         ? "Search for Visual Studio extensions in this alternative VSIX gallery."
         : $"Found {Model.Packages.Count()} Visual Studio extensions matching '{Model.Term}'.";
+    ViewData["Robots"] = "noindex, follow";
+    ViewData["SuppressCanonical"] = true;
 }
 
 @if (string.IsNullOrWhiteSpace(Model.Term))

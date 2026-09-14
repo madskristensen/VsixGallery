@@ -99,9 +99,8 @@ options =>
 {
 	options.MinificationSettings.RemoveOptionalEndTags = false;
 	options.MinificationSettings.WhitespaceMinificationMode = WhitespaceMinificationMode.Aggressive;
-	// CssHelper and JsHelper already minify inline CSS/JS and compute CSP hashes before
-	// WebMarkupMin runs. Re-minifying here would produce different content, causing a
-	// mismatch between the CSP hash and the bytes the browser actually receives.
+	// JsHelper already minifies inline JS and computes its CSP hash before WebMarkupMin
+	// runs. Re-minifying here would produce different content and invalidate that hash.
 	options.MinificationSettings.MinifyEmbeddedCssCode = false;
 	options.MinificationSettings.MinifyEmbeddedJsCode = false;
 });
@@ -131,17 +130,13 @@ app.UseStatusCodePagesWithReExecute("/NotFound");
 
 app.UseHttpsRedirection();
 
-// Pre-warm CSS/JS helpers and register their hashes globally.
-// This ensures the CSP header always contains the correct hashes even when
+// Pre-warm the JS helper and register its hash globally.
+// This ensures the CSP header always contains the correct hash even when
 // the response is served from a cache and Razor rendering is skipped.
 {
-	string cssContent = CssHelper.GetMinified(app.Environment, "css/site.css");
-	SecurityHeadersMiddleware.RegisterGlobalStyleHash(
-		Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(cssContent))));
-
-	string jsContent = JsHelper.GetMinified(app.Environment, "js/site.js");
-	SecurityHeadersMiddleware.RegisterGlobalScriptHash(
-		Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(jsContent))));
+string jsContent = JsHelper.GetMinified(app.Environment, "js/site.js");
+SecurityHeadersMiddleware.RegisterGlobalScriptHash(
+	Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(jsContent))));
 }
 
 app.UseSecurityHeaders();

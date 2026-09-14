@@ -28,7 +28,7 @@
     <p>
         Publishing is a single <code>POST</code> to
         <code>https://www.vsixgallery.com/api/upload</code> with the <code>.vsix</code>
-        file as the request body. The server reads the manifest, stores the package,
+        file as a multipart form upload. The server reads the manifest, stores the package,
         and returns a JSON response with the extension URL and a manage URL.
     </p>
 
@@ -48,8 +48,9 @@
             <code>?issuetracker=&lt;url&gt;</code> &mdash; the issue tracker URL.
         </li>
         <li>
-            <code>?readmeUrl=&lt;url&gt;</code> &mdash; a URL to a <code>README.md</code>
-            that should be rendered on the extension details page.
+            <code>?readmeUrl=&lt;url&gt;</code> &mdash; an HTTPS URL on
+            <code>raw.githubusercontent.com</code> or <code>gist.githubusercontent.com</code>
+            for a <code>README.md</code> that should be rendered on the extension details page.
         </li>
     </ul>
 
@@ -66,9 +67,9 @@
         Useful for one-off uploads or for trying the API before wiring it into a build.
     </p>
 
-<pre>curl -X POST "https://www.vsixgallery.com/api/upload?repo=https://github.com/me/MyExtension" \
+<pre>curl --fail-with-body -X POST "https://www.vsixgallery.com/api/upload?repo=https://github.com/me/MyExtension" \
      -H "X-Manage-Token: my-secret-token" \
-     --data-binary @@MyExtension.vsix</pre>
+     -F "file=@@MyExtension.vsix"</pre>
 
     <p>
         The response is JSON containing the extension page URL and the manage URL.
@@ -79,22 +80,20 @@
 </section>
 
 <section id="powershell">
-    <h2>Use PowerShell</h2>
-
-    <p>First you must execute the VSIX script:</p>
-
-<pre>(new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex</pre>
-
-    <p>That allows you to call methods to upload the .vsix extension file to the gallery:</p>
-
-<pre>Vsix-PublishToGallery</pre>
+    <h2>Upload with PowerShell</h2>
 
     <p>
-        That will find all .vsix files in the working directory recursively and upload them.
-        To specify the path, simply pass it in as the first parameter:
+        PowerShell 7 can upload the VSIX directly, without downloading or executing a remote script.
+        Store the manage token in a secret environment variable rather than in source control.
     </p>
 
-<pre>Vsix-PublishToGallery .\src\WebCompilerVsix\**\*.vsix</pre>
+<pre>$headers = @@{ "X-Manage-Token" = $env:VSIX_GALLERY_TOKEN }
+$form = @@{ file = Get-Item ".\src\bin\Release\MyExtension.vsix" }
+Invoke-RestMethod `
+    -Uri "https://www.vsixgallery.com/api/upload?repo=https://github.com/me/MyExtension" `
+    -Method Post `
+    -Headers $headers `
+    -Form $form</pre>
 </section>
 
 <section id="github-actions">
@@ -241,7 +240,6 @@ jobs:
     <ul>
         <li><a href="https://github.com/madskristensen/InstaSearch/blob/master/.github/workflows/build.yaml">InstaSearch</a></li>
         <li><a href="https://github.com/madskristensen/AddAnyFile/blob/master/.github/workflows/build.yaml">Add Any File</a></li>
-        <li><a href="https://github.com/madskristensen/EditorConfig/blob/master/.github/workflows/build.yaml">EditorConfig</a></li>
     </ul>
 </section>
 
@@ -266,17 +264,11 @@ jobs:
         <summary>appveyor.yml example</summary>
 <pre>version: 1.0.{build}
 
-install:
-  - ps: (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
-
-before_build:
-  - ps: Vsix-IncrementVsixVersion | Vsix-UpdateBuildVersion
-
 build_script:
   - msbuild /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m
 
 after_test:
-  - ps: Vsix-PushArtifacts | Vsix-PublishToGallery
+  - cmd: curl.exe --fail-with-body -X POST "https://www.vsixgallery.com/api/upload" -H "X-Manage-Token: %VSIX_GALLERY_TOKEN%" -F "file=@@src\bin\Release\MyExtension.vsix"
 </pre>
     </details>
 
@@ -284,7 +276,6 @@ after_test:
 
     <ul>
         <li><a href="https://github.com/madskristensen/WebEssentials2019/blob/master/appveyor.yml">Web Essentials 2019</a></li>
-        <li><a href="https://github.com/jaredpar/VsVim/blob/master/appveyor.yml">VsVim</a></li>
     </ul>
 </section>
 
@@ -411,4 +402,3 @@ after_test:
         <strong>Copy badge (PNG)</strong> and it&rsquo;s on your clipboard.
     </p>
 </section>
-
