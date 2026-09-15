@@ -161,6 +161,10 @@ public class PackageHelperTests
 		Assert.True(gallery.Helper.ValidateManageToken("Example.Extension", token));
 		Assert.False(updated.ManageTokenIncludedInUrl);
 		Assert.Equal("/extension/Example.Extension/manage", updated.ManageUrl);
+		Assert.Null(gallery.Helper.GetPackage("Example.Extension")!.ManageUrl);
+		Assert.Same(gallery.Helper.PackageCache, gallery.Helper.PackageCache);
+		Package authorPackage = Assert.Single(gallery.Helper.GetPackagesByAuthor("example publisher"));
+		Assert.Equal("Example.Extension", authorPackage.ID);
 		Assert.Equal(2, gallery.CacheVersion.Value);
 		Assert.Empty(Directory.EnumerateDirectories(
 			Path.Combine(gallery.Root, PackageHelper.StagingFolderName)));
@@ -177,11 +181,13 @@ public class PackageHelperTests
 		gallery.Helper.SoftDelete("Example.Extension");
 
 		Assert.Null(gallery.Helper.GetPackage("Example.Extension"));
+		Assert.Empty(gallery.Helper.GetPackagesByAuthor("Example Publisher"));
 		TrashedPackage trashed = Assert.Single(gallery.Helper.ListTrash());
 		Assert.Equal("Example.Extension", trashed.Package.ID);
 
 		Assert.True(gallery.Helper.Restore(trashed.TrashFolder));
 		Assert.NotNull(gallery.Helper.GetPackage("Example.Extension"));
+		Assert.Single(gallery.Helper.GetPackagesByAuthor("EXAMPLE PUBLISHER"));
 		Assert.True(gallery.Helper.ValidateManageToken("Example.Extension", "publisher-secret"));
 
 		gallery.Helper.SoftDelete("Example.Extension");

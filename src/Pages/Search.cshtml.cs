@@ -34,8 +34,7 @@ namespace VsixGallery.Pages
 				return;
 			}
 
-			IEnumerable<Package> listed = _helper.PackageCache.Where(p => !p.Unlisted);
-			List<Package> results = [.. Lookup(q, listed)];
+			List<Package> results = [.. Lookup(q, _helper.ListedPackages)];
 
 			TotalResults = results.Count;
 			Pages = (TotalResults + _pageSize - 1) / _pageSize;

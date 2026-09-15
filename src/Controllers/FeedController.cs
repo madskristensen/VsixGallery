@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 using System.Linq;
 
 namespace VsixGallery.Controllers
 {
+	[OutputCache(PolicyName = PackageHelper.GalleryGeneratedCachePolicy)]
 	[Route("feed")]
 	public class FeedController : Controller
 	{
@@ -22,9 +24,7 @@ namespace VsixGallery.Controllers
 		public IActionResult Index()
 		{
 			Response.ContentType = "application/atom+xml; charset=utf-8";
-			Package[] packages = [.. _helper.PackageCache
-				.Where(p => !p.Unlisted)
-				.OrderByDescending(p => p.DatePublished)];
+			IReadOnlyList<Package> packages = _helper.ListedPackages;
 
 			if (this.IsConditionalGet(packages))
 			{
@@ -32,7 +32,7 @@ namespace VsixGallery.Controllers
 			}
 
 			string baseUrl = _publicUrl.GetOrigin(Request);
-			return Content(_feed.GetFeed(baseUrl, packages));
+			return Content(_feed.GetFeed(baseUrl, [.. packages]));
 		}
 
 		[HttpGet("extension/{id}")]
@@ -69,9 +69,7 @@ namespace VsixGallery.Controllers
 
 			if (!string.IsNullOrEmpty(id))
 			{
-				IOrderedEnumerable<Package> packages = _helper.PackageCache
-									  .Where(p => p.Author?.Equals(id, System.StringComparison.OrdinalIgnoreCase) == true)
-									  .OrderByDescending(p => p.DatePublished);
+				IReadOnlyList<Package> packages = _helper.GetPackagesByAuthor(id);
 
 				if (this.IsConditionalGet(packages))
 				{

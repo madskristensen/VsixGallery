@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
@@ -19,22 +20,21 @@ namespace VsixGallery.Controllers
 		private readonly string? _secretKey = uploadOptions.Value.SecretKey;
 
 		[HttpGet("{id?}")]
+		[OutputCache(PolicyName = PackageHelper.GalleryGeneratedCachePolicy)]
 		public object Get(string id)
 		{
 			Response.Headers.CacheControl = "no-cache";
 
 			if (string.IsNullOrWhiteSpace(id))
 			{
-				IOrderedEnumerable<Package> packages = helper.PackageCache
-					.Where(p => !p.Unlisted)
-					.OrderByDescending(p => p.DatePublished);
+				IReadOnlyList<Package> packages = helper.ListedPackages;
 
 				if (this.IsConditionalGet(packages))
 				{
-					return Enumerable.Empty<Package>();
+					return Enumerable.Empty<PackageSummary>();
 				}
 
-				return packages;
+				return packages.Select(PackageSummary.FromPackage);
 			}
 
 			Package? package = helper.GetPackage(id);

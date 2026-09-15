@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace VsixGallery.Pages
 {
+	[OutputCache(PolicyName = PackageHelper.GalleryPageCachePolicy)]
 	public class ExtensionModel : PageModel
 	{
 		private readonly PackageHelper _helper;

@@ -21,9 +21,15 @@ namespace VsixGallery
 		internal const string RollbackFolderName = ".rollback";
 		internal const string ManageFileName = "manage.json";
 		internal const string GalleryCacheTag = "gallery";
+		internal const string GalleryPageCachePolicy = "GalleryPage";
+		internal const string GalleryGeneratedCachePolicy = "GalleryGenerated";
 
 		private readonly string _extensionRoot;
 		private readonly List<Package> _cache;
+		private Package[] _packageSnapshot = [];
+		private Package[] _listedPackageSnapshot = [];
+		private Dictionary<string, Package> _packagesById = new(StringComparer.Ordinal);
+		private Dictionary<string, Package[]> _packagesByAuthor = new(StringComparer.OrdinalIgnoreCase);
 		private readonly bool _canRemoveOldExtensions;
 		private readonly bool _canValidateLicenses;
 		private readonly ILogger<PackageHelper> _logger;
@@ -70,6 +76,10 @@ namespace VsixGallery
 			RecoverInterruptedChanges();
 			FileProvider = new PhysicalFileProvider(_extensionRoot);
 			_cache = GetAllPackages();
+			lock (_cacheLock)
+			{
+				RebuildCacheIndexesLocked();
+			}
 			_logger.LogInformation(
 				"Extension storage initialized with {PackageCount} package(s). Package mutations require a single application instance.",
 				_cache.Count);
@@ -81,15 +91,9 @@ namespace VsixGallery
 
 		internal string ExtensionRoot => _extensionRoot;
 
-		public IReadOnlyList<Package> PackageCache
-		{
-			get {
-				lock (_cacheLock)
-				{
-					return [.. _cache];
-				}
-			}
-		}
+		public IReadOnlyList<Package> PackageCache => Volatile.Read(ref _packageSnapshot);
+
+		public IReadOnlyList<Package> ListedPackages => Volatile.Read(ref _listedPackageSnapshot);
 
 		private List<Package> GetAllPackages()
 		{
@@ -335,8 +339,7 @@ namespace VsixGallery
 
 			lock (_cacheLock)
 			{
-				Package? cached = _cache.FirstOrDefault(p => p.ID == id);
-				if (cached is not null)
+				if (_packagesById.TryGetValue(id, out Package? cached))
 				{
 					return cached;
 				}
@@ -350,6 +353,40 @@ namespace VsixGallery
 				SetFileSize(package, folder);
 			}
 			return package;
+		}
+
+		public IReadOnlyList<Package> GetPackagesByAuthor(string? author)
+		{
+			if (string.IsNullOrWhiteSpace(author))
+			{
+				return [];
+			}
+
+			lock (_cacheLock)
+			{
+				return _packagesByAuthor.TryGetValue(author, out Package[]? packages)
+					? packages
+					: [];
+			}
+		}
+
+		private void RebuildCacheIndexesLocked()
+		{
+			Package[] packages = [.. _cache.OrderByDescending(p => p.DatePublished)];
+			Package[] listedPackages = [.. packages.Where(p => !p.Unlisted)];
+			_packagesById = packages
+				.Where(p => p.ID is not null)
+				.GroupBy(p => p.ID!, StringComparer.Ordinal)
+				.ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+			_packagesByAuthor = packages
+				.Where(p => !string.IsNullOrWhiteSpace(p.Author))
+				.GroupBy(p => p.Author!, StringComparer.OrdinalIgnoreCase)
+				.ToDictionary(
+					group => group.Key,
+					group => group.ToArray(),
+					StringComparer.OrdinalIgnoreCase);
+			Volatile.Write(ref _listedPackageSnapshot, listedPackages);
+			Volatile.Write(ref _packageSnapshot, packages);
 		}
 
 		public string? GetIconDiskPath(Package? package)
@@ -500,10 +537,15 @@ namespace VsixGallery
 				stagingFolder = null;
 
 				Sanitize(package);
+				Package cachedPackage = DeserializePackage(vsixFolder)
+					?? throw new InvalidDataException("The published extension metadata could not be loaded.");
+				Sanitize(cachedPackage);
+				SetFileSize(cachedPackage, vsixFolder);
 				lock (_cacheLock)
 				{
 					_cache.RemoveAll(p => p.ID == package.ID);
-					_cache.Add(package);
+					_cache.Add(cachedPackage);
+					RebuildCacheIndexesLocked();
 				}
 				_galleryCacheVersion.Increment();
 				await _outputCacheStore.EvictByTagAsync(GalleryCacheTag, CancellationToken.None);
@@ -590,6 +632,7 @@ namespace VsixGallery
 					lock (_cacheLock)
 					{
 						_cache.Remove(package);
+						RebuildCacheIndexesLocked();
 					}
 				}
 				catch (Exception ex)
@@ -875,6 +918,7 @@ namespace VsixGallery
 			lock (_cacheLock)
 			{
 				_cache.RemoveAll(p => p.ID == id);
+				RebuildCacheIndexesLocked();
 			}
 			_galleryCacheVersion.Increment();
 			EvictGalleryCache();
@@ -970,6 +1014,7 @@ namespace VsixGallery
 					{
 						_cache.RemoveAll(p => p.ID == restored.ID);
 						_cache.Add(restored);
+						RebuildCacheIndexesLocked();
 					}
 				}
 			}

@@ -65,6 +65,13 @@
     <meta property="og:image:secure_url" content="@absoluteImage" />
     <meta property="og:image:width" content="@socialImageWidth" />
     <meta property="og:image:height" content="@socialImageHeight" />
+
+    @{
+        const string clarityBootstrap = "window.clarity=window.clarity||function(){(window.clarity.q=window.clarity.q||[]).push(arguments)};";
+        ViewContext.HttpContext.AddInlineScriptHash(clarityBootstrap);
+    }
+    <script>@Html.Raw(clarityBootstrap)</script>
+    <script async src="https://www.clarity.ms/tag/yigw7yp0j4"></script>
 </head>
 <body>
     @{

@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 using System.Text;
 using System.Xml;
 
 namespace VsixGallery.Controllers
 {
+	[OutputCache(PolicyName = PackageHelper.GalleryGeneratedCachePolicy)]
 	[Route("sitemap.xml")]
 	public class SitemapController(PackageHelper helper, PublicUrl publicUrl) : Controller
 	{
@@ -31,7 +33,7 @@ namespace VsixGallery.Controllers
 					WriteUrl(writer, baseUrl + path, null);
 				}
 
-				foreach (Package package in helper.PackageCache.Where(p => !p.Unlisted))
+				foreach (Package package in helper.ListedPackages)
 				{
 					WriteUrl(writer, baseUrl + package.DetailsLink, package.DatePublished);
 				}

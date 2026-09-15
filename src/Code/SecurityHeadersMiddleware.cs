@@ -23,12 +23,11 @@ private const string BaseCspPrefix = "default-src 'self'; ";
 private const string BaseCspSuffix =
 "img-src 'self' data: https:; " +
 "font-src 'self'; " +
-"connect-src 'self'; " +
+"connect-src 'self' https://*.clarity.ms https://c.bing.com; " +
 "frame-ancestors 'none'; " +
 "base-uri 'self'; " +
 "form-action 'self'; " +
 "object-src 'none'; " +
-"require-trusted-types-for 'script'; " +
 "upgrade-insecure-requests";
 
 public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
@@ -59,7 +58,7 @@ string styleHashPart = styleHashes.Count > 0
 					? " " + string.Join(" ", styleHashes.ConvertAll(h => $"'sha256-{h}'"))
 					: string.Empty;
 
-headers["Content-Security-Policy"] = $"script-src 'self'{scriptHashPart}; style-src 'self'{styleHashPart}; {BaseCspPrefix}" + BaseCspSuffix;
+headers["Content-Security-Policy"] = $"script-src 'self' https://*.clarity.ms https://c.bing.com{scriptHashPart}; style-src 'self'{styleHashPart}; {BaseCspPrefix}" + BaseCspSuffix;
 }
 
 headers["X-Content-Type-Options"] = "nosniff";

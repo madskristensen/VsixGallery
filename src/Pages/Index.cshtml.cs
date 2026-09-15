@@ -27,16 +27,14 @@ namespace VsixGallery.Pages
 
 		public void OnGet([FromQuery] int page = 1)
 		{
-			List<Package> packages = [.. _helper.PackageCache.Where(p => !p.Unlisted)];
+			IReadOnlyList<Package> packages = _helper.ListedPackages;
 
 			int totalCount = packages.Count;
 			Pages = Math.Max(1, (totalCount + _pageSize - 1) / _pageSize);
 			CurrentPage = Math.Clamp(page, 1, Pages);
 			int skip = (CurrentPage - 1) * _pageSize;
 
-			Packages = packages.OrderByDescending(p => p.DatePublished)
-							  .Skip(skip)
-							  .Take(_pageSize);
+			Packages = packages.Skip(skip).Take(_pageSize);
 
 		}
 	}

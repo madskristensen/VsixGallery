@@ -35,7 +35,14 @@ public class GalleryIntegrationTests
 		string json = await first.Content.ReadAsStringAsync();
 
 		Assert.Equal(HttpStatusCode.OK, first.StatusCode);
-		Assert.Contains("Public.Extension", json);
+		using JsonDocument payload = JsonDocument.Parse(json);
+		JsonElement summary = Assert.Single(payload.RootElement.EnumerateArray());
+		Assert.Equal("Public.Extension", summary.GetProperty("id").GetString());
+		Assert.Equal("Public Extension", summary.GetProperty("name").GetString());
+		Assert.True(summary.TryGetProperty("detailsLink", out _));
+		Assert.True(summary.TryGetProperty("downloadLink", out _));
+		Assert.False(summary.TryGetProperty("validation", out _));
+		Assert.False(summary.TryGetProperty("license", out _));
 		Assert.DoesNotContain("Hidden.Extension", json);
 		EntityTagHeaderValue etag = Assert.IsType<EntityTagHeaderValue>(first.Headers.ETag);
 
@@ -44,6 +51,10 @@ public class GalleryIntegrationTests
 		using HttpResponseMessage second = await client.SendAsync(conditional);
 
 		Assert.Equal(HttpStatusCode.NotModified, second.StatusCode);
+
+		using HttpResponseMessage details = await client.GetAsync("/api/Public.Extension");
+		using JsonDocument detailPayload = JsonDocument.Parse(await details.Content.ReadAsStringAsync());
+		Assert.True(detailPayload.RootElement.TryGetProperty("validation", out _));
 	}
 
 	[Fact]
@@ -64,8 +75,15 @@ public class GalleryIntegrationTests
 		string csp = Assert.Single(home.Headers.GetValues("Content-Security-Policy"));
 		Assert.Contains("script-src 'self'", csp);
 		Assert.Contains("style-src 'self'", csp);
+		Assert.Contains("https://*.clarity.ms", csp);
+		Assert.Contains("https://c.bing.com", csp);
 		Assert.DoesNotContain("'unsafe-inline'", csp);
+		Assert.DoesNotContain("require-trusted-types-for", csp);
 		Assert.Equal("nosniff", Assert.Single(home.Headers.GetValues("X-Content-Type-Options")));
+		Assert.Contains(
+			"https://www.clarity.ms/tag/yigw7yp0j4",
+			homeHtml,
+			StringComparison.Ordinal);
 
 		string feedXml = await feed.Content.ReadAsStringAsync();
 		Assert.Contains("https://www.vsixgallery.com/extension/Public.Extension", feedXml);
@@ -98,7 +116,13 @@ public class GalleryIntegrationTests
 		using HttpClient client = factory.CreateHttpsClient();
 
 		string before = await client.GetStringAsync("/");
+		string feedBefore = await client.GetStringAsync("/feed");
+		string sitemapBefore = await client.GetStringAsync("/sitemap.xml");
+		string authorBefore = await client.GetStringAsync("/author/Example%20Publisher");
 		Assert.DoesNotContain("Uploaded Extension", before);
+		Assert.DoesNotContain("Uploaded Extension", feedBefore);
+		Assert.DoesNotContain("Uploaded.Extension", sitemapBefore);
+		Assert.DoesNotContain("Uploaded Extension", authorBefore);
 
 		using MultipartFormDataContent form = new();
 		ByteArrayContent vsix = new(TestVsix.Create(
@@ -115,7 +139,18 @@ public class GalleryIntegrationTests
 		Assert.Equal("warning", warning.GetProperty("severity").GetString());
 		Assert.Equal("icon.missing", warning.GetProperty("code").GetString());
 		string after = await client.GetStringAsync("/");
+		string feedAfter = await client.GetStringAsync("/feed");
+		string sitemapAfter = await client.GetStringAsync("/sitemap.xml");
+		string authorAfter = await client.GetStringAsync("/author/Example%20Publisher");
 		Assert.Contains("Uploaded Extension", after);
+		Assert.Contains("Uploaded Extension", feedAfter);
+		Assert.Contains("Uploaded.Extension", sitemapAfter);
+		Assert.Contains("Uploaded Extension", authorAfter);
+
+		using HttpResponseMessage publicDetails = await client.GetAsync("/api/Uploaded.Extension");
+		string publicJson = await publicDetails.Content.ReadAsStringAsync();
+		Assert.DoesNotContain("manageUrl", publicJson, StringComparison.OrdinalIgnoreCase);
+		Assert.DoesNotContain("token=", publicJson, StringComparison.OrdinalIgnoreCase);
 	}
 
 	[Fact]

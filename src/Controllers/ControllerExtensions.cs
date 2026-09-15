@@ -11,7 +11,7 @@ namespace VsixGallery.Controllers
 	{
 		public static bool IsConditionalGet(this Controller controller, IEnumerable<Package> packages)
 		{
-			Package[] snapshot = [.. packages];
+			Package[] snapshot = packages as Package[] ?? [.. packages];
 			DateTime lastModified = snapshot.Length == 0
 				? DateTime.UnixEpoch
 				: snapshot.Max(p => p.DatePublished);

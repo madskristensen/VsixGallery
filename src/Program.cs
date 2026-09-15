@@ -61,6 +61,34 @@ builder.Services.AddOutputCache(options =>
 					version.ToString(CultureInfo.InvariantCulture));
 			})
 			.Tag(PackageHelper.GalleryCacheTag));
+	options.AddPolicy(
+		PackageHelper.GalleryPageCachePolicy,
+		policy => policy
+			.Expire(TimeSpan.FromHours(1))
+			.VaryByValue(context =>
+			{
+				long version = context.RequestServices
+					.GetRequiredService<GalleryCacheVersion>()
+					.Value;
+				return new KeyValuePair<string, string>(
+					"generation",
+					version.ToString(CultureInfo.InvariantCulture));
+			})
+			.Tag(PackageHelper.GalleryCacheTag));
+	options.AddPolicy(
+		PackageHelper.GalleryGeneratedCachePolicy,
+		policy => policy
+			.Expire(TimeSpan.FromDays(7))
+			.VaryByValue(context =>
+			{
+				long version = context.RequestServices
+					.GetRequiredService<GalleryCacheVersion>()
+					.Value;
+				return new KeyValuePair<string, string>(
+					"generation",
+					version.ToString(CultureInfo.InvariantCulture));
+			})
+			.Tag(PackageHelper.GalleryCacheTag));
 });
 builder.Services
 	.AddHealthChecks()
@@ -180,6 +208,24 @@ if (!app.Environment.IsDevelopment())
 	app.UseOutputCache();
 }
 
+app.Use(async (context, next) =>
+{
+	bool isVersionedVsix = StaticAssetCache.IsVersionedVsixPath(context.Request.Path);
+	if (isVersionedVsix)
+	{
+		context.Response.OnStarting(() =>
+		{
+			if (context.Response.StatusCode is >= 200 and < 300)
+			{
+				context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+			}
+			return Task.CompletedTask;
+		});
+	}
+
+	await next();
+});
+
 app.UseRewriter(rewriteOptions);
 
 FileExtensionContentTypeProvider contentTypeProvider = new();
@@ -194,8 +240,8 @@ app.UseStaticFiles(new StaticFileOptions
 		// All assets with a ?v= content-hash query (fingerprinted by asp-append-version)
 		// are immutable: the URL changes whenever the file changes, so they can be
 		// cached indefinitely. This covers both project assets (CSS/JS/icons) and
-		// extension icon images. Un-fingerprinted paths like .vsix downloads are
-		// intentionally left without a Cache-Control header so the browser revalidates.
+		// extension icon images. Friendly versioned VSIX URLs are handled before
+		// URL rewriting; the canonical extension.vsix path still revalidates.
 		if (ctx.Context.Request.Query.ContainsKey("v"))
 		{
 			ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 
 namespace VsixGallery.Pages
 {
+	[OutputCache(PolicyName = PackageHelper.GalleryPageCachePolicy)]
 	public class AuthorModel : PageModel
 	{
 		private readonly PackageHelper _helper;
@@ -21,12 +23,12 @@ namespace VsixGallery.Pages
 
 		public void OnGet([FromRoute] string author)
 		{
-			Packages = _helper.PackageCache.OrderByDescending(p => p.DatePublished)
-						  .Where(p => p.Author?.Equals(author, StringComparison.OrdinalIgnoreCase) == true);
+			IReadOnlyList<Package> packages = _helper.GetPackagesByAuthor(author);
+			Packages = packages;
 
-			if (Packages.Any())
+			if (packages.Count > 0)
 			{
-				Author = Packages.First().Author ?? string.Empty;
+				Author = packages[0].Author ?? string.Empty;
 			}
 			else
 			{
