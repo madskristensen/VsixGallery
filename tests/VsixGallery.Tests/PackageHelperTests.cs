@@ -5,6 +5,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
+using SkiaSharp;
+
 using System.Security.Cryptography;
 
 namespace VsixGallery.Tests;
@@ -175,6 +177,49 @@ public class PackageHelperTests
 	}
 
 	[Fact]
+	public void Validate_WarnsWhenIconHasLowThemeContrast()
+	{
+		using TemporaryGallery gallery = new();
+		string darkIconPath = Path.Combine(gallery.Root, "dark.png");
+		string lightIconPath = Path.Combine(gallery.Root, "light.png");
+		WriteSolidPng(darkIconPath, new SKColor(20, 25, 35));
+		WriteSolidPng(lightIconPath, new SKColor(250, 250, 250));
+
+		Package darkPackage = CreateValidPackage("dark.png");
+		Package lightPackage = CreateValidPackage("light.png");
+
+		gallery.Helper.Validate(darkPackage, gallery.Root);
+		gallery.Helper.Validate(lightPackage, gallery.Root);
+
+		Assert.Contains(darkPackage.Validation, finding =>
+			finding.Code == "icon.low-contrast-dark-theme");
+		Assert.DoesNotContain(darkPackage.Validation, finding =>
+			finding.Code == "icon.low-contrast-light-theme");
+		Assert.Contains(lightPackage.Validation, finding =>
+			finding.Code == "icon.low-contrast-light-theme");
+		Assert.DoesNotContain(lightPackage.Validation, finding =>
+			finding.Code == "icon.low-contrast-dark-theme");
+	}
+
+	[Fact]
+	public void Validate_PreservesSourceIconContrastWarningAfterGalleryConversion()
+	{
+		using TemporaryGallery gallery = new();
+		Package package = CreateValidPackage("icon-1.0.webp");
+		package.Validation =
+		[
+			ValidationFinding.Warning(
+				"icon.low-contrast-dark-theme",
+				"Most of the icon has low contrast on dark backgrounds."),
+		];
+
+		gallery.Helper.Validate(package);
+
+		Assert.Contains(package.Validation, finding =>
+			finding.Code == "icon.low-contrast-dark-theme");
+	}
+
+	[Fact]
 	public void Validate_ReturnsStructuredManifestAndUrlWarnings()
 	{
 		using TemporaryGallery gallery = new();
@@ -223,6 +268,30 @@ public class PackageHelperTests
 		Assert.Equal("https://github.com/example/project/issues/", package.IssueTracker);
 		Assert.DoesNotContain(package.Validation, finding =>
 			finding.Code == "url.issue-tracker-invalid");
+	}
+
+	private static Package CreateValidPackage(string icon) => new()
+	{
+		ID = "Example.Extension",
+		Name = "Example Extension",
+		Author = "Example Publisher",
+		Version = "1.0",
+		Description = "A sufficiently detailed extension description for validation.",
+		Icon = icon,
+	};
+
+	private static void WriteSolidPng(string path, SKColor color)
+	{
+		File.WriteAllBytes(path, CreateSolidPng(color));
+	}
+
+	private static byte[] CreateSolidPng(SKColor color)
+	{
+		using SKBitmap bitmap = new(128, 128);
+		bitmap.Erase(color);
+		using SKImage image = SKImage.FromBitmap(bitmap);
+		using SKData data = image.Encode(SKEncodedImageFormat.Png, 100);
+		return data.ToArray();
 	}
 
 	[Fact]

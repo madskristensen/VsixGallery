@@ -36,6 +36,8 @@ namespace VsixGallery
 				new("icon.invalid-dimensions", "Icon", "For best results, use a 128x128 pixel icon or a larger source image.", "Extension galleries display icons at no more than 128x128 pixels. Larger images are supported and scaled down, while smaller images can appear blurry when enlarged."),
 				new("icon.not-square", "Icon", "Use an icon with equal width and height.", "Extension galleries display icons in a square area; a square source avoids cropping or distortion."),
 				new("icon.invalid-image", "Icon", "Provide a valid, decodable image file.", "The gallery must be able to decode the source image to verify and display it reliably."),
+				new("icon.low-contrast-dark-theme", "Icon", "Use colors that remain visible on dark backgrounds.", "Visual Studio's Extension Manager and the gallery show icons directly on dark theme backgrounds. An icon whose visible pixels are almost entirely dark can blend into the page."),
+				new("icon.low-contrast-light-theme", "Icon", "Use colors that remain visible on light backgrounds.", "Visual Studio's Extension Manager and the gallery show icons directly on light theme backgrounds. An icon whose visible pixels are almost entirely light can blend into the page."),
 
 				new("description.missing", "Description", "Provide a description that explains what the extension does.", "The description helps users understand the extension before deciding whether to install it."),
 				new("description.too-short", "Description", "Write a description of at least 40 characters.", "A meaningful sentence gives users enough context to understand the extension's purpose."),

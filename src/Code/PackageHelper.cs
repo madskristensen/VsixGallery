@@ -160,7 +160,8 @@ namespace VsixGallery
 			List<ValidationFinding> findings =
 			[
 				.. package.Validation.Where(finding =>
-					finding.Code.StartsWith("url.input-", StringComparison.Ordinal)),
+					finding.Code.StartsWith("url.input-", StringComparison.Ordinal) ||
+					(extensionFolder is null && IsSourceIconFinding(finding.Code))),
 			];
 
 			AddRequiredTextFinding(findings, package.Name, 200, "name", "display name");
@@ -221,6 +222,24 @@ namespace VsixGallery
 								"icon.not-square",
 								$"The source icon is {width}x{height}px. Use a square image to avoid distortion."));
 						}
+
+						if (extensionFolder is not null &&
+							ImageContrastAnalyzer.TryAnalyze(iconFile, out ImageContrastResult contrast))
+						{
+							if (contrast.LowContrastOnDarkTheme)
+							{
+								AddFinding(findings, ValidationFinding.Warning(
+									"icon.low-contrast-dark-theme",
+									"Most of the icon has low contrast on dark backgrounds and may be difficult to see in Visual Studio's dark themes."));
+							}
+
+							if (contrast.LowContrastOnLightTheme)
+							{
+								AddFinding(findings, ValidationFinding.Warning(
+									"icon.low-contrast-light-theme",
+									"Most of the icon has low contrast on light backgrounds and may be difficult to see in Visual Studio's light themes."));
+							}
+						}
 					}
 					else
 					{
@@ -264,6 +283,16 @@ namespace VsixGallery
 
 			package.Validation = findings;
 		}
+
+		private static bool IsSourceIconFinding(string code) =>
+			code is
+				"icon.unsupported-format" or
+				"icon.file-too-large" or
+				"icon.invalid-dimensions" or
+				"icon.not-square" or
+				"icon.invalid-image" or
+				"icon.low-contrast-dark-theme" or
+				"icon.low-contrast-light-theme";
 
 		private static void AddRequiredTextFinding(
 			List<ValidationFinding> findings,
