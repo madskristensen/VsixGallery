@@ -30,7 +30,7 @@ namespace VsixGallery
 				new("manifest.version-too-long", "Manifest metadata", "Keep the version at or below 100 characters.", "A bounded version remains usable in feeds and clients that compare and display package versions."),
 
 				new("icon.missing", "Icon", "Include a square PNG, GIF, or JPEG icon. The preferred display size is 128x128 pixels, and larger source images are supported.", "An icon makes the extension recognizable. Extension galleries display it at no more than 128x128 pixels."),
-				new("icon.unsupported-format", "Icon", "Use PNG, GIF, or JPEG for the icon.", "These are the icon formats supported by Visual Studio extension manifests and the gallery."),
+				new("icon.unsupported-format", "Icon", "Use PNG, GIF, or JPEG for the source icon packaged inside the VSIX.", "These are the icon formats supported by Visual Studio extension manifests. The gallery separately converts the source icon to WebP for display on this website."),
 				new("icon.file-missing", "Icon", "Package the icon at the path referenced by the manifest.", "The gallery cannot display an icon that is declared but absent from the VSIX."),
 				new("icon.file-too-large", "Icon", "Keep the source icon at or below 10 MB.", "Optimized icons reduce upload processing, storage, and page-transfer costs."),
 				new("icon.invalid-dimensions", "Icon", "For best results, use a 128x128 pixel icon or a larger source image.", "Extension galleries display icons at no more than 128x128 pixels. Larger images are supported and scaled down, while smaller images can appear blurry when enlarged."),

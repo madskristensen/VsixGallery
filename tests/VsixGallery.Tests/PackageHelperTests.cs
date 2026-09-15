@@ -135,7 +135,7 @@ public class PackageHelperTests
 	}
 
 	[Fact]
-	public void Validate_RejectsWebpIcon()
+	public void Validate_RejectsWebpSourceIcon()
 	{
 		using TemporaryGallery gallery = new();
 		Package package = new()
@@ -151,6 +151,26 @@ public class PackageHelperTests
 		gallery.Helper.Validate(package, gallery.Root);
 
 		Assert.Contains(package.Validation, finding =>
+			finding.Code == "icon.unsupported-format");
+	}
+
+	[Fact]
+	public void Validate_AllowsGalleryGeneratedWebpIcon()
+	{
+		using TemporaryGallery gallery = new();
+		Package package = new()
+		{
+			ID = "Example.Extension",
+			Name = "Example Extension",
+			Author = "Example Publisher",
+			Version = "1.0",
+			Description = "A sufficiently detailed extension description for validation.",
+			Icon = "icon-1.0.webp",
+		};
+
+		gallery.Helper.Validate(package);
+
+		Assert.DoesNotContain(package.Validation, finding =>
 			finding.Code == "icon.unsupported-format");
 	}
 

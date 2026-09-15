@@ -173,13 +173,14 @@ namespace VsixGallery
 					"icon.missing",
 					"Icon is missing. Include a square PNG, GIF, or JPEG image. The preferred display size is 128x128 pixels; larger images are supported."));
 			}
-			else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
+			else if (extensionFolder is not null &&
+					 !package.Icon.ToLowerInvariant().EndsWith(".png") &&
 					 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
 					 !package.Icon.ToLowerInvariant().EndsWith(".gif"))
 			{
 				AddFinding(findings, ValidationFinding.Warning(
 					"icon.unsupported-format",
-					"The icon must be a PNG, GIF, or JPEG image."));
+					"The icon packaged in the VSIX must be a PNG, GIF, or JPEG image."));
 			}
 			else
 			{
