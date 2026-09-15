@@ -69,7 +69,17 @@ headers["X-Content-Type-Options"] = "nosniff";
 // Replaces the Arr-Disable-Session-Affinity custom header from web.config.
 headers["Arr-Disable-Session-Affinity"] = "true";
 
-return Task.CompletedTask;
+				PathString path = context.Request.Path;
+				if (path.StartsWithSegments("/api") ||
+					path.StartsWithSegments("/feed") ||
+					path.StartsWithSegments("/badge") ||
+					path.StartsWithSegments("/social") ||
+					path.Value?.EndsWith(".vsix", StringComparison.OrdinalIgnoreCase) == true)
+				{
+					headers["X-Robots-Tag"] = "noindex, nofollow";
+				}
+
+				return Task.CompletedTask;
 });
 
 await next();

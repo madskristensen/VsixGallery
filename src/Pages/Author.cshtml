@@ -4,22 +4,58 @@
 @inject VsixGallery.PublicUrl _publicUrl
 @{
     ViewData["Title"] = "Extensions by " + Model.Author;
+    ViewData["Description"] = $"Browse Visual Studio extensions published by {Model.Author} on Open VSIX Gallery.";
+    ViewData["CanonicalPath"] = $"/author/{Uri.EscapeDataString(Model.Author ?? string.Empty)}";
     ViewData["FeedUrl"] = $"/feed/author/{Uri.EscapeDataString(Model.Author ?? string.Empty)}";
     ViewData["FeedTitle"] = $"Extensions by {Model.Author}";
 
     var request = ViewContext.HttpContext.Request;
     string baseUrl = _publicUrl.GetOrigin(request);
+    string authorUrl = $"{baseUrl}/author/{Uri.EscapeDataString(Model.Author ?? string.Empty)}";
+    var itemList = new Dictionary<string, object>
+    {
+        ["@type"] = "ItemList",
+        ["name"] = $"Extensions by {Model.Author} – {ViewData["SiteName"]}",
+        ["itemListElement"] = Model.Packages.Select((package, index) => new Dictionary<string, object>
+        {
+            ["@type"] = "ListItem",
+            ["position"] = index + 1,
+            ["name"] = package.Name ?? string.Empty,
+            ["url"] = baseUrl + package.DetailsLink,
+        }).ToArray(),
+    };
+    var collectionPage = new Dictionary<string, object>
+    {
+        ["@type"] = "CollectionPage",
+        ["name"] = $"Extensions by {Model.Author}",
+        ["url"] = authorUrl,
+        ["mainEntity"] = itemList,
+    };
+    var breadcrumb = new Dictionary<string, object>
+    {
+        ["@type"] = "BreadcrumbList",
+        ["itemListElement"] = new object[]
+        {
+            new Dictionary<string, object>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 1,
+                ["name"] = "Visual Studio extensions",
+                ["item"] = baseUrl + "/",
+            },
+            new Dictionary<string, object>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 2,
+                ["name"] = $"Extensions by {Model.Author}",
+                ["item"] = authorUrl,
+            },
+        },
+    };
     var jsonLd = new Dictionary<string, object>
     {
         ["@context"] = "https://schema.org",
-        ["@type"] = "ProfilePage",
-        ["name"] = $"Extensions by {Model.Author} – {ViewData["SiteName"]}",
-        ["url"] = $"{baseUrl}/author/{Uri.EscapeDataString(Model.Author ?? string.Empty)}",
-        ["mainEntity"] = new Dictionary<string, object>
-        {
-            ["@type"] = "Person",
-            ["name"] = Model.Author ?? string.Empty,
-        },
+        ["@graph"] = new object[] { collectionPage, breadcrumb },
     };
     string jsonLdScript = JsonSerializer.Serialize(jsonLd, new JsonSerializerOptions { WriteIndented = false });
     ViewContext.HttpContext.AddInlineScriptHash(jsonLdScript);

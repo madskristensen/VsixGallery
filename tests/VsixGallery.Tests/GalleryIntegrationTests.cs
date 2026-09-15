@@ -35,6 +35,7 @@ public class GalleryIntegrationTests
 		string json = await first.Content.ReadAsStringAsync();
 
 		Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+		Assert.Equal("noindex, nofollow", Assert.Single(first.Headers.GetValues("X-Robots-Tag")));
 		using JsonDocument payload = JsonDocument.Parse(json);
 		JsonElement summary = Assert.Single(payload.RootElement.EnumerateArray());
 		Assert.Equal("Public.Extension", summary.GetProperty("id").GetString());
@@ -67,6 +68,9 @@ public class GalleryIntegrationTests
 		using HttpResponseMessage feed = await client.GetAsync("/feed");
 		using HttpResponseMessage sitemap = await client.GetAsync("/sitemap.xml");
 		using HttpResponseMessage search = await client.GetAsync("/search/?q=public");
+		using HttpResponseMessage author = await client.GetAsync("/author/Example%20Publisher");
+		using HttpResponseMessage extension = await client.GetAsync("/extension/Public.Extension");
+		using HttpResponseMessage guide = await client.GetAsync("/devguide/");
 		using HttpResponseMessage missing = await client.GetAsync("/missing-page");
 
 		Assert.Equal(HttpStatusCode.OK, home.StatusCode);
@@ -84,14 +88,37 @@ public class GalleryIntegrationTests
 			"https://www.clarity.ms/tag/yigw7yp0j4",
 			homeHtml,
 			StringComparison.Ordinal);
+		Assert.Contains("\"@type\":\"ItemList\"", homeHtml);
 
 		string feedXml = await feed.Content.ReadAsStringAsync();
 		Assert.Contains("https://www.vsixgallery.com/extension/Public.Extension", feedXml);
 		Assert.DoesNotContain("Hidden.Extension", feedXml);
+		Assert.Equal("noindex, nofollow", Assert.Single(feed.Headers.GetValues("X-Robots-Tag")));
 
 		string sitemapXml = await sitemap.Content.ReadAsStringAsync();
 		Assert.Contains("https://www.vsixgallery.com/extension/Public.Extension", sitemapXml);
+		Assert.Contains("https://www.vsixgallery.com/author/Example%20Publisher", sitemapXml);
 		Assert.DoesNotContain("Hidden.Extension", sitemapXml);
+
+		string authorHtml = await author.Content.ReadAsStringAsync();
+		Assert.Contains("<title>Extensions by Example Publisher | Open VSIX Gallery</title>", authorHtml);
+		Assert.DoesNotContain("Hidden Extension", authorHtml);
+		Assert.Contains("rel=canonical", authorHtml);
+		Assert.Contains("https://www.vsixgallery.com/author/Example%20Publisher", authorHtml);
+		Assert.Contains("\"@type\":\"CollectionPage\"", authorHtml);
+		Assert.Contains("\"@type\":\"BreadcrumbList\"", authorHtml);
+
+		string extensionHtml = await extension.Content.ReadAsStringAsync();
+		Assert.Contains("<title>Public Extension - Visual Studio extension | Open VSIX Gallery</title>", extensionHtml);
+		Assert.Contains("rel=canonical", extensionHtml);
+		Assert.Contains("https://www.vsixgallery.com/extension/Public.Extension", extensionHtml);
+		Assert.Contains("\"@type\":\"SoftwareApplication\"", extensionHtml);
+		Assert.Contains("\"@type\":\"BreadcrumbList\"", extensionHtml);
+
+		string guideHtml = await guide.Content.ReadAsStringAsync();
+		Assert.Contains("rel=canonical", guideHtml);
+		Assert.Contains("https://www.vsixgallery.com/devguide", guideHtml);
+		Assert.Contains("Publish a Visual Studio extension", guideHtml);
 
 		Assert.Contains("noindex", await search.Content.ReadAsStringAsync(), StringComparison.OrdinalIgnoreCase);
 		Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);

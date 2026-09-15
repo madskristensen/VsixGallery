@@ -5,10 +5,11 @@
 @inject VsixGallery.PublicUrl _publicUrl
 
 @{
-    ViewData["Title"] = Model.Package!.Name;
+    ViewData["Title"] = $"{Model.Package!.Name} - Visual Studio extension";
     var _desc = Model.Package.Description ?? string.Empty;
-    ViewData["Description"] = _desc[..Math.Min(_desc.Length, 200)];
-    ViewData["Image"] = $"/social/extension/{Model.Package.ID}.png";
+    ViewData["Description"] = _desc[..Math.Min(_desc.Length, 160)];
+    ViewData["CanonicalPath"] = Model.Package.DetailsLink;
+    ViewData["Image"] = $"/social/extension/{Uri.EscapeDataString(Model.Package.ID ?? string.Empty)}.png";
     ViewData["ImageWidth"] = VsixGallery.SocialCardRenderer.Width;
     ViewData["ImageHeight"] = VsixGallery.SocialCardRenderer.Height;
     ViewData["TwitterCard"] = "summary_large_image";
@@ -17,23 +18,25 @@
 
     var request = ViewContext.HttpContext.Request;
     string baseUrl = _publicUrl.GetOrigin(request);
-    var jsonLd = new Dictionary<string, object>
+    string extensionUrl = baseUrl + Model.Package.DetailsLink;
+    string authorUrl = baseUrl + Model.Package.AuthorLink;
+    string softwareId = extensionUrl + "#software";
+    var softwareApplication = new Dictionary<string, object>
     {
-        ["@context"] = "https://schema.org",
+        ["@id"] = softwareId,
         ["@type"] = "SoftwareApplication",
         ["name"] = Model.Package.Name ?? string.Empty,
         ["description"] = Model.Package.Description ?? string.Empty,
         ["image"] = baseUrl + Model.Package.Icon,
-        ["url"] = baseUrl + Model.Package.DetailsLink,
+        ["url"] = extensionUrl,
         ["applicationCategory"] = "DeveloperApplication",
         ["operatingSystem"] = "Windows",
         ["softwareVersion"] = Model.Package.Version ?? string.Empty,
         ["datePublished"] = Model.Package.DatePublished.ToString("o"),
         ["author"] = new Dictionary<string, object>
         {
-            ["@type"] = "Person",
             ["name"] = Model.Package.Author ?? string.Empty,
-            ["url"] = baseUrl + Model.Package.AuthorLink,
+            ["url"] = authorUrl,
         },
         ["downloadUrl"] = baseUrl + Model.Package.DownloadLink,
         ["offers"] = new Dictionary<string, object>
@@ -47,8 +50,49 @@
     if (!string.IsNullOrWhiteSpace(Model.Package.License) &&
         Model.Package.License.StartsWith("http", StringComparison.OrdinalIgnoreCase))
     {
-        jsonLd["license"] = Model.Package.License;
+        softwareApplication["license"] = Model.Package.License;
     }
+    var breadcrumb = new Dictionary<string, object>
+    {
+        ["@type"] = "BreadcrumbList",
+        ["itemListElement"] = new object[]
+        {
+            new Dictionary<string, object>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 1,
+                ["name"] = "Visual Studio extensions",
+                ["item"] = baseUrl + "/",
+            },
+            new Dictionary<string, object>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 2,
+                ["name"] = Model.Package.Author ?? string.Empty,
+                ["item"] = authorUrl,
+            },
+            new Dictionary<string, object>
+            {
+                ["@type"] = "ListItem",
+                ["position"] = 3,
+                ["name"] = Model.Package.Name ?? string.Empty,
+                ["item"] = extensionUrl,
+            },
+        },
+    };
+    var webPage = new Dictionary<string, object>
+    {
+        ["@type"] = "WebPage",
+        ["name"] = Model.Package.Name ?? string.Empty,
+        ["url"] = extensionUrl,
+        ["mainEntity"] = new Dictionary<string, object> { ["@id"] = softwareId },
+        ["breadcrumb"] = breadcrumb,
+    };
+    var jsonLd = new Dictionary<string, object>
+    {
+        ["@context"] = "https://schema.org",
+        ["@graph"] = new object[] { webPage, softwareApplication },
+    };
     string jsonLdScript = JsonSerializer.Serialize(jsonLd, new JsonSerializerOptions { WriteIndented = false });
 
     // Register this inline script's SHA-256 with the CSP so the Content-Security-Policy header allows it.

@@ -27,6 +27,21 @@ public class PackageTests
 		Assert.Equal("3 days ago", package.TimeAgo(clock));
 	}
 
+	[Fact]
+	public void PublicLinks_EncodeDynamicPathSegments()
+	{
+		Package package = new()
+		{
+			ID = "Extension With Spaces",
+			Name = "Example Extension",
+			Version = "1.0",
+		};
+
+		Assert.Equal("/extension/Extension%20With%20Spaces", package.DetailsLink);
+		Assert.Equal("/feed/extension/Extension%20With%20Spaces", package.FeedLink);
+		Assert.StartsWith("/extensions/Extension%20With%20Spaces/", package.DownloadLink);
+	}
+
 	private sealed class ManualTimeProvider(DateTimeOffset utcNow) : TimeProvider
 	{
 		public override DateTimeOffset GetUtcNow() => utcNow;

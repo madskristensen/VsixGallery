@@ -5,6 +5,7 @@ using AngleSharp.Dom;
 using Microsoft.Extensions.Caching.Memory;
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace VsixGallery;
 
@@ -89,7 +90,9 @@ public sealed class ReadmeService(
 
 			HtmlSanitizer sanitizer = CreateSanitizer();
 			string sanitized = sanitizer.Sanitize(rendered, source.AbsoluteUri);
-			return string.IsNullOrWhiteSpace(sanitized) ? null : sanitized;
+			return string.IsNullOrWhiteSpace(sanitized)
+				? null
+				: NormalizeRenderedHtml(sanitized);
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 		{
@@ -121,9 +124,21 @@ public sealed class ReadmeService(
 			{
 				link.SetAttribute("rel", "noopener noreferrer");
 			}
+			else if (args.Node is IElement { LocalName: "img" } image)
+			{
+				image.SetAttribute("loading", "lazy");
+				image.SetAttribute("decoding", "async");
+			}
 		};
 		return sanitizer;
 	}
+
+	private static string NormalizeRenderedHtml(string html) =>
+		Regex.Replace(
+			html,
+			@"(</?)h1(?=[\s>])",
+			"$1h2",
+			RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
 	private static bool IsSafeSource(string? value, [NotNullWhen(true)] out Uri? source)
 	{

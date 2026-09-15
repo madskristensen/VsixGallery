@@ -3,17 +3,20 @@
 @using System.Text.Json
 @inject VsixGallery.PublicUrl _publicUrl
 @{
-    ViewData["Title"] = ViewData["SiteName"];
-    ViewData["Description"] = "Browse all Visual Studio extensions published to this alternative VSIX gallery. Includes nightly builds and extensions not available on the official Marketplace.";
+    ViewData["Title"] = Model.CurrentPage > 1
+        ? $"Visual Studio extensions - Page {Model.CurrentPage}"
+        : ViewData["SiteName"];
+    ViewData["Description"] = Model.CurrentPage > 1
+        ? $"Browse page {Model.CurrentPage} of Visual Studio extensions, including nightly builds and extensions not available on the official Marketplace."
+        : "Browse Visual Studio extensions, nightly builds, and independent releases not available on the official Marketplace.";
     ViewData["FeedUrl"] = "/feed/";
     ViewData["FeedTitle"] = $"{ViewData["SiteName"]} – all extensions";
     ViewData["CanonicalPath"] = Model.CurrentPage > 1 ? $"/?page={Model.CurrentPage}" : "/";
 
     var request = ViewContext.HttpContext.Request;
     string baseUrl = _publicUrl.GetOrigin(request);
-    var jsonLd = new Dictionary<string, object>
+    var webSite = new Dictionary<string, object>
     {
-        ["@context"] = "https://schema.org",
         ["@type"] = "WebSite",
         ["name"] = ViewData["SiteName"] ?? string.Empty,
         ["url"] = baseUrl + "/",
@@ -27,6 +30,23 @@
             },
             ["query-input"] = "required name=search_term_string",
         },
+    };
+    var itemList = new Dictionary<string, object>
+    {
+        ["@type"] = "ItemList",
+        ["name"] = $"Visual Studio extensions - Page {Model.CurrentPage}",
+        ["itemListElement"] = Model.Packages.Select((package, index) => new Dictionary<string, object>
+        {
+            ["@type"] = "ListItem",
+            ["position"] = index + 1,
+            ["name"] = package.Name ?? string.Empty,
+            ["url"] = baseUrl + package.DetailsLink,
+        }).ToArray(),
+    };
+    var jsonLd = new Dictionary<string, object>
+    {
+        ["@context"] = "https://schema.org",
+        ["@graph"] = new object[] { webSite, itemList },
     };
     string jsonLdScript = JsonSerializer.Serialize(jsonLd, new JsonSerializerOptions { WriteIndented = false });
     ViewContext.HttpContext.AddInlineScriptHash(jsonLdScript);

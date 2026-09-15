@@ -159,16 +159,16 @@ namespace VsixGallery
 		}
 
 		public string DownloadLink =>
-			$"/extensions/{ID}/{Uri.EscapeDataString((Name ?? string.Empty) + " ")}v{Version}.vsix";
+			$"/extensions/{Uri.EscapeDataString(ID ?? string.Empty)}/{Uri.EscapeDataString((Name ?? string.Empty) + " ")}v{Version}.vsix";
 
 		public string DetailsLink =>
-			$"/extension/{ID}";
+			$"/extension/{Uri.EscapeDataString(ID ?? string.Empty)}";
 
 		public string ManagePageLink =>
-			$"/extension/{ID}/manage";
+			$"/extension/{Uri.EscapeDataString(ID ?? string.Empty)}/manage";
 
 		public string FeedLink =>
-			$"/feed/extension/{ID}";
+			$"/feed/extension/{Uri.EscapeDataString(ID ?? string.Empty)}";
 
 		public bool HasValidatorErrors =>
 			Validation.Count > 0;

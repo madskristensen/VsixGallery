@@ -12,7 +12,7 @@ public class ReadmeServiceTests
 	public async Task GetSanitizedHtmlAsync_RemovesActiveContentAndHardensLinks()
 	{
 		using StubHandler handler = new(_ => HtmlResponse(
-			"""<h1>Hello</h1><script>alert(1)</script><img src="javascript:alert(1)"><a href="javascript:alert(2)" onclick="alert(3)" style="color:red">Bad</a><a href="/docs">Safe</a>"""));
+			"""<h1>Hello</h1><script>alert(1)</script><img src="https://example.com/icon.png"><a href="javascript:alert(2)" onclick="alert(3)" style="color:red">Bad</a><a href="/docs">Safe</a>"""));
 		ReadmeService service = CreateService(handler);
 
 		string? html = await service.GetSanitizedHtmlAsync(
@@ -20,13 +20,16 @@ public class ReadmeServiceTests
 			CancellationToken.None);
 
 		Assert.NotNull(html);
-		Assert.Contains("<h1>Hello</h1>", html);
+		Assert.Contains("<h2>Hello</h2>", html);
+		Assert.DoesNotContain("<h1", html, StringComparison.OrdinalIgnoreCase);
 		Assert.DoesNotContain("<script", html, StringComparison.OrdinalIgnoreCase);
 		Assert.DoesNotContain("javascript:", html, StringComparison.OrdinalIgnoreCase);
 		Assert.DoesNotContain("onclick", html, StringComparison.OrdinalIgnoreCase);
 		Assert.DoesNotContain("style=", html, StringComparison.OrdinalIgnoreCase);
 		Assert.Contains("href=\"https://raw.githubusercontent.com/docs\"", html);
 		Assert.Contains("rel=\"noopener noreferrer\"", html);
+		Assert.Contains("loading=\"lazy\"", html);
+		Assert.Contains("decoding=\"async\"", html);
 	}
 
 	[Fact]

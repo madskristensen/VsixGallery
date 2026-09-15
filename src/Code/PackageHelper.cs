@@ -378,7 +378,7 @@ namespace VsixGallery
 				.Where(p => p.ID is not null)
 				.GroupBy(p => p.ID!, StringComparer.Ordinal)
 				.ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-			_packagesByAuthor = packages
+			_packagesByAuthor = listedPackages
 				.Where(p => !string.IsNullOrWhiteSpace(p.Author))
 				.GroupBy(p => p.Author!, StringComparer.OrdinalIgnoreCase)
 				.ToDictionary(

@@ -5,7 +5,14 @@
 <head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>@ViewData["Title"]</title>
+    @{
+        string siteName = ViewData["SiteName"]?.ToString() ?? "Open VSIX Gallery";
+        string pageTitle = ViewData["Title"]?.ToString() ?? siteName;
+        string documentTitle = string.Equals(pageTitle, siteName, StringComparison.Ordinal)
+            ? siteName
+            : $"{pageTitle} | {siteName}";
+    }
+    <title>@documentTitle</title>
     <meta name="description" content="@(ViewData["Description"] ?? "An alternative Visual Studio extension gallery for nightly builds.")" />
     @{
         string publicOrigin = _publicUrl.GetOrigin(Context.Request);
@@ -34,11 +41,8 @@
     @{
         string feedUrl = ViewData["FeedUrl"] as string ?? "/feed/";
         string feedTitle = ViewData["FeedTitle"] as string ?? "Gallery feed";
-        string pageTitle = ViewData["Title"]?.ToString() ?? string.Empty;
         string? pageDescription = ViewData["Description"]?.ToString();
-        string socialTitle = !string.IsNullOrWhiteSpace(pageDescription)
-            ? $"{pageTitle} – {pageDescription}"
-            : pageTitle;
+        string socialTitle = documentTitle;
         string socialDescription = pageDescription ?? "An alternative Visual Studio extension gallery for nightly builds.";
         string twitterCard = ViewData["TwitterCard"] as string ?? "summary_large_image";
         string socialImagePath = ViewData["Image"] as string ?? "/social/default.png";

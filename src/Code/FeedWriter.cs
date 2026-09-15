@@ -59,7 +59,7 @@ namespace VsixGallery
 
 			writer.WriteStartElement("link");
 			writer.WriteAttributeString("rel", "alternate");
-			writer.WriteAttributeString("href", baseUrl + "/extension/" + package.ID);
+			writer.WriteAttributeString("href", baseUrl + package.DetailsLink);
 			writer.WriteEndElement(); // link
 
 			writer.WriteStartElement("summary");
@@ -77,7 +77,9 @@ namespace VsixGallery
 
 			writer.WriteStartElement("content");
 			writer.WriteAttributeString("type", "application/octet-stream");
-			writer.WriteAttributeString("src", baseUrl + "/extensions/" + package.ID + "/extension.vsix");
+			writer.WriteAttributeString(
+				"src",
+				baseUrl + "/extensions/" + Uri.EscapeDataString(package.ID ?? string.Empty) + "/extension.vsix");
 			writer.WriteEndElement(); // content
 
 			writer.WriteStartElement("link");

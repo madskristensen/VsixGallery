@@ -38,6 +38,17 @@ namespace VsixGallery.Controllers
 					WriteUrl(writer, baseUrl + package.DetailsLink, package.DatePublished);
 				}
 
+				foreach (IGrouping<string, Package> author in helper.ListedPackages
+					.Where(package => !string.IsNullOrWhiteSpace(package.Author))
+					.GroupBy(package => package.Author!, StringComparer.OrdinalIgnoreCase)
+					.OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase))
+				{
+					WriteUrl(
+						writer,
+						baseUrl + "/author/" + Uri.EscapeDataString(author.Key),
+						author.Max(package => package.DatePublished));
+				}
+
 				writer.WriteEndElement();
 			}
 
