@@ -59,6 +59,8 @@ public class GalleryIntegrationTests
 		using HttpResponseMessage missing = await client.GetAsync("/missing-page");
 
 		Assert.Equal(HttpStatusCode.OK, home.StatusCode);
+		string homeHtml = await home.Content.ReadAsStringAsync();
+		Assert.Contains("Visual Studio extensions beyond the Marketplace", homeHtml);
 		string csp = Assert.Single(home.Headers.GetValues("Content-Security-Policy"));
 		Assert.Contains("script-src 'self'", csp);
 		Assert.Contains("style-src 'self'", csp);
@@ -75,6 +77,18 @@ public class GalleryIntegrationTests
 
 		Assert.Contains("noindex", await search.Content.ReadAsStringAsync(), StringComparison.OrdinalIgnoreCase);
 		Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+	}
+
+	[Fact]
+	public async Task Search_NoMatches_ShowsHelpfulEmptyState()
+	{
+		using GalleryApplication factory = new();
+		using HttpClient client = factory.CreateHttpsClient();
+
+		string html = await client.GetStringAsync("/search/?q=does-not-exist");
+
+		Assert.Contains("No extensions found", html);
+		Assert.Contains("Browse all extensions", html);
 	}
 
 	[Fact]
@@ -95,8 +109,31 @@ public class GalleryIntegrationTests
 		using HttpResponseMessage upload = await client.PostAsync("/api/upload", form);
 
 		Assert.Equal(HttpStatusCode.Created, upload.StatusCode);
+		using JsonDocument uploadPayload = JsonDocument.Parse(await upload.Content.ReadAsStringAsync());
+		Assert.Equal("Uploaded.Extension", uploadPayload.RootElement.GetProperty("id").GetString());
+		JsonElement warning = Assert.Single(uploadPayload.RootElement.GetProperty("validation").EnumerateArray());
+		Assert.Equal("warning", warning.GetProperty("severity").GetString());
+		Assert.Equal("icon.missing", warning.GetProperty("code").GetString());
 		string after = await client.GetStringAsync("/");
 		Assert.Contains("Uploaded Extension", after);
+	}
+
+	[Fact]
+	public async Task Upload_InvalidVsix_ReturnsStructuredValidationError()
+	{
+		using GalleryApplication factory = new();
+		using HttpClient client = factory.CreateHttpsClient();
+		using MultipartFormDataContent form = new();
+		form.Add(new ByteArrayContent("not a VSIX"u8.ToArray()), "file", "invalid.vsix");
+
+		using HttpResponseMessage response = await client.PostAsync("/api/upload", form);
+		using JsonDocument payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+		Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+		JsonElement finding = Assert.Single(
+			payload.RootElement.GetProperty("validation").EnumerateArray());
+		Assert.Equal("error", finding.GetProperty("severity").GetString());
+		Assert.Equal("package.invalid", finding.GetProperty("code").GetString());
 	}
 
 	private sealed class GalleryApplication : WebApplicationFactory<Program>

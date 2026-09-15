@@ -17,6 +17,7 @@ namespace VsixGallery.Pages
 		public string Term { get; set; } = string.Empty;
 		public int Pages { get; private set; }
 		public int CurrentPage { get; private set; }
+		public int TotalResults { get; private set; }
 
 		public SearchModel(PackageHelper helper)
 		{
@@ -34,9 +35,10 @@ namespace VsixGallery.Pages
 			}
 
 			IEnumerable<Package> listed = _helper.PackageCache.Where(p => !p.Unlisted);
-			List<Package> results = [.. Lookup(q, listed).OrderByDescending(p => p.DatePublished)];
+			List<Package> results = [.. Lookup(q, listed)];
 
-			Pages = (results.Count + _pageSize - 1) / _pageSize;
+			TotalResults = results.Count;
+			Pages = (TotalResults + _pageSize - 1) / _pageSize;
 			CurrentPage = Math.Clamp(page, 1, Math.Max(1, Pages));
 
 			Packages = results
@@ -90,7 +92,10 @@ namespace VsixGallery.Pages
 				}
 			}
 
-			return scores.OrderByDescending(e => e.Value).Select(e => e.Key);
+			return scores
+				.OrderByDescending(e => e.Value)
+				.ThenByDescending(e => e.Key.DatePublished)
+				.Select(e => e.Key);
 		}
 	}
 }

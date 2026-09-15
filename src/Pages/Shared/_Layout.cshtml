@@ -115,6 +115,7 @@
                     <button type="submit">Search</button>
                 </form>
                 <nav aria-label="Mobile">
+                    <a href="@(ViewData["FeedUrl"] as string ?? "/feed/")">Gallery Feed</a>
                     @if (ViewData["HideSetupLink"] is not true) {
                         <a href="~/feedguide">Setup Feed</a>
                     }
@@ -142,6 +143,8 @@
             </p>
         </div>
     </footer>
+
+    <div id="site-status" class="sr-only" role="status" aria-live="polite"></div>
 
     @{
         string inlineJs = VsixGallery.JsHelper.GetMinified(_env, "js/site.js");

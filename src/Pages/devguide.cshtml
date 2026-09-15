@@ -72,10 +72,34 @@
      -F "file=@@MyExtension.vsix"</pre>
 
     <p>
-        The response is JSON containing the extension page URL and the manage URL.
+        The response is JSON containing the extension page URL, manage URL, and any
+        non-blocking quality warnings found while inspecting the package.
         On the very first upload of a new extension ID, if you didn&rsquo;t supply
         <code>X-Manage-Token</code>, the manage URL will contain a one-time token
         as a query string &mdash; save the URL.
+    </p>
+
+    <details class="example">
+        <summary>Example upload response with validation warnings</summary>
+<pre>{
+  "id": "Example.Extension",
+  "name": "Example Extension",
+  "version": "1.0",
+  "manageUrl": "https://www.vsixgallery.com/extension/Example.Extension/manage",
+  "validation": [
+    {
+      "severity": "warning",
+      "code": "icon.invalid-dimensions",
+      "message": "The source icon is 48x48px. It should be at least 128x128 pixels."
+    }
+  ]
+}</pre>
+    </details>
+
+    <p>
+        Warnings do not prevent publication. Invalid or unsafe packages are rejected with
+        HTTP <code>400</code> and expose the same <code>validation</code> shape through
+        the response&rsquo;s Problem Details object.
     </p>
 </section>
 

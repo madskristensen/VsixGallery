@@ -1,0 +1,31 @@
+@model PaginationModel
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="pagination" aria-label="Pagination">
+        <p class="pagination-status">Page @Model.CurrentPage of @Model.TotalPages</p>
+        <div class="pagination-links">
+            @if (Model.CurrentPage > 1)
+            {
+                <a rel="prev" href="@Model.GetUrl(Model.CurrentPage - 1)">Previous</a>
+            }
+
+            @foreach (int pageNumber in Model.VisiblePages())
+            {
+                if (pageNumber == Model.CurrentPage)
+                {
+                    <span class="current-page" aria-current="page" aria-label="Page @(pageNumber), current page">@pageNumber</span>
+                }
+                else
+                {
+                    <a href="@Model.GetUrl(pageNumber)" aria-label="Page @pageNumber">@pageNumber</a>
+                }
+            }
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <a rel="next" href="@Model.GetUrl(Model.CurrentPage + 1)">Next</a>
+            }
+        </div>
+    </nav>
+}

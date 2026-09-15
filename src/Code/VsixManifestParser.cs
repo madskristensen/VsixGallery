@@ -43,6 +43,11 @@ namespace VsixGallery
 				Vs2010Format(doc, package);
 			}
 
+			ValidateRawExternalUrl(package, package.Repo, "repository");
+			ValidateRawExternalUrl(package, package.IssueTracker, "issue-tracker", allowRelative: true);
+			ValidateRawExternalUrl(package, package.MoreInfoUrl, "more-info");
+			ValidateRawExternalUrl(package, readmeUrl, "readme", allowRelative: true);
+
 			ApplyRepoFallback(package);
 
 			// An explicit readmeUrl from the upload always wins over whatever
@@ -182,6 +187,45 @@ namespace VsixGallery
 			}
 
 			return uri.AbsoluteUri;
+		}
+
+		private static void ValidateRawExternalUrl(
+			Package package,
+			string? value,
+			string code,
+			bool allowRelative = false)
+		{
+			if (string.IsNullOrWhiteSpace(value))
+			{
+				return;
+			}
+
+			bool isAbsolute = Uri.TryCreate(value, UriKind.Absolute, out Uri? uri);
+			if (!isAbsolute && allowRelative && !value.Contains("://", StringComparison.Ordinal))
+			{
+				return;
+			}
+
+			ValidationFinding? finding = null;
+			if (!isAbsolute ||
+				(uri!.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) ||
+				!string.IsNullOrEmpty(uri.UserInfo))
+			{
+				finding = ValidationFinding.Warning(
+					$"url.input-{code}-invalid",
+					$"The {code.Replace('-', ' ')} URL is invalid.");
+			}
+			else if (uri!.Scheme != Uri.UriSchemeHttps)
+			{
+				finding = ValidationFinding.Warning(
+					$"url.input-{code}-insecure",
+					$"The {code.Replace('-', ' ')} URL uses HTTP. Use HTTPS instead.");
+			}
+
+			if (finding is not null && !package.Validation.Any(existing => existing.Code == finding.Code))
+			{
+				package.Validation = [.. package.Validation, finding];
+			}
 		}
 
 		private static void AddExtensionList(Package package, string tempFolder)
@@ -397,7 +441,7 @@ namespace VsixGallery
 			if (required)
 			{
 				string message = string.Format("Attribute '{0}' could not be found on the '{1}' element in the .vsixmanifest file.", attribute, name);
-				throw new Exception(message);
+				throw new InvalidDataException(message);
 			}
 
 			return null;

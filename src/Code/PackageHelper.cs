@@ -152,18 +152,31 @@ namespace VsixGallery
 
 		public void Validate(Package package, string? extensionFolder = null)
 		{
-			List<string> errors = [];
+			VsixManifestParser.ApplyRepoFallback(package);
+			List<ValidationFinding> findings =
+			[
+				.. package.Validation.Where(finding =>
+					finding.Code.StartsWith("url.input-", StringComparison.Ordinal)),
+			];
+
+			AddRequiredTextFinding(findings, package.Name, 200, "name", "display name");
+			AddRequiredTextFinding(findings, package.Author, 200, "publisher", "publisher");
+			AddRequiredTextFinding(findings, package.Version, 100, "version", "version");
 
 			if (string.IsNullOrWhiteSpace(package.Icon))
 				{
-					errors.Add("Icon is missing. Must be 90x90 pixel PNG, GIF, JPEG, or WebP");
+					AddFinding(findings, ValidationFinding.Warning(
+						"icon.missing",
+						"Icon is missing. Include a square PNG, GIF, JPEG, or WebP image that is at least 128x128 pixels."));
 				}
 				else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
 						 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
 						 !package.Icon.ToLowerInvariant().EndsWith(".gif") &&
 						 !package.Icon.ToLowerInvariant().EndsWith(".webp"))
 				{
-					errors.Add("The icon must be 90x90 pixel PNG, GIF, JPEG, or WebP");
+					AddFinding(findings, ValidationFinding.Warning(
+						"icon.unsupported-format",
+						"The icon must be a PNG, GIF, JPEG, or WebP image."));
 				}
 			else
 			{
@@ -171,32 +184,137 @@ namespace VsixGallery
 					? Path.Combine(_extensionRoot, package.ID!, package.Icon!)
 					: Path.Combine(extensionFolder, package.Icon!);
 
-				if (File.Exists(iconFile))
+				if (!File.Exists(iconFile))
+				{
+					AddFinding(findings, ValidationFinding.Warning(
+						"icon.file-missing",
+						"The icon referenced by the manifest was not found in the VSIX package."));
+				}
+				else if (new FileInfo(iconFile).Length > 10_000_000)
+				{
+					AddFinding(findings, ValidationFinding.Warning(
+						"icon.file-too-large",
+						"The source icon is larger than 10 MB. Use a smaller optimized image."));
+				}
+				else
 				{
 					if (ImageDimensionReader.TryGetDimensions(iconFile, out int width, out int height))
 					{
 						package.IconWidth = width;
 						package.IconHeight = height;
 
-						if (width < 90 || height < 90 || width > 200 || height > 200)
+						if (width < 128 || height < 128)
 						{
-							errors.Add($"The icon is {width}x{height}px. It must be between 90x90 and 200x200 pixels");
+							AddFinding(findings, ValidationFinding.Warning(
+								"icon.invalid-dimensions",
+								$"The source icon is {width}x{height}px. It should be at least 128x128 pixels."));
 						}
+
+						if (width != height)
+						{
+							AddFinding(findings, ValidationFinding.Warning(
+								"icon.not-square",
+								$"The source icon is {width}x{height}px. Use a square image to avoid distortion."));
+						}
+					}
+					else
+					{
+						AddFinding(findings, ValidationFinding.Warning(
+							"icon.invalid-image",
+							"The icon referenced by the manifest could not be decoded as an image."));
 					}
 				}
 			}
 
-			if (package.Description?.Length < 40)
+			if (string.IsNullOrWhiteSpace(package.Description))
 			{
-				errors.Add("Provide a clear description. Make sure to cover why it is great and what it does");
+				AddFinding(findings, ValidationFinding.Warning(
+					"description.missing",
+					"Provide a description that explains what the extension does."));
+			}
+			else if (package.Description.Length < 40)
+			{
+				AddFinding(findings, ValidationFinding.Warning(
+					"description.too-short",
+					"Provide a clearer description of at least 40 characters that explains what the extension does."));
+			}
+			else if (package.Description.Length > 4_000)
+			{
+				AddFinding(findings, ValidationFinding.Warning(
+					"description.too-long",
+					"The description exceeds 4,000 characters. Move detailed documentation into the README."));
 			}
 
 			if (_canValidateLicenses && string.IsNullOrEmpty(package.License))
 			{
-				errors.Add("No license is specified in the .vsixmanifest");
+				AddFinding(findings, ValidationFinding.Warning(
+					"license.missing",
+					"No license is specified in the .vsixmanifest."));
 			}
 
-			package.Errors = errors;
+			ValidateHttpsUrl(findings, package.Repo, "repository");
+			ValidateHttpsUrl(findings, package.IssueTracker, "issue-tracker");
+			ValidateHttpsUrl(findings, package.ReadmeUrl, "readme");
+			ValidateHttpsUrl(findings, package.MoreInfoUrl, "more-info");
+
+			package.Validation = findings;
+		}
+
+		private static void AddRequiredTextFinding(
+			List<ValidationFinding> findings,
+			string? value,
+			int maximumLength,
+			string code,
+			string label)
+		{
+			if (string.IsNullOrWhiteSpace(value))
+			{
+				AddFinding(findings, ValidationFinding.Warning(
+					$"manifest.{code}-missing",
+					$"The manifest {label} is missing or blank."));
+			}
+			else if (value.Length > maximumLength)
+			{
+				AddFinding(findings, ValidationFinding.Warning(
+					$"manifest.{code}-too-long",
+					$"The manifest {label} exceeds {maximumLength:N0} characters."));
+			}
+		}
+
+		private static void ValidateHttpsUrl(
+			List<ValidationFinding> findings,
+			string? value,
+			string code)
+		{
+			if (string.IsNullOrWhiteSpace(value))
+			{
+				return;
+			}
+
+			if (!Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) ||
+				(uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) ||
+				!string.IsNullOrEmpty(uri.UserInfo))
+			{
+				AddFinding(findings, ValidationFinding.Warning(
+					$"url.{code}-invalid",
+					$"The {code.Replace('-', ' ')} URL is invalid."));
+			}
+			else if (uri.Scheme != Uri.UriSchemeHttps)
+			{
+				AddFinding(findings, ValidationFinding.Warning(
+					$"url.{code}-insecure",
+					$"The {code.Replace('-', ' ')} URL uses HTTP. Use HTTPS instead."));
+			}
+		}
+
+		private static void AddFinding(List<ValidationFinding> findings, ValidationFinding finding)
+		{
+			if (!findings.Any(existing =>
+				string.Equals(existing.Code, finding.Code, StringComparison.Ordinal) &&
+				string.Equals(existing.Message, finding.Message, StringComparison.Ordinal)))
+			{
+				findings.Add(finding);
+			}
 		}
 
 		private static void SetFileSize(Package package, string extensionFolder)
@@ -362,8 +480,8 @@ namespace VsixGallery
 					tokenHashToPersist = HashToken(effectiveToken);
 				}
 
+				Validate(package, tempFolder);
 				PreparePackageFolder(tempFolder, package, stagingFolder);
-				Validate(package, stagingFolder);
 				await CopyFileAsync(tempVsix, Path.Combine(stagingFolder, "extension.vsix"), cancellationToken);
 				SetFileSize(package, stagingFolder);
 				package.Sha256 = await ComputeSha256Async(tempVsix, cancellationToken);

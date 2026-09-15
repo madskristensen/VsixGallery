@@ -45,6 +45,7 @@ namespace VsixGallery
 		public string? ReadmeUrl { get; set; }
 		public string? Sha256 { get; set; }
 		public ExtensionList? ExtensionList { get; set; }
+		public IReadOnlyList<ValidationFinding> Validation { get; set; } = [];
 
 			/// <summary>
 			/// Transient management URL returned only in the upload response.
@@ -64,9 +65,6 @@ namespace VsixGallery
 			/// </summary>
 			[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
 			public bool ManageTokenIncludedInUrl { get; set; }
-
-			[JsonIgnore]
-			public IEnumerable<string>? Errors { get; set; }
 
 			/// <summary>
 			/// The size of the VSIX file in bytes.
@@ -173,7 +171,7 @@ namespace VsixGallery
 			$"/feed/extension/{ID}";
 
 		public bool HasValidatorErrors =>
-			Errors?.Any() == true;
+			Validation.Count > 0;
 
 		public bool Unlisted =>
 			!string.IsNullOrEmpty(Tags) && Tags.Contains("unlisted", StringComparison.OrdinalIgnoreCase);

@@ -103,6 +103,7 @@
                     }
                 </dd>
             }
+
         </dl>
 
         <ul id="links">
@@ -156,9 +157,6 @@
                 </details>
             </li>
         </ul>
-        <p class="provenance">
-            Packages are supplied by their publishers and are not built or reviewed by this gallery.
-        </p>
     </div>
 
     @if (Model.Package.HasValidatorErrors)
@@ -166,9 +164,9 @@
         <div id="validation">
             <h2>Validation</h2>
             <ul>
-                @foreach (var error in Model.Package!.Errors!)
+                @foreach (ValidationFinding finding in Model.Package.Validation)
                 {
-                    <li>@error</li>
+                    <li>@finding.Message</li>
                 }
             </ul>
 

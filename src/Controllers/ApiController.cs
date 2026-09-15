@@ -107,10 +107,12 @@ namespace VsixGallery.Controllers
 			catch (InvalidDataException ex)
 			{
 				logger.LogWarning(ex, "Rejected invalid VSIX upload.");
-				return Problem(
-					statusCode: StatusCodes.Status400BadRequest,
-					title: "Invalid VSIX",
-					detail: "The uploaded file is not a valid or safely extractable VSIX package.");
+				return InvalidVsixProblem(ex.Message);
+			}
+			catch (System.Xml.XmlException ex)
+			{
+				logger.LogWarning(ex, "Rejected VSIX upload with an invalid manifest.");
+				return InvalidVsixProblem("The .vsixmanifest file is not valid XML.");
 			}
 			catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 			{
@@ -124,6 +126,22 @@ namespace VsixGallery.Controllers
 					title: "Upload failed",
 					detail: $"The upload could not be processed. Trace ID: {HttpContext.TraceIdentifier}");
 			}
+		}
+
+		private ObjectResult InvalidVsixProblem(string message)
+		{
+			ProblemDetails problem = new()
+			{
+				Status = StatusCodes.Status400BadRequest,
+				Title = "Invalid VSIX",
+				Detail = "The uploaded file could not be published because it is not a valid or safely extractable VSIX package.",
+			};
+			problem.Extensions["validation"] = new[]
+			{
+				ValidationFinding.Error("package.invalid", message),
+			};
+
+			return BadRequest(problem);
 		}
 
 		[HttpDelete("extension/{id}")]

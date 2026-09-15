@@ -4,6 +4,10 @@
     @foreach (var package in Model)
     {
         <figure class="shadow @(package.HasValidatorErrors ? "invalid" : null)">
+            @if (package.HasValidatorErrors)
+            {
+                <span class="sr-only">This extension has validation warnings.</span>
+            }
             <a href="@package.DetailsLink" aria-label="@package.Name v@(package.Version)">
                 <img class="icon" src="@package.Icon" asp-append-version="true"
                     alt=""

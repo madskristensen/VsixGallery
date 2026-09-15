@@ -46,6 +46,109 @@ public class PackageHelperTests
 	}
 
 	[Fact]
+	public async Task ProcessVsix_ValidatesOriginalIconBeforeResizing()
+	{
+		using TemporaryGallery gallery = new();
+		byte[] onePixelPng = Convert.FromBase64String(
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=");
+		byte[] vsix = TestVsix.Create(
+			"Small.Icon",
+			"1.0",
+			iconPath: "icon.png",
+			iconBytes: onePixelPng);
+		using MemoryStream stream = new(vsix);
+		FormFile file = new(stream, 0, stream.Length, "file", "small-icon.vsix");
+
+		Package package = await gallery.Helper.ProcessVsix(
+			file,
+			string.Empty,
+			string.Empty,
+			string.Empty,
+			cancellationToken: CancellationToken.None);
+
+		Assert.Contains(package.Validation, finding => finding.Code == "icon.invalid-dimensions");
+	}
+
+	[Fact]
+	public void Validate_AllowsHighResolutionIcon()
+	{
+		using TemporaryGallery gallery = new();
+		string iconPath = Path.Combine(gallery.Root, "icon.png");
+		byte[] pngHeader = new byte[24];
+		new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }.CopyTo(pngHeader, 0);
+		pngHeader[18] = 0x01;
+		pngHeader[22] = 0x01;
+		File.WriteAllBytes(iconPath, pngHeader);
+		Package package = new()
+		{
+			ID = "Example.Extension",
+			Name = "Example Extension",
+			Author = "Example Publisher",
+			Version = "1.0",
+			Description = "A sufficiently detailed extension description for validation.",
+			Icon = "icon.png",
+		};
+
+		gallery.Helper.Validate(package, gallery.Root);
+
+		Assert.Equal(256, package.IconWidth);
+		Assert.Equal(256, package.IconHeight);
+		Assert.DoesNotContain(package.Validation, finding =>
+			finding.Code == "icon.invalid-dimensions");
+	}
+
+	[Fact]
+	public void Validate_ReturnsStructuredManifestAndUrlWarnings()
+	{
+		using TemporaryGallery gallery = new();
+		Package package = new()
+		{
+			ID = "Example.Extension",
+			Name = " ",
+			Author = "",
+			Version = "1.0",
+			Description = " ",
+			Repo = "http://example.com/project",
+		};
+
+		gallery.Helper.Validate(package, gallery.Root);
+
+		Assert.Contains(package.Validation, finding =>
+			finding is { Severity: "warning", Code: "manifest.name-missing" });
+		Assert.Contains(package.Validation, finding => finding.Code == "manifest.publisher-missing");
+		Assert.Contains(package.Validation, finding => finding.Code == "description.missing");
+		Assert.Contains(package.Validation, finding => finding.Code == "url.repository-insecure");
+	}
+
+	[Fact]
+	public void Validate_NormalizesRelativeIssueTrackerAndRemovesStaleWarning()
+	{
+		using TemporaryGallery gallery = new();
+		Package package = new()
+		{
+			ID = "Example.Extension",
+			Name = "Example Extension",
+			Author = "Example Publisher",
+			Version = "1.0",
+			Description = "A sufficiently detailed extension description for validation.",
+			Repo = "https://github.com/example/project",
+			IssueTracker = "issues/",
+			Validation =
+			[
+				ValidationFinding.Warning(
+					"url.issue-tracker-invalid",
+					"The issue tracker URL is invalid."),
+			],
+		};
+
+		gallery.Helper.Validate(package, gallery.Root);
+
+		Assert.Equal("https://github.com/example/project/issues/", package.IssueTracker);
+		Assert.DoesNotContain(package.Validation, finding =>
+			finding.Code == "url.issue-tracker-invalid");
+	}
+
+	[Fact]
 	public async Task ProcessVsix_RepublishPreservesExistingManageToken()
 	{
 		using TemporaryGallery gallery = new();
