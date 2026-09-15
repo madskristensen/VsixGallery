@@ -70,6 +70,30 @@ public class PackageHelperTests
 	}
 
 	[Fact]
+	public async Task ProcessVsix_ResolvesWindowsStyleManifestIconPath()
+	{
+		using TemporaryGallery gallery = new();
+		byte[] onePixelPng = Convert.FromBase64String(
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=");
+		byte[] vsix = TestVsix.Create(
+			"Nested.Icon",
+			"1.0",
+			iconPath: @"Resources\Icon.png",
+			iconBytes: onePixelPng);
+		using MemoryStream stream = new(vsix);
+		FormFile file = new(stream, 0, stream.Length, "file", "nested-icon.vsix");
+
+		Package package = await gallery.Helper.ProcessVsix(
+			file,
+			string.Empty,
+			string.Empty,
+			string.Empty,
+			cancellationToken: CancellationToken.None);
+
+		Assert.DoesNotContain(package.Validation, finding => finding.Code == "icon.file-missing");
+	}
+
+	[Fact]
 	public void Validate_AllowsHighResolutionIcon()
 	{
 		using TemporaryGallery gallery = new();

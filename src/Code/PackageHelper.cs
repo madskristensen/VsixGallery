@@ -168,27 +168,28 @@ namespace VsixGallery
 			AddRequiredTextFinding(findings, package.Version, 100, "version", "version");
 
 			if (string.IsNullOrWhiteSpace(package.Icon))
-				{
-					AddFinding(findings, ValidationFinding.Warning(
-						"icon.missing",
-						"Icon is missing. Include a square PNG, GIF, JPEG, or WebP image that is at least 128x128 pixels."));
-				}
-				else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
-						 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
-						 !package.Icon.ToLowerInvariant().EndsWith(".gif") &&
-						 !package.Icon.ToLowerInvariant().EndsWith(".webp"))
-				{
-					AddFinding(findings, ValidationFinding.Warning(
-						"icon.unsupported-format",
-						"The icon must be a PNG, GIF, JPEG, or WebP image."));
-				}
+			{
+				AddFinding(findings, ValidationFinding.Warning(
+					"icon.missing",
+					"Icon is missing. Include a square PNG, GIF, JPEG, or WebP image that is at least 128x128 pixels."));
+			}
+			else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
+					 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
+					 !package.Icon.ToLowerInvariant().EndsWith(".gif") &&
+					 !package.Icon.ToLowerInvariant().EndsWith(".webp"))
+			{
+				AddFinding(findings, ValidationFinding.Warning(
+					"icon.unsupported-format",
+					"The icon must be a PNG, GIF, JPEG, or WebP image."));
+			}
 			else
 			{
-				string iconFile = extensionFolder is null
-					? Path.Combine(_extensionRoot, package.ID!, package.Icon!)
-					: Path.Combine(extensionFolder, package.Icon!);
+				string iconRoot = extensionFolder is null
+					? PackagePath.GetContainedPath(_extensionRoot, package.ID!)
+					: extensionFolder;
+				string? iconFile = VsixManifestParser.ResolveRelativeFile(iconRoot, package.Icon);
 
-				if (!File.Exists(iconFile))
+				if (iconFile is null)
 				{
 					AddFinding(findings, ValidationFinding.Warning(
 						"icon.file-missing",
