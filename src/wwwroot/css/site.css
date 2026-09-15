@@ -348,11 +348,21 @@ body.menu-open {
 
 .section-heading {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     scroll-margin-top: 80px;
 }
 
 .section-heading h2 {
+    margin-bottom: 0;
     font-size: 1.75rem;
+}
+
+.section-heading .feed {
+    position: static;
+    flex-shrink: 0;
 }
 
 .empty-state {
