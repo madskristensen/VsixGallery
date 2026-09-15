@@ -3,13 +3,14 @@
     ViewData["Title"] = "Set up gallery feed";
     ViewData["Description"] = "Connect Open VSIX Gallery to Visual Studio to receive updates for nightly and independently published extensions.";
     ViewData["CanonicalPath"] = "/feedguide";
+    ViewData["ContentClass"] = "guide-page";
 }
 
 <h1>Set up gallery feed</h1>
 
 <p>
-    Visual Studio is capable of subscribing to extension feeds, so you will be notified
-    of any updates to extensions found in this gallery. You will only be notified of any updates to extensions that you already have installed.
+    Add Open VSIX Gallery as an extension source to discover independently published extensions
+    and receive updates for extensions you already have installed.
 </p>
 
 <section>
@@ -20,8 +21,9 @@
         <a href="https://marketplace.visualstudio.com/items?itemName=MadsKristensen.VSIXGallery-nightlybuilds">
             Open VSIX Gallery
         </a>
-        extension. It registers the main feed in Visual Studio for you. If you use Visual Studio Enterprise
-        and want to choose specific feeds instead, continue with the manual setup below.
+        extension. It registers the main feed in Visual Studio for you and is the easiest option
+        for all Visual Studio editions. Visual Studio Enterprise users can instead choose specific
+        feeds with the manual setup below.
     </p>
 </section>
 
@@ -33,19 +35,20 @@
         <dt>The main feed</dt>
         <dd>
             By subscribing to the <a href="/feed/">main feed</a> you will be notified by
-            Visual Studio whenever any of the extensions in this gallery are updated. The feed
-            contains all extensions available.
+            Visual Studio whenever a listed extension in this gallery is updated. This is the
+            best choice for most users.
         </dd>
 
         <dt>Feed per author</dt>
         <dd>
-            Each extension author has their own feed, so you can choose to subscribe to one or more
-            authors' extensions.
+            Each author page links to a feed containing that author&rsquo;s listed extensions,
+            so you can follow only the publishers you trust.
         </dd>
 
         <dt>Feed for individual extension</dt>
         <dd>
-            If you're only interested in updates to a specific extension, you can subscribe to its feed.
+            Each extension page links to its own feed. Use it when you only want updates for
+            one extension.
         </dd>
     </dl>
 </section>
@@ -53,8 +56,9 @@
 <section>
     <h2>Set up a feed manually</h2>
     <p>
-        Additional extension galleries are a Visual Studio Enterprise feature. In Visual Studio 2022,
-        open <strong>Tools &gt; Options &gt; Environment &gt; Extensions</strong>. Under
+        Additional extension galleries are a Visual Studio Enterprise feature. If you use another
+        edition, install the extension above instead. In Visual Studio, open
+        <strong>Tools &gt; Options &gt; Environment &gt; Extensions</strong>. Under
         <strong>Additional Extension Galleries</strong>, select <strong>Add</strong>.
     </p>
     <ol>

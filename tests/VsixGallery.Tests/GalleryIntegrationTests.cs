@@ -71,6 +71,8 @@ public class GalleryIntegrationTests
 		using HttpResponseMessage author = await client.GetAsync("/author/Example%20Publisher");
 		using HttpResponseMessage extension = await client.GetAsync("/extension/Public.Extension");
 		using HttpResponseMessage guide = await client.GetAsync("/devguide/");
+		using HttpResponseMessage feedGuide = await client.GetAsync("/feedguide/");
+		using HttpResponseMessage guidelines = await client.GetAsync("/guidelines");
 		using HttpResponseMessage missing = await client.GetAsync("/missing-page");
 
 		Assert.Equal(HttpStatusCode.OK, home.StatusCode);
@@ -98,6 +100,7 @@ public class GalleryIntegrationTests
 		string sitemapXml = await sitemap.Content.ReadAsStringAsync();
 		Assert.Contains("https://www.vsixgallery.com/extension/Public.Extension", sitemapXml);
 		Assert.Contains("https://www.vsixgallery.com/author/Example%20Publisher", sitemapXml);
+		Assert.Contains("https://www.vsixgallery.com/guidelines", sitemapXml);
 		Assert.DoesNotContain("Hidden.Extension", sitemapXml);
 
 		string authorHtml = await author.Content.ReadAsStringAsync();
@@ -114,11 +117,23 @@ public class GalleryIntegrationTests
 		Assert.Contains("https://www.vsixgallery.com/extension/Public.Extension", extensionHtml);
 		Assert.Contains("\"@type\":\"SoftwareApplication\"", extensionHtml);
 		Assert.Contains("\"@type\":\"BreadcrumbList\"", extensionHtml);
+		Assert.DoesNotContain("gist.github.com", extensionHtml);
 
 		string guideHtml = await guide.Content.ReadAsStringAsync();
 		Assert.Contains("rel=canonical", guideHtml);
 		Assert.Contains("https://www.vsixgallery.com/devguide", guideHtml);
 		Assert.Contains("Publish a Visual Studio extension", guideHtml);
+		Assert.Contains("guide-page", guideHtml);
+
+		string feedGuideHtml = await feedGuide.Content.ReadAsStringAsync();
+		Assert.Contains("Visual Studio Enterprise feature", feedGuideHtml);
+		Assert.Contains("guide-page", feedGuideHtml);
+
+		string guidelinesHtml = await guidelines.Content.ReadAsStringAsync();
+		Assert.Equal(HttpStatusCode.OK, guidelines.StatusCode);
+		Assert.Contains("https://www.vsixgallery.com/guidelines", guidelinesHtml);
+		Assert.Contains("icon.invalid-dimensions", guidelinesHtml);
+		Assert.Contains("Larger images are supported and scaled down", guidelinesHtml);
 
 		Assert.Contains("noindex", await search.Content.ReadAsStringAsync(), StringComparison.OrdinalIgnoreCase);
 		Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
@@ -178,6 +193,10 @@ public class GalleryIntegrationTests
 		string publicJson = await publicDetails.Content.ReadAsStringAsync();
 		Assert.DoesNotContain("manageUrl", publicJson, StringComparison.OrdinalIgnoreCase);
 		Assert.DoesNotContain("token=", publicJson, StringComparison.OrdinalIgnoreCase);
+
+		string extensionHtml = await client.GetStringAsync("/extension/Uploaded.Extension");
+		Assert.Contains("href=/guidelines", extensionHtml);
+		Assert.DoesNotContain("gist.github.com", extensionHtml);
 	}
 
 	[Fact]

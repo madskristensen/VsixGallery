@@ -171,16 +171,15 @@ namespace VsixGallery
 			{
 				AddFinding(findings, ValidationFinding.Warning(
 					"icon.missing",
-					"Icon is missing. Include a square PNG, GIF, JPEG, or WebP image that is at least 128x128 pixels."));
+					"Icon is missing. Include a square PNG, GIF, or JPEG image. The preferred display size is 128x128 pixels; larger images are supported."));
 			}
 			else if (!package.Icon.ToLowerInvariant().EndsWith(".png") &&
 					 !package.Icon.ToLowerInvariant().EndsWith(".jpg") &&
-					 !package.Icon.ToLowerInvariant().EndsWith(".gif") &&
-					 !package.Icon.ToLowerInvariant().EndsWith(".webp"))
+					 !package.Icon.ToLowerInvariant().EndsWith(".gif"))
 			{
 				AddFinding(findings, ValidationFinding.Warning(
 					"icon.unsupported-format",
-					"The icon must be a PNG, GIF, JPEG, or WebP image."));
+					"The icon must be a PNG, GIF, or JPEG image."));
 			}
 			else
 			{
@@ -212,7 +211,7 @@ namespace VsixGallery
 						{
 							AddFinding(findings, ValidationFinding.Warning(
 								"icon.invalid-dimensions",
-								$"The source icon is {width}x{height}px. It should be at least 128x128 pixels."));
+								$"The source icon is {width}x{height}px. For best results, use 128x128 pixels or larger. Larger images are supported but are never displayed above 128x128 pixels."));
 						}
 
 						if (width != height)

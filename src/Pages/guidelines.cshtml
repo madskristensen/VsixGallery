@@ -1,0 +1,38 @@
+@page
+@{
+    ViewData["Title"] = "Extension validation guidelines";
+    ViewData["Description"] = "Requirements checked by Open VSIX Gallery, with the reason for every validation warning.";
+    ViewData["CanonicalPath"] = "/guidelines";
+    ViewData["ContentClass"] = "guide-page";
+}
+
+<h1>Extension validation guidelines</h1>
+
+<p>
+    Open VSIX Gallery checks uploaded extensions against the rules below. Validation warnings
+    do not prevent publication, but resolving them improves how an extension is presented and
+    protects users from broken or unsafe metadata.
+</p>
+
+<p>
+    This list is generated from the same rule catalog used by the validator, so every warning
+    emitted by the gallery has a corresponding requirement and justification here.
+</p>
+
+@foreach (IGrouping<string, ValidationRule> group in ValidationRules.All.GroupBy(rule => rule.Category))
+{
+    <section>
+        <h2>@group.Key</h2>
+        <dl class="validation-guidelines">
+            @foreach (ValidationRule rule in group)
+            {
+                <dt id="@rule.Code">@rule.Requirement</dt>
+                <dd>
+                    <strong>Why:</strong> @rule.Justification
+                    <br />
+                    <small>Warning code: <code>@rule.Code</code></small>
+                </dd>
+            }
+        </dl>
+    </section>
+}

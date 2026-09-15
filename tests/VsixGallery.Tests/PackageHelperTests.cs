@@ -12,6 +12,19 @@ namespace VsixGallery.Tests;
 public class PackageHelperTests
 {
 	[Fact]
+	public void ValidationRules_HaveUniqueCodesAndJustifications()
+	{
+		Assert.Equal(
+			ValidationRules.All.Count,
+			ValidationRules.All.Select(rule => rule.Code).Distinct(StringComparer.Ordinal).Count());
+		Assert.All(ValidationRules.All, rule =>
+		{
+			Assert.False(string.IsNullOrWhiteSpace(rule.Requirement));
+			Assert.False(string.IsNullOrWhiteSpace(rule.Justification));
+		});
+	}
+
+	[Fact]
 	public async Task ProcessVsix_PublishesPackageAndInvalidatesGalleryCache()
 	{
 		const string id = "Example.Extension";
@@ -119,6 +132,26 @@ public class PackageHelperTests
 		Assert.Equal(256, package.IconHeight);
 		Assert.DoesNotContain(package.Validation, finding =>
 			finding.Code == "icon.invalid-dimensions");
+	}
+
+	[Fact]
+	public void Validate_RejectsWebpIcon()
+	{
+		using TemporaryGallery gallery = new();
+		Package package = new()
+		{
+			ID = "Example.Extension",
+			Name = "Example Extension",
+			Author = "Example Publisher",
+			Version = "1.0",
+			Description = "A sufficiently detailed extension description for validation.",
+			Icon = "icon.webp",
+		};
+
+		gallery.Helper.Validate(package, gallery.Root);
+
+		Assert.Contains(package.Validation, finding =>
+			finding.Code == "icon.unsupported-format");
 	}
 
 	[Fact]

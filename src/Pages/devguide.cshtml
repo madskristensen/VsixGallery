@@ -3,6 +3,7 @@
     ViewData["Title"] = "Add your extension";
     ViewData["Description"] = "Publish a Visual Studio extension to Open VSIX Gallery manually or from GitHub Actions, PowerShell, curl, or AppVeyor.";
     ViewData["CanonicalPath"] = "/devguide";
+    ViewData["ContentClass"] = "guide-page";
 }
 
 <h1>Add your extension</h1>
@@ -22,6 +23,7 @@
     <li><a href="#manage">Managing your extension</a></li>
     <li><a href="#unlisted">Unlisted extensions</a></li>
     <li><a href="#badges">Show a version badge</a></li>
+    <li><a href="/guidelines">Validation guidelines</a></li>
 </ol>
 
 <section id="how-it-works">
@@ -50,9 +52,10 @@
             <code>?issuetracker=&lt;url&gt;</code> &mdash; the issue tracker URL.
         </li>
         <li>
-            <code>?readmeUrl=&lt;url&gt;</code> &mdash; an HTTPS URL on
-            <code>raw.githubusercontent.com</code> or <code>gist.githubusercontent.com</code>
-            for a <code>README.md</code> that should be rendered on the extension details page.
+            <code>?readmeUrl=&lt;url-or-path&gt;</code> &mdash; an HTTPS URL on
+            <code>raw.githubusercontent.com</code> or <code>gist.githubusercontent.com</code>,
+            or a path such as <code>main/README.md</code> relative to the GitHub repository
+            supplied by <code>repo</code>.
         </li>
     </ul>
 
@@ -92,7 +95,7 @@
     {
       "severity": "warning",
       "code": "icon.invalid-dimensions",
-      "message": "The source icon is 48x48px. It should be at least 128x128 pixels."
+      "message": "The source icon is 48x48px. For best results, use 128x128 pixels or larger. Larger images are supported but are never displayed above 128x128 pixels."
     }
   ]
 }</pre>
@@ -101,7 +104,8 @@
     <p>
         Warnings do not prevent publication. Invalid or unsafe packages are rejected with
         HTTP <code>400</code> and expose the same <code>validation</code> shape through
-        the response&rsquo;s Problem Details object.
+        the response&rsquo;s Problem Details object. See the
+        <a href="/guidelines">validation guidelines</a> for every warning rule and its justification.
     </p>
 </section>
 
@@ -132,9 +136,22 @@ Invoke-RestMethod `
         action wraps the <code>POST /api/upload</code> call described above.
     </p>
 
+    <h3>Add publishing to an existing workflow</h3>
     <p>
-        Create a file at <code>.github/workflows/build.yaml</code> in your repository
-        with the following content:
+        If your workflow already builds a VSIX, add this step after the build. Store the manage
+        token as a repository secret named <code>VSIX_GALLERY_TOKEN</code>.
+    </p>
+
+<pre>- name: Upload to Open VSIX Gallery
+  uses: madskristensen/publish-vsixgallery@@v1
+  with:
+    vsix-file: src\bin\Release\MyExtension.vsix
+    manage-token: ${{ secrets.VSIX_GALLERY_TOKEN }}</pre>
+
+    <p>
+        If you need a complete starting point, create
+        <code>.github/workflows/build.yaml</code> and adapt the following workflow to your
+        solution, project paths, branch name, and publishing secrets:
     </p>
 
     <details class="example">
@@ -229,7 +246,7 @@ jobs:
         uses: madskristensen/publish-vsixgallery@v1
         with:
           vsix-file: ${{ github.event.repository.name }}.vsix
-          manage-token: ${{ secrets.VS_PUBLISHER_ACCESS_TOKEN }}
+          manage-token: ${{ secrets.VSIX_GALLERY_TOKEN }}
 
       - name: Publish extension to Marketplace
         if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[release]') }}
@@ -312,9 +329,8 @@ after_test:
         Every extension has a manage page at
         <code>https://www.vsixgallery.com/extension/&lt;id&gt;/manage</code>
         where you (the publisher) can delete it. Access is gated by a per-extension
-        <strong>manage token</strong> that acts as a password. The token is a soft
-        &ldquo;don&rsquo;t let randos delete my listing&rdquo; speed bump &mdash;
-        not strong authentication.
+        <strong>manage token</strong> that acts as a password. Treat it like any other
+        publishing credential: store it in a secret manager and do not commit it to source control.
     </p>
 
     <p>How the token gets set depends on what you do at upload time. This applies
@@ -358,14 +374,12 @@ after_test:
     <h2>Unlisted extensions</h2>
 
     <p>
-        An unlisted extension is one that you need to know the direct link to, otherwise it won&rsquo;t show up anywhere.
-        The only places it will show up are:
+        An unlisted extension is hidden from discovery surfaces. You need its direct link to find it.
+        It remains available from:
     </p>
 
     <ul>
         <li>Direct link (example: vsixgallery.com/extension/[ID])</li>
-        <li>Author page</li>
-        <li>Author gallery feed</li>
         <li>Extension gallery feed</li>
     </ul>
 
@@ -374,6 +388,8 @@ after_test:
     <ul>
         <li>Front page</li>
         <li>Search results</li>
+        <li>Author page</li>
+        <li>Author gallery feed</li>
         <li>Main gallery feed</li>
     </ul>
 

@@ -10,7 +10,7 @@ namespace VsixGallery.Controllers
 	[Route("sitemap.xml")]
 	public class SitemapController(PackageHelper helper, PublicUrl publicUrl) : Controller
 	{
-		private static readonly string[] _staticPaths = ["/", "/devguide", "/feedguide"];
+		private static readonly string[] _staticPaths = ["/", "/devguide", "/feedguide", "/guidelines"];
 
 		[HttpGet]
 		public IActionResult Index()

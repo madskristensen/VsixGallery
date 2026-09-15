@@ -233,6 +233,10 @@ main {
     flex: 1;
 }
 
+.container.guide-page {
+    padding-bottom: 2rem;
+}
+
 body.menu-open {
     overflow: hidden;
 }
@@ -620,6 +624,14 @@ img {
 dt {
     font-weight: 600;
     color: var(--text-primary);
+}
+
+.validation-guidelines dd {
+    margin-bottom: 1rem;
+}
+
+.validation-guidelines dd:last-child {
+    margin-bottom: 0;
 }
 
 /* ========================================

@@ -140,7 +140,7 @@
     <div class="mobile-menu-overlay" aria-hidden="true"></div>
 
     <main id="main-content" tabindex="-1">
-        <div class="container">
+        <div class="container @(ViewData["ContentClass"] ?? string.Empty)">
             @RenderBody()
         </div>
     </main>
