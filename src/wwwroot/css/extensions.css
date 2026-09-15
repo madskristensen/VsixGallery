@@ -71,10 +71,6 @@ article .download:hover {
     margin: 1px 2px;
 }
 
-.checksum {
-    word-break: break-all;
-}
-
 .provenance,
 .readme-unavailable {
     color: var(--text-secondary);
