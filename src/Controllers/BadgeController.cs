@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace VsixGallery.Controllers
 {
 	[Route("badge")]
+	[OutputCache(PolicyName = PackageHelper.GalleryGeneratedCachePolicy)]
 	public class BadgeController(PackageHelper helper) : Controller
 	{
 		[HttpGet("{id}.svg")]

@@ -48,7 +48,11 @@ public class PackageHelperTests
 		Assert.True(package.ManageTokenIncludedInUrl);
 		Assert.StartsWith("/extension/Example.Extension/manage?token=", package.ManageUrl);
 		Assert.Equal(1, gallery.CacheVersion.Value);
-		Assert.Equal([PackageHelper.GalleryCacheTag], gallery.OutputCache.EvictedTags);
+		Assert.Equal([
+			PackageHelper.GalleryCacheTag,
+			GalleryCacheVersion.ExtensionTag(id),
+			GalleryCacheVersion.AuthorTag("Example Publisher"),
+		], gallery.OutputCache.EvictedTags);
 
 		string packageFolder = Path.Combine(gallery.Root, "Example.Extension");
 		Assert.True(File.Exists(Path.Combine(packageFolder, "extension.vsix")));
@@ -58,6 +62,67 @@ public class PackageHelperTests
 
 		string token = Uri.UnescapeDataString(package.ManageUrl!.Split("?token=", 2)[1]);
 		Assert.True(gallery.Helper.ValidateManageToken(id, token));
+	}
+
+	[Theory]
+	[InlineData(false)]
+	[InlineData(true)]
+	public async Task ProcessVsix_SlowIntakeDoesNotBlockOtherMutations(bool pauseMultipartCompletion)
+	{
+		using TemporaryGallery gallery = new();
+		TaskCompletionSource paused = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		TaskCompletionSource resume = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		async Task PauseAsync(CancellationToken cancellationToken)
+		{
+			paused.SetResult();
+			await resume.Task.WaitAsync(cancellationToken);
+		}
+		using PausedUploadStream stream = new(TestVsix.Create("Slow.Extension", "1.0"),
+			pauseMultipartCompletion ? null : PauseAsync);
+		async Task<(string, string)> CompleteUploadAsync()
+		{
+			await PauseAsync(CancellationToken.None);
+			return (string.Empty, string.Empty);
+		}
+		Task<Package> slowUpload = gallery.Helper.ProcessVsix(stream, "", "", "",
+			completeUpload: pauseMultipartCompletion ? CompleteUploadAsync : null);
+		try
+		{
+			await paused.Task.WaitAsync(TimeSpan.FromSeconds(10));
+			Assert.Null(gallery.Helper.GetPackage("Slow.Extension"));
+			await gallery.PublishAsync("Fast.Extension", "1.0", "secret").WaitAsync(TimeSpan.FromSeconds(10));
+			await Task.Run(() => gallery.Helper.SoftDelete("Fast.Extension")).WaitAsync(TimeSpan.FromSeconds(10));
+			TrashedPackage trashed = Assert.Single(gallery.Helper.ListTrash());
+			Assert.True(await Task.Run(() => gallery.Helper.Restore(trashed.TrashFolder)).WaitAsync(TimeSpan.FromSeconds(10)));
+			Assert.False(slowUpload.IsCompleted);
+		}
+		finally
+		{
+			resume.TrySetResult();
+			await slowUpload;
+		}
+		Assert.NotNull(gallery.Helper.GetPackage("Slow.Extension"));
+		Assert.Empty(Directory.GetFileSystemEntries(Path.Combine(gallery.Root, PackageHelper.StagingFolderName)));
+	}
+
+	[Fact]
+	public async Task ProcessVsix_CanceledIntakeCleansStagingAndAllowsNextUpload()
+	{
+		using TemporaryGallery gallery = new();
+		using CancellationTokenSource cancellation = new();
+		TaskCompletionSource paused = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		using PausedUploadStream stream = new(TestVsix.Create("Canceled.Extension", "1.0"), async token =>
+		{
+			paused.SetResult();
+			await Task.Delay(Timeout.Infinite, token);
+		});
+		Task<Package> upload = gallery.Helper.ProcessVsix(stream, "", "", "", cancellationToken: cancellation.Token);
+		await paused.Task.WaitAsync(TimeSpan.FromSeconds(10));
+		cancellation.Cancel();
+		await Assert.ThrowsAnyAsync<OperationCanceledException>(() => upload);
+		Assert.Null(gallery.Helper.GetPackage("Canceled.Extension"));
+		Assert.Empty(Directory.GetFileSystemEntries(Path.Combine(gallery.Root, PackageHelper.StagingFolderName)));
+		await gallery.PublishAsync("Next.Extension", "1.0", "secret").WaitAsync(TimeSpan.FromSeconds(10));
 	}
 
 	[Fact]
@@ -363,6 +428,18 @@ public class PackageHelperTests
 		Assert.Empty(gallery.Helper.ListTrash());
 		Assert.False(gallery.Helper.Restore("../Example.Extension"));
 		Assert.Equal(4, gallery.CacheVersion.Value);
+	}
+
+	private sealed class PausedUploadStream(byte[] bytes, Func<CancellationToken, Task>? pause) : MemoryStream(bytes)
+	{
+		public override async Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+		{
+			if (pause is not null)
+			{
+				await pause(cancellationToken);
+			}
+			await base.CopyToAsync(destination, bufferSize, cancellationToken);
+		}
 	}
 
 	private sealed class TemporaryGallery : IDisposable

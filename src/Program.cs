@@ -44,8 +44,11 @@ builder.Services.AddHsts(options =>
 });
 
 builder.Services.AddSingleton<GalleryCacheVersion>();
+builder.Services.AddSingleton<GalleryOutputCachePolicy>();
 builder.Services.AddOutputCache(options =>
 {
+	options.SizeLimit = 32 * 1024 * 1024;
+	options.MaximumBodySize = 8 * 1024 * 1024;
 	options.AddPolicy(
 		"Gallery",
 		policy => policy
@@ -65,35 +68,20 @@ builder.Services.AddOutputCache(options =>
 		PackageHelper.GalleryPageCachePolicy,
 		policy => policy
 			.Expire(TimeSpan.FromHours(1))
-			.VaryByValue(context =>
-			{
-				long version = context.RequestServices
-					.GetRequiredService<GalleryCacheVersion>()
-					.Value;
-				return new KeyValuePair<string, string>(
-					"generation",
-					version.ToString(CultureInfo.InvariantCulture));
-			})
-			.Tag(PackageHelper.GalleryCacheTag));
+			.SetVaryByQuery(Array.Empty<string>())
+			.AddPolicy<GalleryOutputCachePolicy>());
 	options.AddPolicy(
 		PackageHelper.GalleryGeneratedCachePolicy,
 		policy => policy
 			.Expire(TimeSpan.FromDays(7))
-			.VaryByValue(context =>
-			{
-				long version = context.RequestServices
-					.GetRequiredService<GalleryCacheVersion>()
-					.Value;
-				return new KeyValuePair<string, string>(
-					"generation",
-					version.ToString(CultureInfo.InvariantCulture));
-			})
-			.Tag(PackageHelper.GalleryCacheTag));
+			.SetVaryByQuery("id")
+			.AddPolicy<GalleryOutputCachePolicy>());
 });
 builder.Services
 	.AddHealthChecks()
 	.AddCheck<ExtensionStorageHealthCheck>("extension_storage", tags: ["ready"]);
 builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ReadmeCache>();
 builder.Services.AddHttpClient<ReadmeService>(client =>
 {
 	client.BaseAddress = new Uri("https://markdownservice.azurewebsites.net/");

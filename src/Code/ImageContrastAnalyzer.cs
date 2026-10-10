@@ -21,7 +21,7 @@ namespace VsixGallery
 			result = default;
 			try
 			{
-				using SKBitmap bitmap = SKBitmap.Decode(path);
+				using SKBitmap? bitmap = BoundedImageDecoder.Decode(path, 128);
 				if (bitmap is null || bitmap.Width <= 0 || bitmap.Height <= 0)
 				{
 					return false;

@@ -113,8 +113,81 @@ public class ReadmeServiceTests
 		{
 			BaseAddress = new Uri("https://markdownservice.azurewebsites.net/"),
 		};
-		MemoryCache cache = new(new MemoryCacheOptions());
+		ReadmeCache cache = new();
 		return new ReadmeService(client, cache, NullLogger<ReadmeService>.Instance);
+	}
+
+	[Fact]
+	public async Task ConcurrentMisses_AcrossServiceInstances_FetchOnce()
+	{
+		using ReadmeCache cache = new();
+		using BlockingHandler handler = new();
+		using HttpClient client = new(handler) { BaseAddress = new Uri("https://markdownservice.azurewebsites.net/") };
+		ReadmeService first = new(client, cache, NullLogger<ReadmeService>.Instance);
+		ReadmeService second = new(client, cache, NullLogger<ReadmeService>.Instance);
+		const string url = "https://raw.githubusercontent.com/example/project/main/README.md";
+		Task<string?> leader = first.GetSanitizedHtmlAsync(url, CancellationToken.None);
+		await handler.Started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		Task<string?>[] waiters = Enumerable.Range(0, 20)
+			.Select(_ => second.GetSanitizedHtmlAsync(url, CancellationToken.None)).ToArray();
+		handler.Release.SetResult();
+
+		Assert.Equal("<p>Shared</p>", await leader);
+		Assert.All(await Task.WhenAll(waiters), html => Assert.Equal("<p>Shared</p>", html));
+		Assert.Equal(1, handler.RequestCount);
+	}
+
+	[Fact]
+	public async Task CancellingWaiter_DoesNotCancelSharedFetch()
+	{
+		using ReadmeCache cache = new();
+		using BlockingHandler handler = new();
+		using HttpClient client = new(handler) { BaseAddress = new Uri("https://markdownservice.azurewebsites.net/") };
+		ReadmeService service = new(client, cache, NullLogger<ReadmeService>.Instance);
+		const string url = "https://raw.githubusercontent.com/example/project/main/README.md";
+		Task<string?> leader = service.GetSanitizedHtmlAsync(url, CancellationToken.None);
+		await handler.Started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		using CancellationTokenSource cancellation = new();
+		Task<string?> waiter = service.GetSanitizedHtmlAsync(url, cancellation.Token);
+		cancellation.Cancel();
+		await Assert.ThrowsAnyAsync<OperationCanceledException>(() => waiter);
+		handler.Release.SetResult();
+
+		Assert.Equal("<p>Shared</p>", await leader);
+		Assert.Equal("<p>Shared</p>", await service.GetSanitizedHtmlAsync(url, CancellationToken.None));
+		Assert.Equal(1, handler.RequestCount);
+	}
+
+	[Fact]
+	public async Task Cache_RespectsByteBudget_WithoutLosingRenderedResponse()
+	{
+		using ReadmeCache cache = new(1_024);
+		using StubHandler handler = new(_ => HtmlResponse("<p>" + new string('x', 300) + "</p>"));
+		using HttpClient client = new(handler) { BaseAddress = new Uri("https://markdownservice.azurewebsites.net/") };
+		ReadmeService service = new(client, cache, NullLogger<ReadmeService>.Instance);
+		for (int i = 0; i < 10; i++)
+		{
+			string? html = await service.GetSanitizedHtmlAsync(
+				$"https://raw.githubusercontent.com/example/project{i}/main/README.md", CancellationToken.None);
+			Assert.Contains(new string('x', 300), html);
+		}
+
+		Assert.InRange(cache.Cache.Count, 0, 1);
+	}
+
+	private sealed class BlockingHandler : HttpMessageHandler
+	{
+		public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		public int RequestCount;
+
+		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		{
+			Interlocked.Increment(ref RequestCount);
+			Started.TrySetResult();
+			await Release.Task.WaitAsync(cancellationToken);
+			return HtmlResponse("<p>Shared</p>");
+		}
 	}
 
 	private static HttpResponseMessage HtmlResponse(string html) =>

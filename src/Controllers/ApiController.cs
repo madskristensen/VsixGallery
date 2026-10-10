@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace VsixGallery.Controllers
@@ -53,12 +57,9 @@ namespace VsixGallery.Controllers
 		}
 
 		[HttpPost("upload"), RequestSizeLimit(500_000_000)]
-		public async Task<IActionResult> Upload(
-			[FromQuery] string? repo,
-			string? issuetracker,
-			string? readmeUrl,
-			CancellationToken cancellationToken)
+		public async Task<IActionResult> Upload()
 		{
+			CancellationToken cancellationToken = HttpContext.RequestAborted;
 			if (!IsAuthorized())
 			{
 				return Unauthorized();
@@ -66,8 +67,33 @@ namespace VsixGallery.Controllers
 
 			try
 			{
-				IFormCollection form = await Request.ReadFormAsync(cancellationToken);
-				if (form.Files.Count == 0)
+				// Avoid MVC's form value providers: even query binding can trigger
+				// ReadFormAsync and spool the entire archive before this action runs.
+				string? repo = Request.Query["repo"].FirstOrDefault();
+				string? issuetracker = Request.Query["issuetracker"].FirstOrDefault();
+				string? readmeUrl = Request.Query["readmeUrl"].FirstOrDefault();
+				FormOptions limits = HttpContext.RequestServices.GetRequiredService<IOptions<FormOptions>>().Value;
+				if (!MediaTypeHeaderValue.TryParse(Request.ContentType, out MediaTypeHeaderValue? contentType) ||
+					!contentType.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
+				{
+					throw new InvalidDataException("The upload must use multipart/form-data.");
+				}
+				string? boundary = HeaderUtilities.RemoveQuotes(contentType.Boundary).Value;
+				if (string.IsNullOrWhiteSpace(boundary) || boundary.Length > limits.MultipartBoundaryLengthLimit)
+				{
+					throw new InvalidDataException("The multipart boundary is missing or too long.");
+				}
+
+				MultipartReader reader = new(boundary, Request.Body)
+				{
+					HeadersCountLimit = limits.MultipartHeadersCountLimit,
+					HeadersLengthLimit = limits.MultipartHeadersLengthLimit,
+					BodyLengthLimit = limits.MultipartBodyLengthLimit,
+				};
+				int sectionCount = 0;
+				Dictionary<string, string> fields = new(StringComparer.OrdinalIgnoreCase);
+				MultipartSection? fileSection = await ReadToFileAsync();
+				if (fileSection is null)
 				{
 					return Problem(
 						statusCode: StatusCodes.Status400BadRequest,
@@ -84,12 +110,75 @@ namespace VsixGallery.Controllers
 				}
 
 				Package package = await helper.ProcessVsix(
-					form.Files[0],
+					fileSection.Body,
 					repo ?? string.Empty,
 					issuetracker ?? string.Empty,
 					readmeUrl ?? string.Empty,
 					manageToken,
-					cancellationToken);
+					cancellationToken,
+					async () =>
+					{
+						MultipartSection? extraFile;
+						while ((extraFile = await ReadToFileAsync()) is not null)
+						{
+							await extraFile.Body.CopyToAsync(Stream.Null, cancellationToken);
+						}
+						return (
+							Request.Query.ContainsKey("issuetracker") ? issuetracker ?? string.Empty : fields.GetValueOrDefault("issuetracker", string.Empty),
+							Request.Query.ContainsKey("readmeUrl") ? readmeUrl ?? string.Empty : fields.GetValueOrDefault("readmeUrl", string.Empty));
+					});
+
+				async Task<MultipartSection?> ReadToFileAsync()
+				{
+					MultipartSection? section;
+					while ((section = await reader.ReadNextSectionAsync(cancellationToken)) is not null)
+					{
+						if (++sectionCount > limits.ValueCountLimit)
+						{
+							throw new InvalidDataException("The upload contains too many form sections.");
+						}
+						if (!ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out ContentDispositionHeaderValue? disposition) ||
+							!disposition.DispositionType.Equals("form-data", StringComparison.OrdinalIgnoreCase))
+						{
+							throw new InvalidDataException("The multipart content disposition is invalid.");
+						}
+						if (!string.IsNullOrEmpty(HeaderUtilities.RemoveQuotes(disposition.FileName).Value) ||
+							!string.IsNullOrEmpty(HeaderUtilities.RemoveQuotes(disposition.FileNameStar).Value))
+						{
+							return section;
+						}
+
+						string key = HeaderUtilities.RemoveQuotes(disposition.Name).Value ?? string.Empty;
+						if (key.Length > limits.KeyLengthLimit) throw new InvalidDataException("The form key is too long.");
+						Encoding encoding = Encoding.UTF8;
+						if (MediaTypeHeaderValue.TryParse(section.ContentType, out MediaTypeHeaderValue? fieldType) && fieldType.Charset.HasValue)
+						{
+							try
+							{
+								encoding = Encoding.GetEncoding(HeaderUtilities.RemoveQuotes(fieldType.Charset).Value!);
+								if (encoding.CodePage == 65000) encoding = Encoding.UTF8;
+							}
+							catch (ArgumentException ex)
+							{
+								throw new InvalidDataException("The form field encoding is invalid.", ex);
+							}
+						}
+						using StreamReader fieldReader = new(section.Body, encoding, detectEncodingFromByteOrderMarks: true, leaveOpen: true);
+						StringBuilder value = new();
+						char[] buffer = new char[1_024];
+						int count;
+						while ((count = await fieldReader.ReadAsync(buffer.AsMemory(), cancellationToken)) != 0)
+						{
+							if (count > limits.ValueLengthLimit - value.Length) throw new InvalidDataException("The form value is too long.");
+							value.Append(buffer, 0, count);
+						}
+						if (key.Equals("issuetracker", StringComparison.OrdinalIgnoreCase) || key.Equals("readmeUrl", StringComparison.OrdinalIgnoreCase))
+						{
+							fields.TryAdd(key, value.ToString());
+						}
+					}
+					return null;
+				}
 
 				// Surface the absolute manage URL so non-Actions publishers can
 				// see it directly in the upload response body.
@@ -108,6 +197,15 @@ namespace VsixGallery.Controllers
 			{
 				logger.LogWarning(ex, "Rejected invalid VSIX upload.");
 				return InvalidVsixProblem(ex.Message);
+			}
+			catch (IOException ex) when (ex.Message.StartsWith("Unexpected end of Stream", StringComparison.Ordinal))
+			{
+				logger.LogWarning(ex, "Rejected truncated multipart upload.");
+				return InvalidVsixProblem("The multipart upload ended unexpectedly.");
+			}
+			catch (BadHttpRequestException ex)
+			{
+				return Problem(statusCode: ex.StatusCode, title: "Invalid upload", detail: ex.Message);
 			}
 			catch (System.Xml.XmlException ex)
 			{

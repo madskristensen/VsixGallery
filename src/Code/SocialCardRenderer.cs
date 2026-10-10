@@ -116,7 +116,7 @@ namespace VsixGallery
 		{
 			try
 			{
-				using SKBitmap bitmap = SKBitmap.Decode(iconPath);
+				using SKBitmap? bitmap = BoundedImageDecoder.Decode(iconPath, size);
 				if (bitmap == null)
 				{
 					DrawIconPlaceholder(canvas, x, y, size);
@@ -246,7 +246,7 @@ namespace VsixGallery
 				{
 					try
 					{
-						using SKBitmap bitmap = SKBitmap.Decode(logoPath);
+						using SKBitmap? bitmap = BoundedImageDecoder.Decode(logoPath!, logoSize);
 						if (bitmap != null)
 						{
 							using SKImage image = SKImage.FromBitmap(bitmap);

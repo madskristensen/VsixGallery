@@ -7,26 +7,13 @@ namespace VsixGallery
 {
 	public class VsixManifestParser
 	{
-		private const long MaxManifestBytes = 2_000_000;
-		private const long MaxMetadataFileBytes = 2_000_000;
+		internal const long MaxManifestBytes = 2_000_000;
+		internal const long MaxMetadataFileBytes = 2_000_000;
 
 		public Package CreateFromManifest(string tempFolder, string repo, string issuetracker, string readmeUrl)
 		{
 			string manifestPath = Path.Combine(tempFolder, "extension.vsixmanifest");
-			EnsureFileSize(manifestPath, MaxManifestBytes, "The VSIX manifest is too large.");
-			string xml = File.ReadAllText(manifestPath);
-			xml = Regex.Replace(xml, "( xmlns(:\\w+)?)=\"([^\"]+)\"", string.Empty);
-
-			XmlReaderSettings settings = new()
-			{
-				DtdProcessing = DtdProcessing.Prohibit,
-				XmlResolver = null,
-				MaxCharactersInDocument = 2_000_000,
-			};
-			using StringReader textReader = new(xml);
-			using XmlReader reader = XmlReader.Create(textReader, settings);
-			XmlDocument doc = new() { XmlResolver = null };
-			doc.Load(reader);
+			XmlDocument doc = LoadManifest(manifestPath);
 
 			Package package = new()
 			{
@@ -71,6 +58,31 @@ namespace VsixGallery
 			AddExtensionList(package, tempFolder);
 
 			return package;
+		}
+
+		internal static (string? Icon, string? License) GetReferencedFiles(string manifestPath)
+		{
+			XmlDocument doc = LoadManifest(manifestPath);
+			return (ParseNode(doc, "Icon", false), ParseNode(doc, "License", false));
+		}
+
+		private static XmlDocument LoadManifest(string manifestPath)
+		{
+			EnsureFileSize(manifestPath, MaxManifestBytes, "The VSIX manifest is too large.");
+			string xml = File.ReadAllText(manifestPath);
+			xml = Regex.Replace(xml, "( xmlns(:\\w+)?)=\"([^\"]+)\"", string.Empty);
+
+			XmlReaderSettings settings = new()
+			{
+				DtdProcessing = DtdProcessing.Prohibit,
+				XmlResolver = null,
+				MaxCharactersInDocument = 2_000_000,
+			};
+			using StringReader textReader = new(xml);
+			using XmlReader reader = XmlReader.Create(textReader, settings);
+			XmlDocument doc = new() { XmlResolver = null };
+			doc.Load(reader);
+			return doc;
 		}
 
 		// Fills in Repo, IssueTracker, and ReadmeUrl when the uploader didn't

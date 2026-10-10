@@ -11,7 +11,7 @@ namespace VsixGallery;
 
 public sealed class ReadmeService(
 	HttpClient httpClient,
-	IMemoryCache cache,
+	ReadmeCache readmeCache,
 	ILogger<ReadmeService> logger)
 {
 	private const int MaxResponseBytes = 2_000_000;
@@ -31,17 +31,35 @@ public sealed class ReadmeService(
 		}
 
 		string cacheKey = "readme:" + source.AbsoluteUri;
-		if (cache.TryGetValue(cacheKey, out ReadmeCacheEntry? cached))
+		if (readmeCache.Cache.TryGetValue(cacheKey, out ReadmeCacheEntry? cached))
 		{
 			return cached?.Html;
 		}
 
-		string? html = await FetchWithFallbackAsync(source, cancellationToken);
-		cache.Set(
-			cacheKey,
-			new ReadmeCacheEntry(html),
-			html is null ? _failureCacheDuration : _successCacheDuration);
-		return html;
+		SemaphoreSlim gate = readmeCache.GetLock(cacheKey);
+		await gate.WaitAsync(cancellationToken);
+		try
+		{
+			if (readmeCache.Cache.TryGetValue(cacheKey, out cached))
+			{
+				return cached?.Html;
+			}
+
+			string? html = await FetchWithFallbackAsync(source, cancellationToken);
+			readmeCache.Cache.Set(
+				cacheKey,
+				new ReadmeCacheEntry(html),
+				new MemoryCacheEntryOptions
+				{
+					AbsoluteExpirationRelativeToNow = html is null ? _failureCacheDuration : _successCacheDuration,
+					Size = 128L + (cacheKey.Length * 2L) + ((html?.Length ?? 0) * 2L),
+				});
+			return html;
+		}
+		finally
+		{
+			gate.Release();
+		}
 	}
 
 	private async Task<string?> FetchWithFallbackAsync(Uri source, CancellationToken cancellationToken)
