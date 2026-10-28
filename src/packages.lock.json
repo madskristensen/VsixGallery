@@ -20,38 +20,38 @@
       },
       "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": {
         "type": "Direct",
-        "requested": "[10.0.12, )",
-        "resolved": "10.0.12",
-        "contentHash": "KPTkhWNPUAoYtUJH/b/iGjiKAwDKPI7eeOhzyyIUlZtUGZ8ireVP254J1JXqHb/1XIGo8XJk9gf1P1KZFxd68w==",
+        "requested": "[10.0.14, )",
+        "resolved": "10.0.14",
+        "contentHash": "etcBvy3OyYRRTrSS2BFkg9WY9PqgRIp3Xe8AOCYhGxjYh6HFTnF9VD7NvubjWuezMkBLv1JB7x6wFpHCMt0Y7A==",
         "dependencies": {
           "Microsoft.AspNetCore.Mvc.Razor.Extensions": "6.0.0",
           "Microsoft.CodeAnalysis.Razor": "6.0.0",
-          "Microsoft.Extensions.DependencyModel": "10.0.12"
+          "Microsoft.Extensions.DependencyModel": "10.0.14"
         }
       },
       "SkiaSharp": {
         "type": "Direct",
-        "requested": "[4.151.2, )",
-        "resolved": "4.151.2",
-        "contentHash": "zqcEy5E17Tqoh2tEvb4uC2G3ulli5YdsljzZuf93pCc/9gQDMx9VrUInxiqkLMGt+MjQi8hNrf1Uxmq25yyU3A==",
+        "requested": "[4.154.0, )",
+        "resolved": "4.154.0",
+        "contentHash": "R3BuszJ3tUFmni37nZIRawXL0yx+XHyx7xi1716/0TybuEQFhnBx48Ig3rFpeVFQVytpGpJZZ+NLW9d9UPG7EA==",
         "dependencies": {
-          "SkiaSharp.NativeAssets.Win32": "4.151.2",
-          "SkiaSharp.NativeAssets.macOS": "4.151.2"
+          "SkiaSharp.NativeAssets.Win32": "4.154.0",
+          "SkiaSharp.NativeAssets.macOS": "4.154.0"
         }
       },
       "SkiaSharp.NativeAssets.Linux": {
         "type": "Direct",
-        "requested": "[4.151.2, )",
-        "resolved": "4.151.2",
-        "contentHash": "TSeXS5j73N9+avlMn72Q8DC+EGi2LW7Gh7INHTkTo4bVpkEQu32D7tTWvP5LhZ+Fto9Ld6lih7UMwm+V3AQyCQ=="
+        "requested": "[4.154.0, )",
+        "resolved": "4.154.0",
+        "contentHash": "OCnXgj54PXqd0S9FXbOUIlJEuJF4SWKK/rr5R2KnixaUayLQDNu3W/g0vOeFapxarO/LxmYIvC+nx2arxNjiiQ=="
       },
       "WebMarkupMin.AspNetCoreLatest": {
         "type": "Direct",
-        "requested": "[2.22.3, )",
-        "resolved": "2.22.3",
-        "contentHash": "iq77ImZmE1RrFQDVY9q2iYzHStu8hTd5YYKxwNwXft/2vUUXeS2y20p5pXzVkzV+sIjP1aNi1IkNVEgM2j+h1w==",
+        "requested": "[2.23.0, )",
+        "resolved": "2.23.0",
+        "contentHash": "EZFdg6C3kcHhiUMHcOOctmEwLhKDCehDUhEsknxawIvekiBtVah0xnHCJGw43wx8D8k5+cAnpRDoxlgdc03FZw==",
         "dependencies": {
-          "WebMarkupMin.AspNet.Common": "2.21.0"
+          "WebMarkupMin.AspNet.Common": "2.23.0"
         }
       },
       "AdvancedStringBuilder": {
@@ -119,31 +119,31 @@
       },
       "Microsoft.Extensions.DependencyModel": {
         "type": "Transitive",
-        "resolved": "10.0.12",
-        "contentHash": "rDPQVTxh/zMTDF7wHlRqL/jjZbwjAP6315ydBxj51pZW7qkAwGwjoSiMutxYI91xmOE3ZXjAGHbYRqzyJV7Urw=="
+        "resolved": "10.0.14",
+        "contentHash": "N8OcqM0370wSXMJ3ZxO66rSElHrIgxvpfUn0vV7zRj7NvKo0nfwgEoTmC3Yz3860o60IaQ4KIPyeLIGX9EeNWA=="
       },
       "SkiaSharp.NativeAssets.macOS": {
         "type": "Transitive",
-        "resolved": "4.151.2",
-        "contentHash": "hDGy20k1DJZuKcdbHjwaOfsPeQYY9ty8wJeG1qzJWidPUzrwwvVtTLpDdTiP1M89UWbEYyWAhZo9qOaoYae6iQ=="
+        "resolved": "4.154.0",
+        "contentHash": "GgYL4ML3HT4CW33oXMHdp7BSRU87bPUfWBXdYgNduGlt4GAbAM/3eXcjjUdilS0H1r2R5iBhwvExCfSYGwFKlw=="
       },
       "SkiaSharp.NativeAssets.Win32": {
         "type": "Transitive",
-        "resolved": "4.151.2",
-        "contentHash": "sTUHSfWXVYThf/lTG81n8y1gMnr0TiN/2zrApwd0jbGfbsEt9g4+GPsj6UVjjgNLXCI9l5CyzxQ6Zh4fP9ZoVQ=="
+        "resolved": "4.154.0",
+        "contentHash": "GXgoY77GCXdPcveNAmy8o3gVit8sp6YtnI88h5camLPfihjulwJUajZXKhgVuZ8RhuwSTgfyt/00Dx8HRUSeAA=="
       },
       "WebMarkupMin.AspNet.Common": {
         "type": "Transitive",
-        "resolved": "2.21.0",
-        "contentHash": "q2Y5Cej6UXTdT7zDA5d1XMnr8jZBRTwJxRjGui/faBPXYlvUWy4Qij2fqfpsTxprYc96A+vUoxl0belNNCEOcQ==",
+        "resolved": "2.23.0",
+        "contentHash": "L2rWLhYPciHlWCXgfgqRTtjwOcGzHMTKywEKNYpoBlBDbr0NixLCCizDcMiQm741Mj7wPfZn6eXe15ymE+Io4A==",
         "dependencies": {
-          "WebMarkupMin.Core": "2.21.0"
+          "WebMarkupMin.Core": "2.23.0"
         }
       },
       "WebMarkupMin.Core": {
         "type": "Transitive",
-        "resolved": "2.21.0",
-        "contentHash": "/8zGdjDObXPadupzjV0iixXWgFTvh17n78ZFsWmnLy5us3i3ZaE5HD7P2HJFOe9ZiaWVxZOVQ3gDNvzMmG1VPQ==",
+        "resolved": "2.23.0",
+        "contentHash": "h+Sy/aov7PqbRCd+EhXPDxpr44hhlOfS0VtrbpzCovO6fm0sxVUHh5QttlfNMPGzRG/JI/kW0+BolqYbvc/XxA==",
         "dependencies": {
           "AdvancedStringBuilder": "0.2.0"
         }
